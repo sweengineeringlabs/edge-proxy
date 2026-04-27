@@ -6,7 +6,7 @@ license = "MIT"
 repository = "https://github.com/sweengineeringlabs/edge"
 authors = ["SWE Engineering Labs"]
 rust-version = "1.75"
-description = "edge — L2 Proxy: 5-concern facade (Job, Router, Handler, LifecycleMonitor)"
+description = "edge — L2 Proxy: dispatch facade (Job, Router, LifecycleMonitor)"
 keywords = ["proxy", "orchestration", "facade", "sea", "swe"]
 categories = ["development-tools"]
 
@@ -15,6 +15,7 @@ thiserror = "2"
 async-trait = "0.1"
 serde = { version = "1", features = ["derive"] }
 parking_lot = "0.12"
+edge-domain = { path = "../domain" }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt"] }
