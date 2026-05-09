@@ -9,8 +9,7 @@
 //! SEA layer boundaries kept explicit:
 //!   - `edge_domain::` — Handler + HandlerRegistry contracts and their SAF factory
 //!   - `edge_proxy::` — Job + Router + LifecycleMonitor contracts and their SAF factory
-
-use std::any::Any;
+
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -40,9 +39,6 @@ impl Handler<Request, Response> for EchoHandler {
     async fn execute(&self, req: Request) -> Result<Response, HandlerError> {
         Ok(Response { handler: self.id().into(), output: req.payload })
     }
-
-    async fn health_check(&self) -> bool { true }
-    fn as_any(&self) -> &dyn Any { self }
 }
 
 // ── Router ────────────────────────────────────────────────────────────────────
