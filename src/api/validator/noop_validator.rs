@@ -3,6 +3,7 @@
 use crate::api::traits::Validator;
 
 /// Marker supertrait for always-passing validator implementations.
+#[allow(dead_code)]
 pub trait NoopValidator: Validator<Target = (), Error = std::convert::Infallible> {}
 
 #[cfg(test)]

@@ -3,6 +3,7 @@
 use crate::api::traits::Validator;
 
 /// A no-op validator that accepts every input without inspection.
+#[allow(dead_code)]
 pub(crate) struct NoopValidator;
 
 impl crate::api::validator::noop_validator::NoopValidator for NoopValidator {}

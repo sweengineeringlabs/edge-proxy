@@ -3,6 +3,7 @@
 use crate::api::lifecycle_monitor::LifecycleMonitor;
 
 /// Marker trait for no-op lifecycle monitor implementations.
+#[allow(dead_code)]
 pub trait Monitor: LifecycleMonitor + Send + Sync {}
 
 #[cfg(test)]
