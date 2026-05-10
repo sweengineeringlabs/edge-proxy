@@ -14,3 +14,7 @@ pub mod router;
 pub mod lifecycle_monitor;
 
 pub mod traits;
+pub mod proxy_pattern;
+
+pub mod null_lifecycle_monitor;
+pub mod validator;

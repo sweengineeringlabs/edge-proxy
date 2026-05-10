@@ -23,4 +23,16 @@ mod tests {
         let m = new_null_lifecycle_monitor();
         assert_eq!(m.health().await.overall, HealthStatus::Healthy);
     }
+
+    /// @covers: new_null_lifecycle_monitor
+    #[tokio::test]
+    async fn test_new_null_lifecycle_monitor_is_healthy_on_construction() {
+        let m = new_null_lifecycle_monitor();
+        assert_eq!(m.health().await.overall, HealthStatus::Healthy);
+    }
+
+    #[test]
+    fn test_new_null_lifecycle_monitor_returns_arc() {
+        let _m = new_null_lifecycle_monitor();
+    }
 }

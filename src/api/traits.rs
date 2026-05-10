@@ -1,12 +1,29 @@
-//! 5-Concern Proxy pattern marker — surfaced in rustdoc for discoverability.
+//! Shared trait contracts required for all non-orchestrator proxy crates.
 
-/// Marker type naming the five concerns for discoverability in docs.
-///
-/// Traits implementing each concern:
-/// 1. **Job** — [`crate::Job`]
-/// 2. **Routing** — [`crate::Router`]
-/// 3. **Handlers** — [`crate::Handler`]
-/// 4. **Lifecycle** — [`crate::LifecycleMonitor`]
-/// 5. **Gateway (boundary types)** — `crate::gateway` module (internal)
-#[allow(dead_code)]
-pub struct ProxyPattern;
+/// Validates a value before it enters the dispatch pipeline.
+pub trait Validator: Send + Sync {
+    /// The type being validated.
+    type Target;
+    /// The error type returned on validation failure.
+    type Error;
+
+    /// Validate `value`, returning `Ok(())` if it passes or `Err` with a reason.
+    fn validate(&self, value: &Self::Target) -> Result<(), Self::Error>;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct AlwaysOk;
+    impl Validator for AlwaysOk {
+        type Target = ();
+        type Error  = String;
+        fn validate(&self, _: &()) -> Result<(), String> { Ok(()) }
+    }
+
+    #[test]
+    fn test_validator_ok_impl_returns_ok() {
+        assert!(AlwaysOk.validate(&()).is_ok());
+    }
+}

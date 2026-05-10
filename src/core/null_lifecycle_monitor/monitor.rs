@@ -12,6 +12,7 @@ use parking_lot::Mutex;
 use crate::api::error::LifecycleError;
 use crate::api::health::{HealthReport, HealthStatus};
 use crate::api::lifecycle_monitor::LifecycleMonitor;
+use crate::api::null_lifecycle_monitor::NullLifecycleMonitorApi;
 
 /// No-op lifecycle monitor suitable for tests and early bring-up.
 ///
@@ -34,6 +35,9 @@ impl Default for NullLifecycleMonitor {
         Self::new()
     }
 }
+
+impl NullLifecycleMonitorApi for NullLifecycleMonitor {}
+impl crate::api::null_lifecycle_monitor::Monitor for NullLifecycleMonitor {}
 
 #[async_trait]
 impl LifecycleMonitor for NullLifecycleMonitor {
@@ -63,6 +67,13 @@ impl LifecycleMonitor for NullLifecycleMonitor {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_new_creates_monitor_in_running_state() {
+        let m = NullLifecycleMonitor::new();
+        // New monitor starts in "not shut down" state
+        assert!(!*m.shut_down.lock());
+    }
 
     #[tokio::test]
     async fn test_starts_healthy() {

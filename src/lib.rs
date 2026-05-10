@@ -27,6 +27,6 @@ mod api;
 mod core;
 mod gateway;
 
-pub mod saf;
+mod saf;
 
-pub use saf::*;
+pub use gateway::*;

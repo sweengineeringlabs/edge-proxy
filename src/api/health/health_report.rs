@@ -1,54 +1,9 @@
-//! Health types shared by the `LifecycleMonitor` and `Handler` concerns.
+//! HealthReport — aggregated health report returned by `LifecycleMonitor::health`.
 
 use serde::{Deserialize, Serialize};
 
-/// Terminal health classification.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum HealthStatus {
-    /// All subsystems responsive and within operating parameters.
-    Healthy,
-    /// One or more subsystems impaired but the Controller can still serve.
-    Degraded,
-    /// Cannot serve requests; operator intervention expected.
-    Unhealthy,
-}
-
-/// Health snapshot for a single component (handler, subsystem, backend).
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ComponentHealth {
-    /// Stable identifier matching `Handler::id` for handler components.
-    pub id: String,
-    /// Classification at the moment the probe ran.
-    pub status: HealthStatus,
-    /// Optional human-readable reason when status is not `Healthy`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub message: Option<String>,
-}
-
-impl ComponentHealth {
-    /// Construct a `Healthy` component entry with no message.
-    pub fn healthy(id: impl Into<String>) -> Self {
-        Self {
-            id: id.into(),
-            status: HealthStatus::Healthy,
-            message: None,
-        }
-    }
-
-    /// Construct a non-healthy component entry with a reason.
-    pub fn with_status(
-        id: impl Into<String>,
-        status: HealthStatus,
-        message: impl Into<String>,
-    ) -> Self {
-        Self {
-            id: id.into(),
-            status,
-            message: Some(message.into()),
-        }
-    }
-}
+use super::component_health::ComponentHealth;
+use super::health_status::HealthStatus;
 
 /// Aggregated health report returned by `LifecycleMonitor::health`.
 ///
@@ -79,8 +34,9 @@ impl HealthReport {
 mod tests {
     use super::*;
 
+    /// @covers: from_components
     #[test]
-    fn test_aggregate_all_healthy() {
+    fn test_from_components_all_healthy_yields_healthy() {
         let report = HealthReport::from_components(vec![
             ComponentHealth::healthy("a"),
             ComponentHealth::healthy("b"),
@@ -88,8 +44,9 @@ mod tests {
         assert_eq!(report.overall, HealthStatus::Healthy);
     }
 
+    /// @covers: from_components
     #[test]
-    fn test_aggregate_any_unhealthy_wins() {
+    fn test_from_components_any_unhealthy_wins() {
         let report = HealthReport::from_components(vec![
             ComponentHealth::healthy("a"),
             ComponentHealth::with_status("b", HealthStatus::Degraded, "slow"),
@@ -98,8 +55,9 @@ mod tests {
         assert_eq!(report.overall, HealthStatus::Unhealthy);
     }
 
+    /// @covers: from_components
     #[test]
-    fn test_aggregate_degraded_without_unhealthy() {
+    fn test_from_components_degraded_without_unhealthy() {
         let report = HealthReport::from_components(vec![
             ComponentHealth::healthy("a"),
             ComponentHealth::with_status("b", HealthStatus::Degraded, "slow"),
@@ -107,8 +65,9 @@ mod tests {
         assert_eq!(report.overall, HealthStatus::Degraded);
     }
 
+    /// @covers: from_components
     #[test]
-    fn test_aggregate_empty_is_healthy() {
+    fn test_from_components_empty_is_healthy() {
         let report = HealthReport::from_components(vec![]);
         assert_eq!(report.overall, HealthStatus::Healthy);
     }

@@ -1,0 +1,30 @@
+//! LifecycleError — errors raised by [`LifecycleMonitor::shutdown`](crate::LifecycleMonitor::shutdown).
+
+use thiserror::Error;
+
+/// Errors raised by [`LifecycleMonitor::shutdown`](crate::LifecycleMonitor::shutdown).
+#[derive(Debug, Error)]
+pub enum LifecycleError {
+    /// Shutdown was called twice or on an already-stopped instance.
+    #[error("already shut down")]
+    AlreadyShutDown,
+
+    /// A background task failed to stop cleanly.
+    #[error("background task did not drain: {0}")]
+    DrainFailed(String),
+
+    /// Domain-specific lifecycle failure.
+    #[error("lifecycle error: {0}")]
+    Other(String),
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_lifecycle_error_display() {
+        let err = LifecycleError::DrainFailed("worker A".to_string());
+        assert!(err.to_string().contains("worker A"));
+    }
+}

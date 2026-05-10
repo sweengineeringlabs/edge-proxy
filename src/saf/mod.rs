@@ -1,9 +1,13 @@
 //! SAF layer — proxy public facade.
 
 mod factory;
+mod validator;
 
 // Factory functions
 pub use factory::new_null_lifecycle_monitor;
+
+// Validator wrapper
+pub use validator::validate;
 
 // Concern traits
 pub use crate::api::job::Job;

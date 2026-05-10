@@ -1,8 +1,10 @@
-//! Error types for proxy dispatch concerns.
+//! JobError — errors raised by [`Job::run`](crate::Job::run).
 
 use thiserror::Error;
 
 pub use edge_domain::HandlerError;
+
+use super::routing_error::RoutingError;
 
 /// Errors raised by [`Job::run`](crate::Job::run).
 #[derive(Debug, Error)]
@@ -28,38 +30,6 @@ pub enum JobError {
     Other(String),
 }
 
-/// Errors raised by [`Router::route`](crate::Router::route).
-#[derive(Debug, Error)]
-pub enum RoutingError {
-    /// Input was empty or otherwise unusable.
-    #[error("invalid input: {0}")]
-    InvalidInput(String),
-
-    /// Input was valid but did not match any registered intent.
-    #[error("no intent matched")]
-    NoMatch,
-
-    /// Domain-specific failure raised while classifying.
-    #[error("routing error: {0}")]
-    Other(String),
-}
-
-/// Errors raised by [`LifecycleMonitor::shutdown`](crate::LifecycleMonitor::shutdown).
-#[derive(Debug, Error)]
-pub enum LifecycleError {
-    /// Shutdown was called twice or on an already-stopped instance.
-    #[error("already shut down")]
-    AlreadyShutDown,
-
-    /// A background task failed to stop cleanly.
-    #[error("background task did not drain: {0}")]
-    DrainFailed(String),
-
-    /// Domain-specific lifecycle failure.
-    #[error("lifecycle error: {0}")]
-    Other(String),
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -74,11 +44,5 @@ mod tests {
     fn test_job_error_wraps_handler_error() {
         let h: JobError = HandlerError::Unhealthy.into();
         assert!(matches!(h, JobError::Handler(HandlerError::Unhealthy)));
-    }
-
-    #[test]
-    fn test_lifecycle_error_display() {
-        let err = LifecycleError::DrainFailed("worker A".to_string());
-        assert!(err.to_string().contains("worker A"));
     }
 }
