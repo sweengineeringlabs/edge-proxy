@@ -3,7 +3,7 @@
 /// Validates a value before it enters the dispatch pipeline.
 pub trait Validator: Send + Sync {
     /// The type being validated.
-    type Target;
+    type Target: ?Sized;
     /// The error type returned on validation failure.
     type Error;
 
