@@ -25,8 +25,7 @@
 
 mod api;
 mod core;
-mod gateway;
-
 mod saf;
 
-pub use gateway::*;
+pub use saf::*;
+pub use api::validator::Validator;
