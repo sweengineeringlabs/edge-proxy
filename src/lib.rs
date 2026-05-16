@@ -27,5 +27,5 @@ mod api;
 mod core;
 mod saf;
 
-pub use saf::*;
 pub use api::validator::Validator;
+pub use saf::*;

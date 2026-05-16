@@ -5,9 +5,13 @@ use edge_proxy::{validate, Validator};
 struct RejectEmpty;
 impl Validator for RejectEmpty {
     type Target = str;
-    type Error  = String;
+    type Error = String;
     fn validate(&self, value: &str) -> Result<(), String> {
-        if value.is_empty() { Err("must not be empty".into()) } else { Ok(()) }
+        if value.is_empty() {
+            Err("must not be empty".into())
+        } else {
+            Ok(())
+        }
     }
 }
 

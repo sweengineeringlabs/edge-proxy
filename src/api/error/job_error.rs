@@ -24,7 +24,6 @@ pub enum JobError {
     /// The job was cancelled by a lifecycle event (e.g. shutdown).
     #[error("job cancelled")]
     Cancelled,
-
 }
 
 #[cfg(test)]

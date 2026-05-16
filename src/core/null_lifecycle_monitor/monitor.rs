@@ -26,7 +26,9 @@ pub(crate) struct NullLifecycleMonitor {
 impl NullLifecycleMonitor {
     /// Construct a fresh no-op monitor in the "running" state.
     pub(crate) fn new() -> Self {
-        Self { shut_down: Mutex::new(false) }
+        Self {
+            shut_down: Mutex::new(false),
+        }
     }
 }
 
@@ -47,7 +49,10 @@ impl LifecycleMonitor for NullLifecycleMonitor {
         } else {
             HealthStatus::Healthy
         };
-        HealthReport { overall: status, components: Vec::new() }
+        HealthReport {
+            overall: status,
+            components: Vec::new(),
+        }
     }
 
     async fn start_background_tasks(&self) {

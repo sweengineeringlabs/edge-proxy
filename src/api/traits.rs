@@ -18,8 +18,10 @@ mod tests {
     struct AlwaysOk;
     impl Validator for AlwaysOk {
         type Target = ();
-        type Error  = String;
-        fn validate(&self, _: &()) -> Result<(), String> { Ok(()) }
+        type Error = String;
+        fn validate(&self, _: &()) -> Result<(), String> {
+            Ok(())
+        }
     }
 
     #[test]

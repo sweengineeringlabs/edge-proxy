@@ -19,14 +19,23 @@ pub struct HealthReport {
 impl HealthReport {
     /// Derive `overall` from the component list per the aggregation rule.
     pub fn from_components(components: Vec<ComponentHealth>) -> Self {
-        let overall = if components.iter().any(|c| c.status == HealthStatus::Unhealthy) {
+        let overall = if components
+            .iter()
+            .any(|c| c.status == HealthStatus::Unhealthy)
+        {
             HealthStatus::Unhealthy
-        } else if components.iter().any(|c| c.status == HealthStatus::Degraded) {
+        } else if components
+            .iter()
+            .any(|c| c.status == HealthStatus::Degraded)
+        {
             HealthStatus::Degraded
         } else {
             HealthStatus::Healthy
         };
-        Self { overall, components }
+        Self {
+            overall,
+            components,
+        }
     }
 }
 

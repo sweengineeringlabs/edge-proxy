@@ -11,11 +11,11 @@ pub mod error;
 pub mod health;
 
 pub mod job;
-pub mod router;
 pub mod lifecycle_monitor;
+pub mod router;
 
-pub mod traits;
 pub mod proxy_pattern;
+pub mod traits;
 
 pub mod null_lifecycle_monitor;
 pub mod validator;

@@ -19,5 +19,8 @@ fn test_handler_error_unhealthy_wraps_into_job_error() {
 #[test]
 fn test_handler_error_invalid_request_wraps_into_job_error() {
     let err: JobError = HandlerError::InvalidRequest("bad input".into()).into();
-    assert!(matches!(err, JobError::Handler(HandlerError::InvalidRequest(_))));
+    assert!(matches!(
+        err,
+        JobError::Handler(HandlerError::InvalidRequest(_))
+    ));
 }
