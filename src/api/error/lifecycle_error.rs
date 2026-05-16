@@ -13,9 +13,9 @@ pub enum LifecycleError {
     #[error("background task did not drain: {0}")]
     DrainFailed(String),
 
-    /// Domain-specific lifecycle failure.
-    #[error("lifecycle error: {0}")]
-    Other(String),
+    /// An unexpected internal error occurred during lifecycle management.
+    #[error("lifecycle internal error: {0}")]
+    Internal(String),
 }
 
 #[cfg(test)]

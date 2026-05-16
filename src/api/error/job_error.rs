@@ -25,9 +25,6 @@ pub enum JobError {
     #[error("job cancelled")]
     Cancelled,
 
-    /// Domain-specific failure that does not fit the above categories.
-    #[error("job error: {0}")]
-    Other(String),
 }
 
 #[cfg(test)]

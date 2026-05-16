@@ -13,9 +13,9 @@ pub enum RoutingError {
     #[error("no intent matched")]
     NoMatch,
 
-    /// Domain-specific failure raised while classifying.
-    #[error("routing error: {0}")]
-    Other(String),
+    /// An unexpected error occurred inside the classifier.
+    #[error("routing internal error: {0}")]
+    Internal(String),
 }
 
 #[cfg(test)]
@@ -34,8 +34,8 @@ mod tests {
     }
 
     #[test]
-    fn test_other_display() {
-        let e = RoutingError::Other("classifier timeout".into());
+    fn test_internal_display() {
+        let e = RoutingError::Internal("classifier timeout".into());
         assert!(e.to_string().contains("classifier timeout"));
     }
 }
