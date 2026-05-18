@@ -3,21 +3,20 @@
 //! The single entry point the gateway calls. Each Controller implementation
 //! provides one `Job` impl that orchestrates its full request→response flow.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 
 use super::error::JobError;
 
 /// The single entry point for proxy dispatch.
 ///
 /// Runtime holds `Arc<dyn Job<Request, Response>>` and calls `run` for each request.
-#[async_trait]
 pub trait Job<Request, Response>: Send + Sync
 where
     Request: Send + 'static,
     Response: Send + 'static,
 {
     /// Dispatch the request and return the response.
-    async fn run(&self, req: Request) -> Result<Response, JobError>;
+    fn run(&self, req: Request) -> BoxFuture<'_, Result<Response, JobError>>;
 }
 
 #[cfg(test)]

@@ -12,12 +12,13 @@ categories = ["development-tools"]
 
 [dependencies]
 thiserror = "2"
-async-trait = "0.1"
+futures = "0.3"
 serde = { version = "1", features = ["derive"] }
 parking_lot = "0.12"
 edge-domain = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
 
 [dev-dependencies]
+async-trait = "0.1"
 tokio = { version = "1", features = ["macros", "rt"] }
 
 [package.metadata.struct-engine]
