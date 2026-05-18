@@ -3,7 +3,7 @@
 /// Validates a value before it enters the dispatch pipeline.
 pub trait Validator: Send + Sync {
     /// The type being validated.
-    type Target;
+    type Target: ?Sized;
     /// The error type returned on validation failure.
     type Error;
 
@@ -18,8 +18,10 @@ mod tests {
     struct AlwaysOk;
     impl Validator for AlwaysOk {
         type Target = ();
-        type Error  = String;
-        fn validate(&self, _: &()) -> Result<(), String> { Ok(()) }
+        type Error = String;
+        fn validate(&self, _: &()) -> Result<(), String> {
+            Ok(())
+        }
     }
 
     #[test]

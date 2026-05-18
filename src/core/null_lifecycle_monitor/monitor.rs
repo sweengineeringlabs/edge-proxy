@@ -6,7 +6,7 @@
 //! `shutdown` returns `Ok(())` on the first call and `AlreadyShutDown` on
 //! subsequent calls.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 use parking_lot::Mutex;
 
 use crate::api::error::LifecycleError;
@@ -26,7 +26,9 @@ pub(crate) struct NullLifecycleMonitor {
 impl NullLifecycleMonitor {
     /// Construct a fresh no-op monitor in the "running" state.
     pub(crate) fn new() -> Self {
-        Self { shut_down: Mutex::new(false) }
+        Self {
+            shut_down: Mutex::new(false),
+        }
     }
 }
 
@@ -39,28 +41,36 @@ impl Default for NullLifecycleMonitor {
 impl NullLifecycleMonitorApi for NullLifecycleMonitor {}
 impl crate::api::null_lifecycle_monitor::Monitor for NullLifecycleMonitor {}
 
-#[async_trait]
 impl LifecycleMonitor for NullLifecycleMonitor {
-    async fn health(&self) -> HealthReport {
-        let status = if *self.shut_down.lock() {
-            HealthStatus::Unhealthy
-        } else {
-            HealthStatus::Healthy
-        };
-        HealthReport { overall: status, components: Vec::new() }
+    fn health(&self) -> BoxFuture<'_, HealthReport> {
+        Box::pin(async move {
+            let status = if *self.shut_down.lock() {
+                HealthStatus::Unhealthy
+            } else {
+                HealthStatus::Healthy
+            };
+            HealthReport {
+                overall: status,
+                components: Vec::new(),
+            }
+        })
     }
 
-    async fn start_background_tasks(&self) {
-        // Intentionally empty — nothing to start.
+    fn start_background_tasks(&self) -> BoxFuture<'_, ()> {
+        Box::pin(async {
+            // Intentionally empty — nothing to start.
+        })
     }
 
-    async fn shutdown(&self) -> Result<(), LifecycleError> {
-        let mut flag = self.shut_down.lock();
-        if *flag {
-            return Err(LifecycleError::AlreadyShutDown);
-        }
-        *flag = true;
-        Ok(())
+    fn shutdown(&self) -> BoxFuture<'_, Result<(), LifecycleError>> {
+        Box::pin(async move {
+            let mut flag = self.shut_down.lock();
+            if *flag {
+                return Err(LifecycleError::AlreadyShutDown);
+            }
+            *flag = true;
+            Ok(())
+        })
     }
 }
 

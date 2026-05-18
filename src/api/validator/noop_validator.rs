@@ -13,8 +13,10 @@ mod tests {
     struct Noop;
     impl Validator for Noop {
         type Target = ();
-        type Error  = std::convert::Infallible;
-        fn validate(&self, _: &()) -> Result<(), Self::Error> { Ok(()) }
+        type Error = std::convert::Infallible;
+        fn validate(&self, _: &()) -> Result<(), Self::Error> {
+            Ok(())
+        }
     }
     impl NoopValidator for Noop {}
 

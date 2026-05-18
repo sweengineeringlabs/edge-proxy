@@ -24,10 +24,6 @@ pub enum JobError {
     /// The job was cancelled by a lifecycle event (e.g. shutdown).
     #[error("job cancelled")]
     Cancelled,
-
-    /// Domain-specific failure that does not fit the above categories.
-    #[error("job error: {0}")]
-    Other(String),
 }
 
 #[cfg(test)]

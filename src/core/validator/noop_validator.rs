@@ -10,7 +10,7 @@ impl crate::api::validator::noop_validator::NoopValidator for NoopValidator {}
 
 impl Validator for NoopValidator {
     type Target = ();
-    type Error  = std::convert::Infallible;
+    type Error = std::convert::Infallible;
 
     fn validate(&self, _value: &()) -> Result<(), Self::Error> {
         Ok(())
