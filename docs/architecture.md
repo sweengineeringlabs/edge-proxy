@@ -64,3 +64,12 @@ concrete implementations live in `runtime/`.
 | `LifecycleMonitor` | Health reporting, background tasks, graceful shutdown |
 | `HealthReport` | Aggregate health across all registered subsystems |
 | `HealthStatus` | `Healthy` / `Degraded` / `Unhealthy` |
+
+---
+
+## See Also
+
+- [Architecture Overview](../../docs/3-architecture/architecture.md)
+- [Domain Architecture](../../domain/docs/architecture.md)
+- [Runtime Architecture](../../runtime/docs/architecture.md)
+- [Developer Guide](../../docs/4-development/developer_guide.md)
