@@ -4,7 +4,7 @@
 //! downstream logic (typically a `HandlerRegistry`) uses to pick the right
 //! `Handler`.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 
 use super::error::RoutingError;
 
@@ -15,13 +15,12 @@ use super::error::RoutingError;
 /// | llmboot | `AgentIntent` (naming target agent / pattern) |
 /// | security/iam | `ServiceIntent` (auth vs authz vs iam) |
 /// | vmisolate | *(absent — VM ops are direct, no routing)* |
-#[async_trait]
 pub trait Router<Intent>: Send + Sync
 where
     Intent: Send + 'static,
 {
     /// Classify the input string and return the resolved intent.
-    async fn route(&self, input: &str) -> Result<Intent, RoutingError>;
+    fn route<'a>(&'a self, input: &'a str) -> BoxFuture<'a, Result<Intent, RoutingError>>;
 }
 
 #[cfg(test)]
