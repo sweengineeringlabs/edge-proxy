@@ -12,7 +12,7 @@
 
 use std::sync::Arc;
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 use edge_domain::{new_handler_registry, Handler, HandlerError, HandlerRegistry};
 use edge_proxy::{new_null_lifecycle_monitor, Job, JobError, Router, RoutingError};
 
@@ -34,7 +34,6 @@ struct Response {
 
 struct EchoHandler;
 
-#[async_trait]
 impl Handler<Request, Response> for EchoHandler {
     fn id(&self) -> &str {
         "echo"
@@ -43,10 +42,13 @@ impl Handler<Request, Response> for EchoHandler {
         "direct"
     }
 
-    async fn execute(&self, req: Request) -> Result<Response, HandlerError> {
-        Ok(Response {
-            handler: self.id().into(),
-            output: req.payload,
+    fn execute(&self, req: Request) -> BoxFuture<'_, Result<Response, HandlerError>> {
+        let id = self.id().to_string();
+        Box::pin(async move {
+            Ok(Response {
+                handler: id,
+                output: req.payload,
+            })
         })
     }
 }
@@ -55,13 +57,14 @@ impl Handler<Request, Response> for EchoHandler {
 
 struct CommandRouter;
 
-#[async_trait]
 impl Router<String> for CommandRouter {
-    async fn route(&self, input: &str) -> Result<String, RoutingError> {
-        match input {
-            "echo" | "ping" => Ok("echo".into()),
-            _ => Err(RoutingError::NoMatch),
-        }
+    fn route<'a>(&'a self, input: &'a str) -> BoxFuture<'a, Result<String, RoutingError>> {
+        Box::pin(async move {
+            match input {
+                "echo" | "ping" => Ok("echo".into()),
+                _ => Err(RoutingError::NoMatch),
+            }
+        })
     }
 }
 
@@ -72,15 +75,16 @@ struct DispatchJob {
     registry: Arc<HandlerRegistry<Request, Response>>,
 }
 
-#[async_trait]
 impl Job<Request, Response> for DispatchJob {
-    async fn run(&self, req: Request) -> Result<Response, JobError> {
-        let handler_id = self.router.route(&req.command).await?;
-        let handler = self
-            .registry
-            .get(&handler_id)
-            .ok_or_else(|| JobError::HandlerUnavailable(handler_id))?;
-        Ok(handler.execute(req).await?)
+    fn run(&self, req: Request) -> BoxFuture<'_, Result<Response, JobError>> {
+        Box::pin(async move {
+            let handler_id = self.router.route(&req.command).await?;
+            let handler = self
+                .registry
+                .get(&handler_id)
+                .ok_or_else(|| JobError::HandlerUnavailable(handler_id))?;
+            Ok(handler.execute(req).await?)
+        })
     }
 }
 
