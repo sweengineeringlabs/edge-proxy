@@ -6,6 +6,7 @@
 /// Builder for proxy architecture configuration.
 ///
 /// Construct via [`crate::saf::builder`]. Finalize with [`ArchitectureConfigBuilder::build`].
+#[allow(dead_code)]
 pub struct ArchitectureConfigBuilder {
     _private: (),
 }
