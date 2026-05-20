@@ -10,6 +10,7 @@ pub use factory::new_null_lifecycle_monitor;
 pub use validator::validate;
 
 pub use crate::api::application_config_builder::ApplicationConfigBuilder;
+pub use crate::api::architecture_config_builder::ArchitectureConfigBuilder;
 
 // Concern traits
 pub use crate::api::job::Job;
