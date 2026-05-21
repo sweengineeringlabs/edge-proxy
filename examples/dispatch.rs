@@ -12,9 +12,9 @@
 
 use std::sync::Arc;
 
-use futures::future::BoxFuture;
 use edge_domain::{new_handler_registry, Handler, HandlerError, HandlerRegistry};
 use edge_proxy::{new_null_lifecycle_monitor, Job, JobError, Router, RoutingError};
+use futures::future::BoxFuture;
 
 // ── request / response types ──────────────────────────────────────────────────
 
