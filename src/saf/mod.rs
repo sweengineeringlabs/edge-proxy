@@ -4,13 +4,11 @@ mod factory;
 mod validator;
 
 // Factory functions
+pub use factory::create_config_builder;
 pub use factory::new_null_lifecycle_monitor;
 
 // Validator wrapper
 pub use validator::validate;
-
-pub use crate::api::application_config_builder::ApplicationConfigBuilder;
-pub use crate::api::architecture_config_builder::ArchitectureConfigBuilder;
 
 // Concern traits
 pub use crate::api::job::Job;
