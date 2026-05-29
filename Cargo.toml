@@ -15,8 +15,8 @@ thiserror              = "2"
 futures                = "0.3"
 serde                  = { version = "1", features = ["derive"] }
 parking_lot            = "0.12"
-edge-domain            = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
-swe-edge-configbuilder = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+edge-domain = { path = "../domain" }
+swe-edge-configbuilder = { path = "../configbuilder/main/features/configbuilder" }
 
 [dev-dependencies]
 async-trait = "0.1"
