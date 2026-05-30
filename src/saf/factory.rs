@@ -1,14 +1,13 @@
 //! Factory functions — Static Access Facade (SAF).
 
-use swe_edge_configbuilder::ConfigBuilder as _;
 use std::sync::Arc;
 
 use crate::api::lifecycle_monitor::LifecycleMonitor;
 use crate::core::null_lifecycle_monitor::NullLifecycleMonitor;
 
 /// Return a [`ConfigBuilder`] pre-seeded with this crate's package name and version.
-pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {
-    swe_edge_configbuilder::create_config_builder()
+pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
+    swe_edge_configbuilder::ConfigLoaderFactory::create_config_builder()
         .with_name(env!("CARGO_PKG_NAME"))
         .with_version(env!("CARGO_PKG_VERSION"))
 }
