@@ -12,8 +12,8 @@
 
 use std::sync::Arc;
 
-use edge_domain::{new_handler_registry, Handler, HandlerError, HandlerRegistry};
-use edge_proxy::{new_null_lifecycle_monitor, Job, JobError, Router, RoutingError};
+use edge_domain::{Domain, Handler, HandlerError, HandlerRegistry};
+use edge_proxy::{Job, JobError, ProxySvc, Router, RoutingError};
 use futures::future::BoxFuture;
 
 // ── request / response types ──────────────────────────────────────────────────
@@ -32,10 +32,10 @@ struct Response {
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
-struct EchoHandler;
+struct EchoHandlerImpl;
 
 #[async_trait::async_trait]
-impl Handler<Request, Response> for EchoHandler {
+impl Handler<Request, Response> for EchoHandlerImpl {
     fn id(&self) -> &str {
         "echo"
     }
@@ -89,9 +89,9 @@ impl Job<Request, Response> for DispatchJob {
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // 1. Domain: populate the handler registry via the SAF factory.
-    let registry = new_handler_registry::<Request, Response>();
-    registry.register(Arc::new(EchoHandler));
+    // 1. Domain: populate the handler registry.
+    let registry = Arc::new(HandlerRegistry::<Request, Response>::new());
+    registry.register(Arc::new(EchoHandlerImpl));
 
     // 2. Proxy: wire router + registry into a Job.
     let job: Arc<dyn Job<Request, Response>> = Arc::new(DispatchJob {
@@ -119,7 +119,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("unknown → {err}");
 
     // 5. Lifecycle: null monitor reports Healthy out of the box.
-    let lifecycle = new_null_lifecycle_monitor();
+    let lifecycle = ProxySvc::new_null_lifecycle_monitor();
     let report = lifecycle.health().await;
     println!("lifecycle overall → {:?}", report.overall);
 

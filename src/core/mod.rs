@@ -4,5 +4,5 @@
 //! Downstream Controller crates add domain-specific impls alongside (or
 //! replace) these defaults.
 
-pub mod null_lifecycle_monitor;
+pub mod null;
 pub mod validator;

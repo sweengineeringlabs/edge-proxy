@@ -1,11 +1,11 @@
 //! Integration tests for null lifecycle monitor — exercises edge-domain dep.
 
 use edge_domain::HandlerError;
-use edge_proxy::{new_null_lifecycle_monitor, HealthStatus, JobError};
+use edge_proxy::{ProxySvc, HealthStatus, JobError};
 
 #[tokio::test]
 async fn test_null_lifecycle_monitor_health_is_healthy() {
-    let monitor = new_null_lifecycle_monitor();
+    let monitor = ProxySvc::new_null_lifecycle_monitor();
     let report = monitor.health().await;
     assert_eq!(report.overall, HealthStatus::Healthy);
 }

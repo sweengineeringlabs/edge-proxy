@@ -1,6 +1,6 @@
 //! Integration tests for the Validator trait contract.
 
-use edge_proxy::{validate, Validator};
+use edge_proxy::{ProxySvc, Validator};
 
 struct RejectEmpty;
 impl Validator for RejectEmpty {
@@ -18,11 +18,11 @@ impl Validator for RejectEmpty {
 #[test]
 fn test_validate_wrapper_returns_ok_for_valid_input() {
     let v = RejectEmpty;
-    assert!(validate(&v, "hello").is_ok());
+    assert!(ProxySvc::validate(&v, "hello").is_ok());
 }
 
 #[test]
 fn test_validate_wrapper_returns_err_for_invalid_input() {
     let v = RejectEmpty;
-    assert!(validate(&v, "").is_err());
+    assert!(ProxySvc::validate(&v, "").is_err());
 }

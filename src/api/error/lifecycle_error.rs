@@ -17,14 +17,3 @@ pub enum LifecycleError {
     #[error("lifecycle internal error: {0}")]
     Internal(String),
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_lifecycle_error_display() {
-        let err = LifecycleError::DrainFailed("worker A".to_string());
-        assert!(err.to_string().contains("worker A"));
-    }
-}

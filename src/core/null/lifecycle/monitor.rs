@@ -11,14 +11,14 @@ use parking_lot::Mutex;
 
 use crate::api::error::LifecycleError;
 use crate::api::health::{HealthReport, HealthStatus};
-use crate::api::lifecycle_monitor::LifecycleMonitor;
-use crate::api::null_lifecycle_monitor::NullLifecycleMonitorApi;
+use crate::api::traits::lifecycle_monitor::LifecycleMonitor;
+use crate::api::null::lifecycle::NullLifecycleMonitorApi;
 
 /// No-op lifecycle monitor suitable for tests and early bring-up.
 ///
 /// `pub(crate)` — consumers obtain an instance through
-/// [`crate::saf::new_null_lifecycle_monitor`] rather than naming the type
-/// directly, keeping the impl detail behind the trait contract.
+/// [`crate::saf::ProxySvc::new_null_lifecycle_monitor`] rather than naming the
+/// type directly, keeping the impl detail behind the trait contract.
 pub(crate) struct NullLifecycleMonitor {
     shut_down: Mutex<bool>,
 }
@@ -39,7 +39,7 @@ impl Default for NullLifecycleMonitor {
 }
 
 impl NullLifecycleMonitorApi for NullLifecycleMonitor {}
-impl crate::api::null_lifecycle_monitor::Monitor for NullLifecycleMonitor {}
+impl crate::api::null::lifecycle::Monitor for NullLifecycleMonitor {}
 
 impl LifecycleMonitor for NullLifecycleMonitor {
     fn health(&self) -> BoxFuture<'_, HealthReport> {
@@ -78,10 +78,10 @@ impl LifecycleMonitor for NullLifecycleMonitor {
 mod tests {
     use super::*;
 
+    /// @covers: new
     #[test]
     fn test_new_creates_monitor_in_running_state() {
         let m = NullLifecycleMonitor::new();
-        // New monitor starts in "not shut down" state
         assert!(!*m.shut_down.lock());
     }
 
@@ -94,7 +94,7 @@ mod tests {
     #[tokio::test]
     async fn test_shutdown_flips_to_unhealthy() {
         let m = NullLifecycleMonitor::new();
-        m.shutdown().await.unwrap();
+        m.shutdown().await.expect("first shutdown ok");
         assert_eq!(m.health().await.overall, HealthStatus::Unhealthy);
     }
 

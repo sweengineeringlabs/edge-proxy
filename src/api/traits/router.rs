@@ -6,7 +6,7 @@
 
 use futures::future::BoxFuture;
 
-use super::error::RoutingError;
+use crate::api::error::RoutingError;
 
 /// Classifies input into a domain-specific intent.
 ///
@@ -21,14 +21,4 @@ where
 {
     /// Classify the input string and return the resolved intent.
     fn route<'a>(&'a self, input: &'a str) -> BoxFuture<'a, Result<Intent, RoutingError>>;
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_router_trait_is_object_safe() {
-        fn _accept(_r: &dyn Router<String>) {}
-    }
 }

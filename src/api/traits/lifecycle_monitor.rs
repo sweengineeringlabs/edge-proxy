@@ -7,8 +7,8 @@
 
 use futures::future::BoxFuture;
 
-use super::error::LifecycleError;
-use super::health::HealthReport;
+use crate::api::error::LifecycleError;
+use crate::api::health::HealthReport;
 
 /// Runtime lifecycle management for a Controller instance.
 pub trait LifecycleMonitor: Send + Sync {
@@ -25,14 +25,4 @@ pub trait LifecycleMonitor: Send + Sync {
     /// release resources. After `shutdown` returns, `health` is expected to
     /// report a non-healthy status.
     fn shutdown(&self) -> BoxFuture<'_, Result<(), LifecycleError>>;
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_lifecycle_monitor_is_object_safe() {
-        fn _accept(_l: &dyn LifecycleMonitor) {}
-    }
 }

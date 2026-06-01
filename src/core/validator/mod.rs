@@ -1,2 +1,2 @@
 //! Core validator implementations.
-mod noop_validator;
+pub(crate) mod noop_validator;

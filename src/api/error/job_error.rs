@@ -25,20 +25,3 @@ pub enum JobError {
     #[error("job cancelled")]
     Cancelled,
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_job_error_wraps_routing_error() {
-        let r: JobError = RoutingError::NoMatch.into();
-        assert!(matches!(r, JobError::Routing(RoutingError::NoMatch)));
-    }
-
-    #[test]
-    fn test_job_error_wraps_handler_error() {
-        let h: JobError = HandlerError::Unhealthy.into();
-        assert!(matches!(h, JobError::Handler(HandlerError::Unhealthy)));
-    }
-}

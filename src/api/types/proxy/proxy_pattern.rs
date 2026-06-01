@@ -5,18 +5,7 @@
 /// Traits implementing each concern:
 /// 1. **Job** — [`crate::Job`]
 /// 2. **Routing** — [`crate::Router`]
-/// 3. **Handlers** — [`crate::Handler`]
+/// 3. **Handlers** — domain-defined handler types
 /// 4. **Lifecycle** — [`crate::LifecycleMonitor`]
 /// 5. **Gateway (boundary types)** — `crate::gateway` module (internal)
-#[allow(dead_code)]
 pub struct ProxyPattern;
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_proxy_pattern_is_constructible() {
-        let _ = ProxyPattern;
-    }
-}

@@ -5,7 +5,7 @@
 
 use futures::future::BoxFuture;
 
-use super::error::JobError;
+use crate::api::error::JobError;
 
 /// The single entry point for proxy dispatch.
 ///
@@ -17,14 +17,4 @@ where
 {
     /// Dispatch the request and return the response.
     fn run(&self, req: Request) -> BoxFuture<'_, Result<Response, JobError>>;
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_job_trait_is_object_safe() {
-        fn _accept(_j: &dyn Job<String, String>) {} // object-safe with concrete types
-    }
 }

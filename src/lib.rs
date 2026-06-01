@@ -12,7 +12,7 @@
 //!
 //! ```ignore
 //! use std::sync::Arc;
-//! use edge_proxy::{Job, JobError, Router};
+//! use edge_proxy::{Job, JobError, Router, ProxySvc};
 //! use edge_domain::{Handler, HandlerRegistry, new_handler_registry};
 //!
 //! // 1. Build a registry and register domain handlers.
@@ -25,7 +25,7 @@
 
 mod api;
 mod core;
+mod gateway;
 mod saf;
 
-pub use api::validator::Validator;
-pub use saf::*;
+pub use gateway::*;

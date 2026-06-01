@@ -1,4 +1,4 @@
-//! Interface declarations for the null lifecycle monitor.
+//! Lifecycle-related null traits.
 pub mod monitor;
 pub mod null_lifecycle_monitor_api;
 

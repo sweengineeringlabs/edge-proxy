@@ -1,19 +1,26 @@
 //! SAF layer — proxy public facade.
 
-mod factory;
-mod validator;
+mod proxy_svc;
 
-// Factory functions
-pub use factory::create_config_builder;
-pub use factory::new_null_lifecycle_monitor;
+// Facade handle and application config builder
+pub use crate::api::types::ApplicationConfigBuilder;
+pub use crate::api::types::ProxySvc;
 
-// Validator wrapper
-pub use validator::validate;
+// Concern traits (re-exported from api/ surface)
+pub use crate::api::Job;
+pub use crate::api::LifecycleMonitor;
+pub use crate::api::Router;
+pub use crate::api::Validator;
 
-// Concern traits
-pub use crate::api::job::Job;
-pub use crate::api::lifecycle_monitor::LifecycleMonitor;
-pub use crate::api::router::Router;
+// Null lifecycle monitor extension traits (for downstream impls)
+pub use crate::api::null::lifecycle::Monitor as NullMonitor;
+pub use crate::api::null::lifecycle::NullLifecycleMonitorApi;
+
+// Validator extension traits (for downstream impls)
+pub use crate::api::validator::noop_validator::NoopValidator;
+
+// Marker types
+pub use crate::api::types::ProxyPattern;
 
 // Error types
 pub use crate::api::error::{HandlerError, JobError, LifecycleError, RoutingError};
