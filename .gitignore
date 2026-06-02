@@ -3,4 +3,3 @@ target/
 *.swo
 .DS_Store
 *.orig
-Cargo.lock
