@@ -1,6 +1,7 @@
 //! Integration tests for NullLifecycleMonitorApi marker trait.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_proxy::{NullLifecycleMonitorApi, ProxySvc, HealthStatus};
+use edge_proxy::{HealthStatus, ProxySvc};
 
 /// @covers: NullLifecycleMonitorApi
 #[tokio::test]

@@ -1,126 +1,18 @@
 [workspace]
-members = ["."]
+resolver = "2"
+members  = ["main/features/proxy"]
 
-[package]
-name = "edge-proxy"
-version = "0.1.0"
-edition = "2021"
+[workspace.package]
+version      = "0.1.0"
+edition      = "2021"
 license      = "MIT OR Apache-2.0"
-repository = "https://github.com/sweengineeringlabs/edge"
-authors = ["SWE Engineering Labs"]
 rust-version = "1.95"
-description = "edge — L2 Proxy: dispatch facade (Job, Router, LifecycleMonitor)"
-keywords = ["proxy", "orchestration", "facade", "sea", "swe"]
-categories = ["development-tools"]
+authors      = ["SWE Engineering Labs"]
+repository   = "https://github.com/sweengineeringlabs/edge"
 
-[dependencies]
-thiserror              = "2"
-futures                = "0.3"
-serde                  = { version = "1", features = ["derive"] }
-parking_lot            = "0.12"
-edge-domain = { git = "https://github.com/sweengineeringlabs/edge" }
-swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge" }
+[workspace.lints.rust]
+unsafe_code  = "deny"
 
-[dev-dependencies]
-async-trait = "0.1"
-tokio = { version = "1", features = ["macros", "rt"] }
-
-[package.metadata.struct-engine]
-application_type = "lib"
-service_type = "proxy"
-
-
-[lib]
-path = "src/lib.rs"
-
-[[test]]
-name = "null_lifecycle_monitor_int_test"
-path = "tests/null_lifecycle_monitor_int_test.rs"
-
-[[test]]
-name = "traits_int_test"
-path = "tests/traits_int_test.rs"
-
-[[test]]
-name = "saf_factory_int_test"
-path = "tests/saf_factory_int_test.rs"
-
-[[test]]
-name = "validator_int_test"
-path = "tests/validator_int_test.rs"
-
-[[test]]
-name = "error_types_int_test"
-path = "tests/error_types_int_test.rs"
-
-[[test]]
-name = "health_types_int_test"
-path = "tests/health_types_int_test.rs"
-
-[[test]]
-name = "trait_object_safety_int_test"
-path = "tests/trait_object_safety_int_test.rs"
-
-[[test]]
-name = "null_monitor_traits_int_test"
-path = "tests/null_monitor_traits_int_test.rs"
-
-[[test]]
-name = "job_error_int_test"
-path = "tests/job_error_int_test.rs"
-
-[[test]]
-name = "lifecycle_error_int_test"
-path = "tests/lifecycle_error_int_test.rs"
-
-[[test]]
-name = "routing_error_int_test"
-path = "tests/routing_error_int_test.rs"
-
-[[test]]
-name = "component_health_int_test"
-path = "tests/component_health_int_test.rs"
-
-[[test]]
-name = "health_report_int_test"
-path = "tests/health_report_int_test.rs"
-
-[[test]]
-name = "health_status_int_test"
-path = "tests/health_status_int_test.rs"
-
-[[test]]
-name = "null_lifecycle_monitor_api_int_test"
-path = "tests/null_lifecycle_monitor_api_int_test.rs"
-
-[[test]]
-name = "job_int_test"
-path = "tests/job_int_test.rs"
-
-[[test]]
-name = "router_int_test"
-path = "tests/router_int_test.rs"
-
-[[test]]
-name = "lifecycle_monitor_int_test"
-path = "tests/lifecycle_monitor_int_test.rs"
-
-[[test]]
-name = "application_config_builder_int_test"
-path = "tests/application_config_builder_int_test.rs"
-
-[[test]]
-name = "proxy_pattern_int_test"
-path = "tests/proxy_pattern_int_test.rs"
-
-[[test]]
-name = "proxy_svc_int_test"
-path = "tests/proxy_svc_int_test.rs"
-
-[[test]]
-name = "noop_validator_int_test"
-path = "tests/noop_validator_int_test.rs"
-
-[lints.clippy]
+[workspace.lints.clippy]
 unwrap_used = "deny"
 expect_used = "deny"

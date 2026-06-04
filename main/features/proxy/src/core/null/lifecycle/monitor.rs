@@ -11,8 +11,8 @@ use parking_lot::Mutex;
 
 use crate::api::error::LifecycleError;
 use crate::api::health::{HealthReport, HealthStatus};
-use crate::api::traits::lifecycle_monitor::LifecycleMonitor;
 use crate::api::null::lifecycle::NullLifecycleMonitorApi;
+use crate::api::traits::lifecycle_monitor::LifecycleMonitor;
 
 /// No-op lifecycle monitor suitable for tests and early bring-up.
 ///

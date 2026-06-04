@@ -1,6 +1,6 @@
 //! Integration tests for ProxySvc facade type.
 
-use edge_proxy::{ProxySvc, HealthStatus, Validator};
+use edge_proxy::{HealthStatus, ProxySvc, Validator};
 
 /// @covers: ProxySvc::create_config_builder
 #[test]

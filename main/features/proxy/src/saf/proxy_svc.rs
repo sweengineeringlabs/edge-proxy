@@ -27,8 +27,8 @@ impl ProxySvc {
     /// Construct a no-op validator that accepts every `()` input without inspection.
     ///
     /// Useful for bring-up and tests where validation is not yet implemented.
-    pub fn new_noop_validator(
-    ) -> Arc<dyn Validator<Target = (), Error = std::convert::Infallible>> {
+    pub fn new_noop_validator() -> Arc<dyn Validator<Target = (), Error = std::convert::Infallible>>
+    {
         Arc::new(CoreNoopValidator)
     }
 

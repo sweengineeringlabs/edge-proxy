@@ -9,10 +9,11 @@
 //! SEA layer boundaries kept explicit:
 //!   - `edge_domain::` — Handler + HandlerRegistry contracts and their SAF factory
 //!   - `edge_proxy::` — Job + Router + LifecycleMonitor contracts and their SAF factory
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
-use edge_domain::{Domain, Handler, HandlerError, HandlerRegistry};
+use edge_domain::{Handler, HandlerError, HandlerRegistry};
 use edge_proxy::{Job, JobError, ProxySvc, Router, RoutingError};
 use futures::future::BoxFuture;
 
@@ -109,13 +110,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("echo  → handler={} output={}", resp.handler, resp.output);
 
     // 4. Dispatch — routing miss is surfaced as a JobError.
-    let err = job
+    let result = job
         .run(Request {
             command: "unknown".into(),
             payload: "".into(),
         })
-        .await
-        .unwrap_err();
+        .await;
+    let err = result.unwrap_err();
     println!("unknown → {err}");
 
     // 5. Lifecycle: null monitor reports Healthy out of the box.

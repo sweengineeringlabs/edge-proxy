@@ -22,6 +22,7 @@
 //! // 2. Implement Job backed by Router + HandlerRegistry.
 //! // 3. Runtime holds Arc<dyn Job<MyReq, MyResponse>> and calls .run(req).
 //! ```
+#![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used))]
 
 mod api;
 mod core;

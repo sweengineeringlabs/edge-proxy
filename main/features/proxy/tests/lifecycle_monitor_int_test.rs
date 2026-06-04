@@ -1,6 +1,6 @@
 //! Integration tests for the LifecycleMonitor trait.
 
-use edge_proxy::{LifecycleMonitor, ProxySvc, HealthStatus};
+use edge_proxy::{HealthStatus, LifecycleMonitor, ProxySvc};
 
 /// @covers: LifecycleMonitor
 #[test]

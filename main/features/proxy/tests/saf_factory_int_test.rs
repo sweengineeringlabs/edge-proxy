@@ -1,6 +1,7 @@
 //! Public-API integration tests for saf/proxy_svc.rs.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_proxy::{ProxySvc, HealthStatus};
+use edge_proxy::{HealthStatus, ProxySvc};
 
 /// @covers: ProxySvc::create_config_builder
 #[test]
