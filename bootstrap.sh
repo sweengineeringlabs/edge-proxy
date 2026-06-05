@@ -1,3 +1,8 @@
 #!/usr/bin/env bash
-# Bootstrap entry point - delegates to scripts/ci/build.sh
-exec "$(dirname "$0")/scripts/ci/build.sh" "$@"
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+echo "==> Installing git hooks"
+git -C "$REPO_ROOT" config core.hooksPath scripts/hooks
+echo "==> Fetching dependencies"
+(cd "$REPO_ROOT" && cargo fetch --locked)
+echo "Bootstrap complete."
