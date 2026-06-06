@@ -1,5 +1,6 @@
 [workspace]
 resolver = "2"
+members  = ["proxy"]
 
 [workspace.package]
 version      = "0.1.0"
@@ -15,37 +16,3 @@ unsafe_code  = "deny"
 [workspace.lints.clippy]
 unwrap_used = "deny"
 expect_used = "deny"
-
-[package]
-name         = "edge-proxy"
-version.workspace     = true
-edition.workspace     = true
-license.workspace     = true
-rust-version.workspace = true
-authors.workspace     = true
-repository.workspace  = true
-description  = "edge — L2 Proxy: dispatch facade (Job, Router, LifecycleMonitor)"
-keywords     = ["proxy", "orchestration", "facade", "sea", "swe"]
-categories   = ["development-tools"]
-
-[package.metadata.struct-engine]
-application_type = "lib"
-service_type     = "proxy"
-
-[lib]
-path = "main/src/lib.rs"
-
-[dependencies]
-thiserror              = "2"
-futures                = "0.3"
-serde                  = { version = "1", features = ["derive"] }
-parking_lot            = "0.12"
-edge-domain            = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.1.0" }
-swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.1.0" }
-
-[dev-dependencies]
-async-trait = "0.1"
-tokio       = { version = "1", features = ["macros", "rt"] }
-
-[lints]
-workspace = true
