@@ -1,3 +1,21 @@
+[workspace]
+resolver = "2"
+
+[workspace.package]
+version      = "0.1.0"
+edition      = "2021"
+license      = "MIT OR Apache-2.0"
+rust-version = "1.95"
+authors      = ["SWE Engineering Labs"]
+repository   = "https://github.com/sweengineeringlabs/edge-proxy"
+
+[workspace.lints.rust]
+unsafe_code  = "deny"
+
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+
 [package]
 name         = "edge-proxy"
 version.workspace     = true
