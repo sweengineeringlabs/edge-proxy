@@ -1,5 +1,7 @@
 # swe-edge-proxy
 
+> **TLDR:** L2 dispatch facade for swe-edge — `Job`, `Router`, and `LifecycleMonitor` traits; sits between ingress and domain with no transport knowledge. See [Overview](scm/docs/README.md) for details.
+
 Dispatch facade for the `swe-edge` stack.
 
 Defines the three core traits that every controller must implement — `Job`,

@@ -13,7 +13,7 @@
 
 use std::sync::Arc;
 
-use edge_domain::{Handler, HandlerError, HandlerRegistry};
+use edge_domain::{Domain, Handler, HandlerError, HandlerRegistry};
 use edge_proxy::{Job, JobError, ProxySvc, Router, RoutingError};
 use futures::future::BoxFuture;
 
@@ -72,7 +72,7 @@ impl Router<String> for CommandRouter {
 
 struct DispatchJob {
     router: Arc<dyn Router<String>>,
-    registry: Arc<HandlerRegistry<Request, Response>>,
+    registry: Arc<dyn HandlerRegistry<Request, Response>>,
 }
 
 impl Job<Request, Response> for DispatchJob {
@@ -91,7 +91,7 @@ impl Job<Request, Response> for DispatchJob {
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 1. Domain: populate the handler registry.
-    let registry = Arc::new(HandlerRegistry::<Request, Response>::new());
+    let registry = Domain::new_handler_registry::<Request, Response>();
     registry.register(Arc::new(EchoHandlerImpl));
 
     // 2. Proxy: wire router + registry into a Job.
