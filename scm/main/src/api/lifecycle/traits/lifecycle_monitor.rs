@@ -7,8 +7,8 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::health::HealthReport;
-use crate::api::lifecycle::error::LifecycleError;
+use crate::api::lifecycle::errors::LifecycleError;
+use crate::api::lifecycle::types::{ComponentHealth, HealthReport, HealthStatus};
 
 /// Runtime lifecycle management for a Controller instance.
 pub trait LifecycleMonitor: Send + Sync {
@@ -25,4 +25,10 @@ pub trait LifecycleMonitor: Send + Sync {
     /// release resources. After `shutdown` returns, `health` is expected to
     /// report a non-healthy status.
     fn shutdown(&self) -> BoxFuture<'_, Result<(), LifecycleError>>;
+
+    /// Return the overall health status without the full component breakdown.
+    fn status(&self) -> BoxFuture<'_, HealthStatus>;
+
+    /// Return the health snapshot for a named component, if tracked.
+    fn component(&self, id: &str) -> BoxFuture<'_, Option<ComponentHealth>>;
 }

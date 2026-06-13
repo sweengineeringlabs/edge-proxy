@@ -1,7 +1,11 @@
 //! Router theme — input classification contract and errors.
 
-pub(crate) mod error;
+pub(crate) mod errors;
+pub mod null_router;
 pub(crate) mod traits;
+pub mod types;
 
-pub use error::RoutingError;
+pub use errors::RoutingError;
+pub use null_router::NullRouter;
 pub use traits::Router;
+pub use types::NullRouterMarker;

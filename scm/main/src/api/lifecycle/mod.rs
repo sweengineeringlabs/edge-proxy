@@ -1,7 +1,11 @@
-//! Lifecycle theme — runtime state management contracts and errors.
+//! Lifecycle theme — runtime state management contracts, types, and errors.
 
-pub(crate) mod error;
+pub(crate) mod errors;
+pub mod null_lifecycle_monitor;
 pub(crate) mod traits;
+pub(crate) mod types;
 
-pub use error::LifecycleError;
-pub use traits::{LifecycleMonitor, Monitor, NullLifecycleMonitorApi};
+pub use errors::LifecycleError;
+pub use null_lifecycle_monitor::NullLifecycleMonitor;
+pub use traits::{LifecycleMonitor, Monitor};
+pub use types::{ComponentHealth, HealthReport, HealthStatus};

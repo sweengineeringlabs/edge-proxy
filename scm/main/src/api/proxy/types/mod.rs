@@ -1,4 +1,4 @@
-//! Crate-level facade and marker types shared across themes.
+//! Proxy theme value types.
 
 pub mod application_config_builder;
 pub mod proxy_pattern;

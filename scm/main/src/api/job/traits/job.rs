@@ -3,9 +3,12 @@
 //! The single entry point the gateway calls. Each Controller implementation
 //! provides one `Job` impl that orchestrates its full request→response flow.
 
+use edge_domain::SecurityContext;
 use futures::future::BoxFuture;
 
-use crate::api::job::error::JobError;
+use crate::api::job::errors::JobError;
+use crate::api::job::types::null_job_marker::NullJobMarker;
+use crate::api::job::NullJob;
 
 /// The single entry point for proxy dispatch.
 ///
@@ -16,30 +19,38 @@ use crate::api::job::error::JobError;
 ///
 /// ```rust,no_run
 /// use futures::future::BoxFuture;
-/// use edge_proxy::{Job, JobError};
+/// use edge_proxy::{Job, JobError, SecurityContext};
 ///
 /// struct EchoJob;
 ///
 /// impl Job<String, String> for EchoJob {
-///     fn run(&self, req: String) -> BoxFuture<'_, Result<String, JobError>> {
+///     fn run(&self, req: String, _ctx: SecurityContext) -> BoxFuture<'_, Result<String, JobError>> {
 ///         Box::pin(async move { Ok(req) })
 ///     }
 /// }
 /// ```
-pub trait Job<Request, Response>: Send + Sync
+pub trait Job<Request = String, Response = String>: Send + Sync
 where
     Request: Send + 'static,
     Response: Send + 'static,
 {
     /// Dispatch the request and return the response.
     ///
-    /// # Examples
-    ///
-    /// ```rust,no_run
-    /// // Typical impl: route the request, look up a handler, execute it.
-    /// // let intent = self.router.route(&req).await?;
-    /// // let handler = self.registry.get(&intent)?;
-    /// // handler.execute(req).await.map_err(JobError::from)
-    /// ```
-    fn run(&self, req: Request) -> BoxFuture<'_, Result<Response, JobError>>;
+    /// The [`SecurityContext`] carries the authenticated principal, tenant, and
+    /// claims for the current request. Pass it to [`Handler::execute_with_context`]
+    /// to propagate security through the handler chain.
+    fn run(&self, req: Request, ctx: SecurityContext) -> BoxFuture<'_, Result<Response, JobError>>;
+
+    /// Return a reference to the erased null-job form, if this implementation
+    /// is a null object.  Returns `None` by default.
+    fn as_null_job(&self) -> Option<&NullJob> {
+        None
+    }
+
+    /// Return a [`NullJobMarker`] token if this implementation is a null-object
+    /// job, or `None` for real implementations.  Used to identify inert jobs
+    /// in bring-up and testing contexts without downcasting.
+    fn as_null_job_marker(&self) -> Option<NullJobMarker> {
+        None
+    }
 }

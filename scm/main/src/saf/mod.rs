@@ -1,31 +1,24 @@
 //! SAF layer — proxy public facade.
 
+mod job_svc;
+mod lifecycle_monitor_svc;
+mod monitor_svc;
+mod noop_validator_svc;
+mod null_lifecycle_monitor_svc;
+mod proxy;
 mod proxy_svc;
+mod router_svc;
+mod validator_svc;
 
-// Facade handle and application config builder
-pub use crate::api::types::ApplicationConfigBuilder;
-pub use crate::api::types::ProxySvc;
+// Security context (from edge-domain, not via api/)
+pub use edge_domain::SecurityContext;
 
-// Concern traits (re-exported from api/ themes)
-pub use crate::api::job::Job;
-pub use crate::api::lifecycle::LifecycleMonitor;
-pub use crate::api::router::Router;
-pub use crate::api::validator::Validator;
-
-// Null lifecycle monitor extension traits (for downstream impls)
-pub use crate::api::lifecycle::Monitor as NullMonitor;
-pub use crate::api::lifecycle::NullLifecycleMonitorApi;
-
-// Validator extension traits (for downstream impls)
-pub use crate::api::validator::NoopValidator;
-
-// Marker types
-pub use crate::api::types::ProxyPattern;
-
-// Error types
-pub use crate::api::job::{HandlerError, JobError};
-pub use crate::api::lifecycle::LifecycleError;
-pub use crate::api::router::RoutingError;
-
-// Health types
-pub use crate::api::health::{ComponentHealth, HealthReport, HealthStatus};
+pub use job_svc::*;
+pub use lifecycle_monitor_svc::*;
+pub use monitor_svc::*;
+pub use noop_validator_svc::*;
+pub use null_lifecycle_monitor_svc::*;
+pub use proxy::*;
+pub use proxy_svc::*;
+pub use router_svc::*;
+pub use validator_svc::*;

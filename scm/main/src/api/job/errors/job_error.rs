@@ -4,7 +4,7 @@ use thiserror::Error;
 
 pub use edge_domain::HandlerError;
 
-use crate::api::router::error::routing_error::RoutingError;
+use crate::api::router::errors::routing_error::RoutingError;
 
 /// Errors raised by [`Job::run`](crate::Job::run).
 #[derive(Debug, Error)]

@@ -1,6 +1,6 @@
 # ADR-001: Security Context Propagation — Job trait contract change
 
-**Status:** Accepted  
+**Status:** Implemented (pending arch cleanup — 14 pre-existing rule failures block commit)  
 **Date:** 2026-06-12  
 **Governing ADR:** [ADR-017](https://github.com/sweengineeringlabs/edge/blob/main/docs/3-architecture/adr/ADR-017-security-context-propagation.md) — Security Context Propagation Pipeline
 

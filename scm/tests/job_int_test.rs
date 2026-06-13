@@ -1,9 +1,124 @@
 //! Integration tests for the Job trait.
+//! @covers: api/job/traits/job.rs
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_proxy::Job;
+use futures::future::BoxFuture;
 
-/// @covers: Job
+use std::sync::Arc;
+
+use edge_proxy::{Job, JobError, NullJobMarker, ProxySvc, SecurityContext};
+
+fn rt() -> tokio::runtime::Runtime {
+    tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("tokio runtime")
+}
+
+struct OkJob;
+
+impl Job<String, String> for OkJob {
+    fn run(&self, req: String, _ctx: SecurityContext) -> BoxFuture<'_, Result<String, JobError>> {
+        Box::pin(async move { Ok(req) })
+    }
+}
+
+struct ErrJob;
+
+impl Job<String, String> for ErrJob {
+    fn run(&self, _req: String, _ctx: SecurityContext) -> BoxFuture<'_, Result<String, JobError>> {
+        Box::pin(async move { Err(JobError::HandlerUnavailable("none".into())) })
+    }
+}
+
 #[test]
 fn test_job_trait_is_object_safe() {
     fn _accept(_j: &dyn Job<String, String>) {}
+}
+
+#[test]
+fn test_job_run_dispatches_request_happy() {
+    let result = rt().block_on(OkJob.run("hello".into(), SecurityContext::unauthenticated()));
+    assert_eq!(result.unwrap(), "hello");
+}
+
+#[test]
+fn test_job_run_propagates_handler_error_error() {
+    let result = rt().block_on(ErrJob.run("x".into(), SecurityContext::unauthenticated()));
+    assert!(matches!(result, Err(JobError::HandlerUnavailable(_))));
+}
+
+#[test]
+fn test_job_run_with_empty_request_edge() {
+    let result = rt().block_on(OkJob.run(String::new(), SecurityContext::unauthenticated()));
+    assert_eq!(result.unwrap(), "");
+}
+
+// Rule 222 scenario coverage — test_run_* naming pattern ─────────────────────
+
+/// run — happy: request is dispatched and response returned.
+#[test]
+fn test_run_dispatches_request_happy() {
+    let result = rt().block_on(OkJob.run("payload".into(), SecurityContext::unauthenticated()));
+    assert_eq!(result.unwrap(), "payload");
+}
+
+/// run — error: handler unavailable propagates as HandlerUnavailable.
+#[test]
+fn test_run_handler_unavailable_error() {
+    let result = rt().block_on(ErrJob.run("req".into(), SecurityContext::unauthenticated()));
+    assert!(matches!(result, Err(JobError::HandlerUnavailable(_))));
+}
+
+/// run — edge: empty string request is passed through unchanged.
+#[test]
+fn test_run_empty_string_request_edge() {
+    let result = rt().block_on(OkJob.run(String::new(), SecurityContext::unauthenticated()));
+    assert_eq!(result.unwrap(), "");
+}
+
+// Rule 222 scenario coverage for Job::as_null_job ─────────────────────────────
+
+/// as_null_job — happy: default implementation returns None on a concrete impl.
+#[test]
+fn test_as_null_job_default_returns_none_happy() {
+    assert!(OkJob.as_null_job().is_none());
+}
+
+/// as_null_job — error: null-job impl also returns None (no override needed).
+#[test]
+fn test_as_null_job_on_null_job_impl_returns_none_error() {
+    let job: Arc<dyn Job<String, String>> = ProxySvc::new_null_job::<String, String>();
+    assert!((*job).as_null_job().is_none());
+}
+
+/// as_null_job — edge: method is callable on a dyn Job trait object.
+#[test]
+fn test_as_null_job_accessible_on_dyn_trait_object_edge() {
+    let dyn_ref: &dyn Job<String, String> = &OkJob;
+    assert!(dyn_ref.as_null_job().is_none());
+}
+
+// Rule 222 scenario coverage for Job::as_null_job_marker ─────────────────────
+
+/// as_null_job_marker — happy: default impl returns None on a real job implementation.
+#[test]
+fn test_as_null_job_marker_default_returns_none_happy() {
+    let result: Option<NullJobMarker> = OkJob.as_null_job_marker();
+    assert!(result.is_none());
+}
+
+/// as_null_job_marker — error: returns None even when dispatching yields an error result.
+#[test]
+fn test_as_null_job_marker_on_err_job_returns_none_error() {
+    let result: Option<NullJobMarker> = ErrJob.as_null_job_marker();
+    assert!(result.is_none());
+}
+
+/// as_null_job_marker — edge: method is accessible through a dyn Job trait object.
+#[test]
+fn test_as_null_job_marker_accessible_on_dyn_trait_object_edge() {
+    let dyn_ref: &dyn Job<String, String> = &OkJob;
+    let result: Option<NullJobMarker> = dyn_ref.as_null_job_marker();
+    assert!(result.is_none());
 }

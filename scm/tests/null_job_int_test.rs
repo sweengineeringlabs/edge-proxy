@@ -1,0 +1,37 @@
+//! Integration tests for the NullJob type alias.
+//! @covers: api/job/null_job.rs
+#![allow(clippy::expect_used)]
+
+use edge_proxy::{JobError, NullJob, ProxySvc, SecurityContext};
+
+fn rt() -> tokio::runtime::Runtime {
+    tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("tokio")
+}
+
+/// NullJob — happy: a concrete Job impl can be used through the NullJob alias.
+#[test]
+fn test_null_job_type_alias_accepts_null_job_impl_happy() {
+    let arc_job = ProxySvc::new_null_job::<String, String>();
+    let null_job_ref: &NullJob = &*arc_job;
+    let result = rt().block_on(null_job_ref.run("x".into(), SecurityContext::unauthenticated()));
+    assert!(matches!(result, Err(JobError::Cancelled)));
+}
+
+/// NullJob — error: the erased job returns Cancelled for empty input too.
+#[test]
+fn test_null_job_via_alias_returns_cancelled_on_empty_input_error() {
+    let arc_job = ProxySvc::new_null_job::<String, String>();
+    let null_job_ref: &NullJob = &*arc_job;
+    let result = rt().block_on(null_job_ref.run(String::new(), SecurityContext::unauthenticated()));
+    assert!(matches!(result, Err(JobError::Cancelled)));
+}
+
+/// NullJob — edge: the aliased dyn type is Send and Sync.
+#[test]
+fn test_null_job_type_alias_is_send_and_sync_edge() {
+    fn _check<T: Send + Sync + ?Sized>() {}
+    _check::<NullJob>();
+}

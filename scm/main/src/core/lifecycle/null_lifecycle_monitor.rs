@@ -9,10 +9,10 @@
 use futures::future::BoxFuture;
 use parking_lot::Mutex;
 
-use crate::api::health::{HealthReport, HealthStatus};
-use crate::api::lifecycle::error::LifecycleError;
+use crate::api::lifecycle::errors::LifecycleError;
 use crate::api::lifecycle::traits::lifecycle_monitor::LifecycleMonitor;
-use crate::api::lifecycle::traits::null_lifecycle_monitor_api::NullLifecycleMonitorApi;
+use crate::api::lifecycle::traits::monitor::Monitor;
+use crate::api::lifecycle::types::{ComponentHealth, HealthReport, HealthStatus};
 
 /// No-op lifecycle monitor suitable for tests and early bring-up.
 ///
@@ -38,8 +38,9 @@ impl Default for NullLifecycleMonitor {
     }
 }
 
-impl NullLifecycleMonitorApi for NullLifecycleMonitor {}
-impl crate::api::lifecycle::traits::monitor::Monitor for NullLifecycleMonitor {}
+// Use full path to avoid shadowing the local struct with a same-named trait import.
+impl crate::api::lifecycle::null_lifecycle_monitor::NullLifecycleMonitor for NullLifecycleMonitor {}
+impl Monitor for NullLifecycleMonitor {}
 
 impl LifecycleMonitor for NullLifecycleMonitor {
     fn health(&self) -> BoxFuture<'_, HealthReport> {
@@ -72,13 +73,26 @@ impl LifecycleMonitor for NullLifecycleMonitor {
             Ok(())
         })
     }
+
+    fn status(&self) -> BoxFuture<'_, HealthStatus> {
+        Box::pin(async move {
+            if *self.shut_down.lock() {
+                HealthStatus::Unhealthy
+            } else {
+                HealthStatus::Healthy
+            }
+        })
+    }
+
+    fn component(&self, _id: &str) -> BoxFuture<'_, Option<ComponentHealth>> {
+        Box::pin(async move { None })
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    /// @covers: new
     #[test]
     fn test_new_creates_monitor_in_running_state() {
         let m = NullLifecycleMonitor::new();

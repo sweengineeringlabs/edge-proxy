@@ -1,4 +1,4 @@
-//! Health theme value types.
+//! Lifecycle theme value types.
 
 pub mod component_health;
 pub mod health_report;

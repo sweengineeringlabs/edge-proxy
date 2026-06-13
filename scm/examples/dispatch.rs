@@ -13,7 +13,7 @@
 
 use std::sync::Arc;
 
-use edge_domain::{Domain, Handler, HandlerError, HandlerRegistry};
+use edge_domain::{Domain, Handler, HandlerError, HandlerRegistry, SecurityContext};
 use edge_proxy::{Job, JobError, ProxySvc, Router, RoutingError};
 use futures::future::BoxFuture;
 
@@ -76,12 +76,12 @@ struct DispatchJob {
 }
 
 impl Job<Request, Response> for DispatchJob {
-    fn run(&self, req: Request) -> BoxFuture<'_, Result<Response, JobError>> {
+    fn run(&self, req: Request, ctx: SecurityContext) -> BoxFuture<'_, Result<Response, JobError>> {
         Box::pin(async move {
             let handler_id = self.router.route(&req.command).await?;
             let err = JobError::HandlerUnavailable(handler_id.clone());
             let handler = self.registry.get(&handler_id).ok_or(err)?;
-            Ok(handler.execute(req).await?)
+            Ok(handler.execute_with_context(req, ctx).await?)
         })
     }
 }
@@ -102,19 +102,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 3. Dispatch — known command routes to the echo handler.
     let resp = job
-        .run(Request {
-            command: "echo".into(),
-            payload: "hello proxy".into(),
-        })
+        .run(
+            Request {
+                command: "echo".into(),
+                payload: "hello proxy".into(),
+            },
+            SecurityContext::unauthenticated(),
+        )
         .await?;
     println!("echo  → handler={} output={}", resp.handler, resp.output);
 
     // 4. Dispatch — routing miss is surfaced as a JobError.
     let result = job
-        .run(Request {
-            command: "unknown".into(),
-            payload: "".into(),
-        })
+        .run(
+            Request {
+                command: "unknown".into(),
+                payload: "".into(),
+            },
+            SecurityContext::unauthenticated(),
+        )
         .await;
     let err = result.unwrap_err();
     println!("unknown → {err}");
