@@ -36,7 +36,10 @@ struct Response {
 struct EchoHandlerImpl;
 
 #[async_trait::async_trait]
-impl Handler<Request, Response> for EchoHandlerImpl {
+impl Handler for EchoHandlerImpl {
+    type Request = Request;
+    type Response = Response;
+
     fn id(&self) -> &str {
         "echo"
     }
@@ -72,7 +75,7 @@ impl Router<String> for CommandRouter {
 
 struct DispatchJob {
     router: Arc<dyn Router<String>>,
-    registry: Arc<dyn HandlerRegistry<Request, Response>>,
+    registry: Arc<dyn HandlerRegistry<Request = Request, Response = Response>>,
 }
 
 impl Job<Request, Response> for DispatchJob {
