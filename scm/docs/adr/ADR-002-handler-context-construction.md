@@ -47,7 +47,7 @@ impl Job<Req, Resp> for DomainJob {
             let intent = self.router.route(&req).await?;
             let handler = self.registry.get(&intent).ok_or(JobError::NotFound)?;
             let ctx = HandlerContext {
-                security,
+                security: &security,   // borrow — HandlerContext<'_> is Copy
                 commands: &*self.bus,
             };
             handler.execute(req, ctx).await.map_err(JobError::from)
