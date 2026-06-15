@@ -1,6 +1,6 @@
 //! `NullJob` — a no-op `Job` that always cancels, useful as a placeholder.
 
-use edge_domain::SecurityContext;
+use edge_domain::HandlerContext;
 use futures::future::BoxFuture;
 
 use crate::api::job::errors::job_error::JobError;
@@ -16,7 +16,11 @@ where
     Req: Send + 'static,
     Resp: Send + 'static,
 {
-    fn run(&self, _req: Req, _ctx: SecurityContext) -> BoxFuture<'_, Result<Resp, JobError>> {
+    fn run<'a>(
+        &'a self,
+        _req: Req,
+        _ctx: HandlerContext<'a>,
+    ) -> BoxFuture<'a, Result<Resp, JobError>> {
         Box::pin(async move { Err(JobError::Cancelled) })
     }
 }
@@ -24,10 +28,28 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use edge_domain::SecurityContext;
+    use futures::future::BoxFuture;
+
+    struct NullBus;
+    impl edge_domain::CommandBus for NullBus {
+        fn dispatch(
+            &self,
+            _: Box<dyn edge_domain::Command>,
+        ) -> BoxFuture<'_, Result<(), edge_domain::CommandError>> {
+            Box::pin(async { Ok(()) })
+        }
+    }
 
     #[tokio::test]
     async fn test_null_job_always_returns_cancelled() {
-        let result: Result<(), _> = NullJob.run((), SecurityContext::unauthenticated()).await;
+        let s = SecurityContext::unauthenticated();
+        let b = NullBus;
+        let ctx = HandlerContext {
+            security: &s,
+            commands: &b,
+        };
+        let result: Result<(), _> = NullJob.run((), ctx).await;
         assert!(matches!(result, Err(JobError::Cancelled)));
     }
 }

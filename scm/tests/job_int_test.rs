@@ -6,7 +6,7 @@ use futures::future::BoxFuture;
 
 use std::sync::Arc;
 
-use edge_proxy::{Job, JobError, NullJobMarker, ProxySvc, SecurityContext};
+use edge_proxy::{HandlerContext, Job, JobError, NullJobMarker, ProxySvc, SecurityContext};
 
 fn rt() -> tokio::runtime::Runtime {
     tokio::runtime::Builder::new_current_thread()
@@ -15,10 +15,28 @@ fn rt() -> tokio::runtime::Runtime {
         .expect("tokio runtime")
 }
 
+struct NullBus;
+impl edge_proxy::CommandBus for NullBus {
+    fn dispatch(
+        &self,
+        _: Box<dyn edge_domain::Command>,
+    ) -> BoxFuture<'_, Result<(), edge_domain::CommandError>> {
+        Box::pin(async { Ok(()) })
+    }
+}
+
+fn anon_ctx_parts() -> (SecurityContext, NullBus) {
+    (SecurityContext::unauthenticated(), NullBus)
+}
+
 struct OkJob;
 
 impl Job<String, String> for OkJob {
-    fn run(&self, req: String, _ctx: SecurityContext) -> BoxFuture<'_, Result<String, JobError>> {
+    fn run<'a>(
+        &'a self,
+        req: String,
+        _ctx: HandlerContext<'a>,
+    ) -> BoxFuture<'a, Result<String, JobError>> {
         Box::pin(async move { Ok(req) })
     }
 }
@@ -26,7 +44,11 @@ impl Job<String, String> for OkJob {
 struct ErrJob;
 
 impl Job<String, String> for ErrJob {
-    fn run(&self, _req: String, _ctx: SecurityContext) -> BoxFuture<'_, Result<String, JobError>> {
+    fn run<'a>(
+        &'a self,
+        _req: String,
+        _ctx: HandlerContext<'a>,
+    ) -> BoxFuture<'a, Result<String, JobError>> {
         Box::pin(async move { Err(JobError::HandlerUnavailable("none".into())) })
     }
 }
@@ -38,19 +60,34 @@ fn test_job_trait_is_object_safe() {
 
 #[test]
 fn test_job_run_dispatches_request_happy() {
-    let result = rt().block_on(OkJob.run("hello".into(), SecurityContext::unauthenticated()));
+    let (s, b) = anon_ctx_parts();
+    let ctx = HandlerContext {
+        security: &s,
+        commands: &b,
+    };
+    let result = rt().block_on(OkJob.run("hello".into(), ctx));
     assert_eq!(result.unwrap(), "hello");
 }
 
 #[test]
 fn test_job_run_propagates_handler_error_error() {
-    let result = rt().block_on(ErrJob.run("x".into(), SecurityContext::unauthenticated()));
+    let (s, b) = anon_ctx_parts();
+    let ctx = HandlerContext {
+        security: &s,
+        commands: &b,
+    };
+    let result = rt().block_on(ErrJob.run("x".into(), ctx));
     assert!(matches!(result, Err(JobError::HandlerUnavailable(_))));
 }
 
 #[test]
 fn test_job_run_with_empty_request_edge() {
-    let result = rt().block_on(OkJob.run(String::new(), SecurityContext::unauthenticated()));
+    let (s, b) = anon_ctx_parts();
+    let ctx = HandlerContext {
+        security: &s,
+        commands: &b,
+    };
+    let result = rt().block_on(OkJob.run(String::new(), ctx));
     assert_eq!(result.unwrap(), "");
 }
 
@@ -59,21 +96,36 @@ fn test_job_run_with_empty_request_edge() {
 /// run — happy: request is dispatched and response returned.
 #[test]
 fn test_run_dispatches_request_happy() {
-    let result = rt().block_on(OkJob.run("payload".into(), SecurityContext::unauthenticated()));
+    let (s, b) = anon_ctx_parts();
+    let ctx = HandlerContext {
+        security: &s,
+        commands: &b,
+    };
+    let result = rt().block_on(OkJob.run("payload".into(), ctx));
     assert_eq!(result.unwrap(), "payload");
 }
 
 /// run — error: handler unavailable propagates as HandlerUnavailable.
 #[test]
 fn test_run_handler_unavailable_error() {
-    let result = rt().block_on(ErrJob.run("req".into(), SecurityContext::unauthenticated()));
+    let (s, b) = anon_ctx_parts();
+    let ctx = HandlerContext {
+        security: &s,
+        commands: &b,
+    };
+    let result = rt().block_on(ErrJob.run("req".into(), ctx));
     assert!(matches!(result, Err(JobError::HandlerUnavailable(_))));
 }
 
 /// run — edge: empty string request is passed through unchanged.
 #[test]
 fn test_run_empty_string_request_edge() {
-    let result = rt().block_on(OkJob.run(String::new(), SecurityContext::unauthenticated()));
+    let (s, b) = anon_ctx_parts();
+    let ctx = HandlerContext {
+        security: &s,
+        commands: &b,
+    };
+    let result = rt().block_on(OkJob.run(String::new(), ctx));
     assert_eq!(result.unwrap(), "");
 }
 

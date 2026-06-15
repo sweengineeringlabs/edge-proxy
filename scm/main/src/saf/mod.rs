@@ -10,7 +10,9 @@ mod proxy_svc;
 mod router_svc;
 mod validator_svc;
 
-// Security context (from edge-domain, not via api/)
+// Context types (from edge-domain, not via api/)
+pub use edge_domain::CommandBus;
+pub use edge_domain::HandlerContext;
 pub use edge_domain::SecurityContext;
 
 pub use job_svc::*;

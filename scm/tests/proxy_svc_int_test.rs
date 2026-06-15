@@ -1,13 +1,30 @@
 //! Integration tests for ProxySvc facade type.
 #![allow(clippy::expect_used, clippy::unwrap_used)]
 
-use edge_proxy::{HealthStatus, JobError, ProxySvc, RoutingError, SecurityContext, Validator};
+use edge_proxy::{
+    HandlerContext, HealthStatus, JobError, ProxySvc, RoutingError, SecurityContext, Validator,
+};
+use futures::future::BoxFuture;
 
 fn rt() -> tokio::runtime::Runtime {
     tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
         .expect("tokio runtime")
+}
+
+struct NullBus;
+impl edge_proxy::CommandBus for NullBus {
+    fn dispatch(
+        &self,
+        _: Box<dyn edge_domain::Command>,
+    ) -> BoxFuture<'_, Result<(), edge_domain::CommandError>> {
+        Box::pin(async { Ok(()) })
+    }
+}
+
+fn anon_ctx_parts() -> (SecurityContext, NullBus) {
+    (SecurityContext::unauthenticated(), NullBus)
 }
 
 #[test]
@@ -162,7 +179,12 @@ fn test_validate_empty_string_passed_through_edge() {
 #[test]
 fn test_new_null_job_returns_cancelled_happy() {
     let job = ProxySvc::new_null_job::<String, String>();
-    let result = rt().block_on(job.run("input".into(), SecurityContext::unauthenticated()));
+    let (s, b) = anon_ctx_parts();
+    let ctx = HandlerContext {
+        security: &s,
+        commands: &b,
+    };
+    let result = rt().block_on(job.run("input".into(), ctx));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }
 
@@ -170,7 +192,12 @@ fn test_new_null_job_returns_cancelled_happy() {
 #[test]
 fn test_new_null_job_with_empty_request_also_cancels_error() {
     let job = ProxySvc::new_null_job::<String, String>();
-    let result = rt().block_on(job.run(String::new(), SecurityContext::unauthenticated()));
+    let (s, b) = anon_ctx_parts();
+    let ctx = HandlerContext {
+        security: &s,
+        commands: &b,
+    };
+    let result = rt().block_on(job.run(String::new(), ctx));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }
 
@@ -178,7 +205,12 @@ fn test_new_null_job_with_empty_request_also_cancels_error() {
 #[test]
 fn test_new_null_job_with_unit_type_cancels_edge() {
     let job = ProxySvc::new_null_job::<(), ()>();
-    let result = rt().block_on(job.run((), SecurityContext::unauthenticated()));
+    let (s, b) = anon_ctx_parts();
+    let ctx = HandlerContext {
+        security: &s,
+        commands: &b,
+    };
+    let result = rt().block_on(job.run((), ctx));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }
 
@@ -214,7 +246,12 @@ fn test_new_null_router_empty_input_is_no_match_edge() {
 #[test]
 fn test_new_canonical_job_returns_cancelled_happy() {
     let job = ProxySvc::new_canonical_job();
-    let result = rt().block_on(job.run("ping".into(), SecurityContext::unauthenticated()));
+    let (s, b) = anon_ctx_parts();
+    let ctx = HandlerContext {
+        security: &s,
+        commands: &b,
+    };
+    let result = rt().block_on(job.run("ping".into(), ctx));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }
 
@@ -222,7 +259,12 @@ fn test_new_canonical_job_returns_cancelled_happy() {
 #[test]
 fn test_new_canonical_job_empty_request_returns_cancelled_error() {
     let job = ProxySvc::new_canonical_job();
-    let result = rt().block_on(job.run(String::new(), SecurityContext::unauthenticated()));
+    let (s, b) = anon_ctx_parts();
+    let ctx = HandlerContext {
+        security: &s,
+        commands: &b,
+    };
+    let result = rt().block_on(job.run(String::new(), ctx));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }
 
@@ -231,8 +273,13 @@ fn test_new_canonical_job_empty_request_returns_cancelled_error() {
 fn test_new_canonical_job_two_instances_both_cancel_edge() {
     let j1 = ProxySvc::new_canonical_job();
     let j2 = ProxySvc::new_canonical_job();
-    let r1 = rt().block_on(j1.run("a".into(), SecurityContext::unauthenticated()));
-    let r2 = rt().block_on(j2.run("b".into(), SecurityContext::unauthenticated()));
+    let (s, b) = anon_ctx_parts();
+    let ctx = HandlerContext {
+        security: &s,
+        commands: &b,
+    };
+    let r1 = rt().block_on(j1.run("a".into(), ctx));
+    let r2 = rt().block_on(j2.run("b".into(), ctx));
     assert!(matches!(r1, Err(JobError::Cancelled)));
     assert!(matches!(r2, Err(JobError::Cancelled)));
 }

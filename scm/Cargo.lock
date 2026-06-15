@@ -58,9 +58,10 @@ dependencies = [
 [[package]]
 name = "edge-domain"
 version = "0.8.19"
-source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.20#157af57804cf3537dbf7020391e7e34cd63f36c9"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.29#b9e1de88544df56eb26c1554ecd8356c0d040e09"
 dependencies = [
  "async-trait",
+ "edge-domain-command",
  "edge-domain-handler",
  "edge-domain-security",
  "futures",
@@ -71,11 +72,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "edge-domain-handler"
-version = "0.1.1"
-source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.20#157af57804cf3537dbf7020391e7e34cd63f36c9"
+name = "edge-domain-command"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.29#b9e1de88544df56eb26c1554ecd8356c0d040e09"
 dependencies = [
  "async-trait",
+ "futures",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-handler"
+version = "0.1.1"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.29#b9e1de88544df56eb26c1554ecd8356c0d040e09"
+dependencies = [
+ "async-trait",
+ "edge-domain-command",
  "edge-domain-security",
  "parking_lot",
  "thiserror 2.0.18",
@@ -84,7 +96,7 @@ dependencies = [
 [[package]]
 name = "edge-domain-security"
 version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.20#157af57804cf3537dbf7020391e7e34cd63f36c9"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.29#b9e1de88544df56eb26c1554ecd8356c0d040e09"
 dependencies = [
  "thiserror 2.0.18",
 ]

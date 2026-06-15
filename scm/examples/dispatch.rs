@@ -13,7 +13,10 @@
 
 use std::sync::Arc;
 
-use edge_domain::{Domain, Handler, HandlerError, HandlerRegistry, SecurityContext};
+use edge_domain::{
+    Command, CommandBus, CommandError, Domain, Handler, HandlerContext, HandlerError,
+    HandlerRegistry, SecurityContext,
+};
 use edge_proxy::{Job, JobError, ProxySvc, Router, RoutingError};
 use futures::future::BoxFuture;
 
@@ -29,6 +32,15 @@ struct Request {
 struct Response {
     handler: String,
     output: String,
+}
+
+// ── Noop command bus for example wiring ──────────────────────────────────────
+
+struct NoopBus;
+impl CommandBus for NoopBus {
+    fn dispatch(&self, _: Box<dyn Command>) -> BoxFuture<'_, Result<(), CommandError>> {
+        Box::pin(async { Ok(()) })
+    }
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────────
@@ -47,7 +59,11 @@ impl Handler for EchoHandlerImpl {
         "direct"
     }
 
-    async fn execute(&self, req: Request) -> Result<Response, HandlerError> {
+    async fn execute(
+        &self,
+        req: Request,
+        _ctx: HandlerContext<'_>,
+    ) -> Result<Response, HandlerError> {
         let id = self.id().to_string();
         Ok(Response {
             handler: id,
@@ -79,12 +95,16 @@ struct DispatchJob {
 }
 
 impl Job<Request, Response> for DispatchJob {
-    fn run(&self, req: Request, ctx: SecurityContext) -> BoxFuture<'_, Result<Response, JobError>> {
+    fn run<'a>(
+        &'a self,
+        req: Request,
+        ctx: HandlerContext<'a>,
+    ) -> BoxFuture<'a, Result<Response, JobError>> {
         Box::pin(async move {
             let handler_id = self.router.route(&req.command).await?;
             let err = JobError::HandlerUnavailable(handler_id.clone());
             let handler = self.registry.get(&handler_id).ok_or(err)?;
-            Ok(handler.execute_with_context(req, ctx).await?)
+            Ok(handler.execute(req, ctx).await?)
         })
     }
 }
@@ -103,32 +123,44 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         registry: registry.clone(),
     });
 
-    // 3. Dispatch — known command routes to the echo handler.
+    // 3. Build the request context at the inbound boundary.
+    let security = SecurityContext::unauthenticated();
+    let bus = NoopBus;
+
+    // 4. Dispatch — known command routes to the echo handler.
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &bus,
+    };
     let resp = job
         .run(
             Request {
                 command: "echo".into(),
                 payload: "hello proxy".into(),
             },
-            SecurityContext::unauthenticated(),
+            ctx,
         )
         .await?;
     println!("echo  → handler={} output={}", resp.handler, resp.output);
 
-    // 4. Dispatch — routing miss is surfaced as a JobError.
+    // 5. Dispatch — routing miss is surfaced as a JobError.
+    let ctx2 = HandlerContext {
+        security: &security,
+        commands: &bus,
+    };
     let result = job
         .run(
             Request {
                 command: "unknown".into(),
                 payload: "".into(),
             },
-            SecurityContext::unauthenticated(),
+            ctx2,
         )
         .await;
     let err = result.unwrap_err();
     println!("unknown → {err}");
 
-    // 5. Lifecycle: null monitor reports Healthy out of the box.
+    // 6. Lifecycle: null monitor reports Healthy out of the box.
     let lifecycle = ProxySvc::new_null_lifecycle_monitor();
     let report = lifecycle.health().await;
     println!("lifecycle overall → {:?}", report.overall);

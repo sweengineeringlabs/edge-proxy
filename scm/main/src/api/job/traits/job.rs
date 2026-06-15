@@ -3,7 +3,7 @@
 //! The single entry point the gateway calls. Each Controller implementation
 //! provides one `Job` impl that orchestrates its full request→response flow.
 
-use edge_domain::SecurityContext;
+use edge_domain::HandlerContext;
 use futures::future::BoxFuture;
 
 use crate::api::job::errors::JobError;
@@ -19,12 +19,12 @@ use crate::api::job::NullJob;
 ///
 /// ```rust,no_run
 /// use futures::future::BoxFuture;
-/// use edge_proxy::{Job, JobError, SecurityContext};
+/// use edge_proxy::{HandlerContext, Job, JobError};
 ///
 /// struct EchoJob;
 ///
 /// impl Job<String, String> for EchoJob {
-///     fn run(&self, req: String, _ctx: SecurityContext) -> BoxFuture<'_, Result<String, JobError>> {
+///     fn run<'a>(&'a self, req: String, _ctx: HandlerContext<'a>) -> BoxFuture<'a, Result<String, JobError>> {
 ///         Box::pin(async move { Ok(req) })
 ///     }
 /// }
@@ -36,10 +36,14 @@ where
 {
     /// Dispatch the request and return the response.
     ///
-    /// The [`SecurityContext`] carries the authenticated principal, tenant, and
-    /// claims for the current request. Pass it to [`Handler::execute_with_context`]
-    /// to propagate security through the handler chain.
-    fn run(&self, req: Request, ctx: SecurityContext) -> BoxFuture<'_, Result<Response, JobError>>;
+    /// [`HandlerContext`] carries the authenticated principal, tenant, claims,
+    /// and command bus for the current request. Construct it at the inbound
+    /// boundary and thread it through to [`Handler::execute`].
+    fn run<'a>(
+        &'a self,
+        req: Request,
+        ctx: HandlerContext<'a>,
+    ) -> BoxFuture<'a, Result<Response, JobError>>;
 
     /// Return a reference to the erased null-job form, if this implementation
     /// is a null object.  Returns `None` by default.
