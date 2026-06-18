@@ -32,10 +32,7 @@ fn test_null_job_type_alias_accepts_null_job_impl_happy() {
     let arc_job = ProxySvc::new_null_job::<String, String>();
     let null_job_ref: &NullJob = &*arc_job;
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext {
-        security: &s,
-        commands: &b,
-    };
+    let ctx = HandlerContext::new(&s, &b);
     let result = rt().block_on(null_job_ref.run("x".into(), ctx));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }
@@ -46,10 +43,7 @@ fn test_null_job_via_alias_returns_cancelled_on_empty_input_error() {
     let arc_job = ProxySvc::new_null_job::<String, String>();
     let null_job_ref: &NullJob = &*arc_job;
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext {
-        security: &s,
-        commands: &b,
-    };
+    let ctx = HandlerContext::new(&s, &b);
     let result = rt().block_on(null_job_ref.run(String::new(), ctx));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }

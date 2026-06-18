@@ -180,10 +180,7 @@ fn test_validate_empty_string_passed_through_edge() {
 fn test_new_null_job_returns_cancelled_happy() {
     let job = ProxySvc::new_null_job::<String, String>();
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext {
-        security: &s,
-        commands: &b,
-    };
+    let ctx = HandlerContext::new(&s, &b);
     let result = rt().block_on(job.run("input".into(), ctx));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }
@@ -193,10 +190,7 @@ fn test_new_null_job_returns_cancelled_happy() {
 fn test_new_null_job_with_empty_request_also_cancels_error() {
     let job = ProxySvc::new_null_job::<String, String>();
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext {
-        security: &s,
-        commands: &b,
-    };
+    let ctx = HandlerContext::new(&s, &b);
     let result = rt().block_on(job.run(String::new(), ctx));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }
@@ -206,10 +200,7 @@ fn test_new_null_job_with_empty_request_also_cancels_error() {
 fn test_new_null_job_with_unit_type_cancels_edge() {
     let job = ProxySvc::new_null_job::<(), ()>();
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext {
-        security: &s,
-        commands: &b,
-    };
+    let ctx = HandlerContext::new(&s, &b);
     let result = rt().block_on(job.run((), ctx));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }
@@ -247,10 +238,7 @@ fn test_new_null_router_empty_input_is_no_match_edge() {
 fn test_new_canonical_job_returns_cancelled_happy() {
     let job = ProxySvc::new_canonical_job();
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext {
-        security: &s,
-        commands: &b,
-    };
+    let ctx = HandlerContext::new(&s, &b);
     let result = rt().block_on(job.run("ping".into(), ctx));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }
@@ -260,10 +248,7 @@ fn test_new_canonical_job_returns_cancelled_happy() {
 fn test_new_canonical_job_empty_request_returns_cancelled_error() {
     let job = ProxySvc::new_canonical_job();
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext {
-        security: &s,
-        commands: &b,
-    };
+    let ctx = HandlerContext::new(&s, &b);
     let result = rt().block_on(job.run(String::new(), ctx));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }
@@ -274,10 +259,7 @@ fn test_new_canonical_job_two_instances_both_cancel_edge() {
     let j1 = ProxySvc::new_canonical_job();
     let j2 = ProxySvc::new_canonical_job();
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext {
-        security: &s,
-        commands: &b,
-    };
+    let ctx = HandlerContext::new(&s, &b);
     let r1 = rt().block_on(j1.run("a".into(), ctx));
     let r2 = rt().block_on(j2.run("b".into(), ctx));
     assert!(matches!(r1, Err(JobError::Cancelled)));

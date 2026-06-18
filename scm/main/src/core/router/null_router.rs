@@ -2,8 +2,7 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::router::errors::routing_error::RoutingError;
-use crate::api::router::traits::router::Router;
+use crate::api::{Router, RoutingError};
 
 /// No-op router that returns `RoutingError::NoMatch` for every input.
 ///

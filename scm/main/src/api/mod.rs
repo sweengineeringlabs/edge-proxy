@@ -8,8 +8,17 @@
 //! | [`proxy`] | Proxy — facade handle, config builder, pattern marker |
 //! | [`validator`] | Validation — pre-dispatch input checks |
 
-pub mod job;
-pub mod lifecycle;
-pub mod proxy;
-pub mod router;
-pub mod validator;
+mod job;
+mod lifecycle;
+mod proxy;
+mod router;
+mod validator;
+
+pub use job::{HandlerError, Job, JobError, NullJob, NullJobMarker};
+pub use lifecycle::{
+    ComponentHealth, HealthReport, HealthStatus, LifecycleError, LifecycleMonitor, Monitor,
+    NullLifecycleMonitor,
+};
+pub use proxy::{ApplicationConfigBuilder, ProxyComposer, ProxyPattern, ProxySvc};
+pub use router::{NullRouter, NullRouterMarker, Router, RoutingError};
+pub use validator::{NoopValidator, Validator};

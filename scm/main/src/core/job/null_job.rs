@@ -3,8 +3,7 @@
 use edge_domain::HandlerContext;
 use futures::future::BoxFuture;
 
-use crate::api::job::errors::job_error::JobError;
-use crate::api::job::traits::job::Job;
+use crate::api::{Job, JobError};
 
 /// No-op job that returns `JobError::Cancelled` for every request.
 ///
@@ -45,10 +44,7 @@ mod tests {
     async fn test_null_job_always_returns_cancelled() {
         let s = SecurityContext::unauthenticated();
         let b = NullBus;
-        let ctx = HandlerContext {
-            security: &s,
-            commands: &b,
-        };
+        let ctx = HandlerContext::new(&s, &b);
         let result: Result<(), _> = NullJob.run((), ctx).await;
         assert!(matches!(result, Err(JobError::Cancelled)));
     }

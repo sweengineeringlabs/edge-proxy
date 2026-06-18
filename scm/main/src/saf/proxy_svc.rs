@@ -2,19 +2,16 @@
 
 use std::sync::Arc;
 
-use crate::api::job::traits::job::Job;
-use crate::api::lifecycle::traits::lifecycle_monitor::LifecycleMonitor;
-use crate::api::router::traits::router::Router;
-use crate::api::validator::traits::validator::Validator;
+use crate::api::{Job, LifecycleMonitor, Router, Validator};
 use crate::core::job::null_job::NullJob;
 use crate::core::lifecycle::NullLifecycleMonitor;
 use crate::core::router::null_router::NullRouter;
 use crate::core::validator::noop_validator::NoopValidator as CoreNoopValidator;
 
-pub use crate::api::proxy::{ApplicationConfigBuilder, ProxyComposer, ProxyPattern, ProxySvc};
+pub use crate::api::{ApplicationConfigBuilder, ProxyComposer, ProxyPattern, ProxySvc};
 
 impl ProxySvc {
-    /// Return a [`ConfigBuilder`] pre-seeded with this crate's package name and version.
+    /// Return a [`ConfigBuilder`](swe_edge_configbuilder::ConfigBuilder) pre-seeded with this crate's package name and version.
     pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
         swe_edge_configbuilder::ConfigLoaderFactory::create_config_builder()
             .with_name(env!("CARGO_PKG_NAME"))

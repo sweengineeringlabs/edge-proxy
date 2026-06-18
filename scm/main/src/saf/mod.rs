@@ -20,7 +20,7 @@ pub use lifecycle_monitor_svc::*;
 pub use monitor_svc::*;
 pub use noop_validator_svc::*;
 pub use null_lifecycle_monitor_svc::*;
-pub use proxy::*;
+pub use proxy::PROXY_COMPOSER_CONCERN;
 pub use proxy_svc::*;
 pub use router_svc::*;
 pub use validator_svc::*;

@@ -1,7 +1,6 @@
 //! Default `ProxyComposer` implementation for `ProxySvc`.
 
-use crate::api::proxy::traits::proxy_composer::ProxyComposer;
-use crate::api::proxy::types::{ApplicationConfigBuilder, ProxyPattern, ProxySvc};
+use crate::api::{ApplicationConfigBuilder, ProxyComposer, ProxyPattern, ProxySvc};
 
 impl ProxyComposer for ProxySvc {
     fn compose() -> ProxySvc {

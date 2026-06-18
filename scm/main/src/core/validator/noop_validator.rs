@@ -1,11 +1,11 @@
 //! `NoopValidator` — always-valid implementation of [`Validator`].
 
-use crate::api::validator::traits::validator::Validator;
+use crate::api::Validator;
 
 /// A no-op validator that accepts every input without inspection.
 pub(crate) struct NoopValidator;
 
-impl crate::api::validator::traits::noop_validator::NoopValidator for NoopValidator {}
+impl crate::api::NoopValidator for NoopValidator {}
 
 impl Validator for NoopValidator {
     type Target = ();

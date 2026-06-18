@@ -1,6 +1,6 @@
 //! LifecycleMonitor SAF facade — re-exports for the Lifecycle concern.
 
-pub use crate::api::lifecycle::{
+pub use crate::api::{
     ComponentHealth, HealthReport, HealthStatus, LifecycleError, LifecycleMonitor,
 };
 

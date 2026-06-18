@@ -6,10 +6,7 @@
 use edge_domain::HandlerContext;
 use futures::future::BoxFuture;
 
-use crate::api::job::errors::job_error::JobError;
-use crate::api::job::traits::job::Job;
-use crate::api::router::errors::routing_error::RoutingError;
-use crate::api::router::traits::router::Router;
+use crate::api::{Job, JobError, Router, RoutingError};
 
 struct CanonicalJobImpl;
 
@@ -73,10 +70,7 @@ mod tests {
     fn test_canonical_factory_job_returns_cancelled() {
         let s = SecurityContext::unauthenticated();
         let b = CanonicalBus;
-        let ctx = HandlerContext {
-            security: &s,
-            commands: &b,
-        };
+        let ctx = HandlerContext::new(&s, &b);
         let result = rt().block_on(CanonicalFactory::job().run("x".into(), ctx));
         assert!(matches!(result, Err(JobError::Cancelled)));
     }

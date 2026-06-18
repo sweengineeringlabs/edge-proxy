@@ -61,10 +61,7 @@ fn test_job_trait_is_object_safe() {
 #[test]
 fn test_job_run_dispatches_request_happy() {
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext {
-        security: &s,
-        commands: &b,
-    };
+    let ctx = HandlerContext::new(&s, &b);
     let result = rt().block_on(OkJob.run("hello".into(), ctx));
     assert_eq!(result.unwrap(), "hello");
 }
@@ -72,10 +69,7 @@ fn test_job_run_dispatches_request_happy() {
 #[test]
 fn test_job_run_propagates_handler_error_error() {
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext {
-        security: &s,
-        commands: &b,
-    };
+    let ctx = HandlerContext::new(&s, &b);
     let result = rt().block_on(ErrJob.run("x".into(), ctx));
     assert!(matches!(result, Err(JobError::HandlerUnavailable(_))));
 }
@@ -83,10 +77,7 @@ fn test_job_run_propagates_handler_error_error() {
 #[test]
 fn test_job_run_with_empty_request_edge() {
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext {
-        security: &s,
-        commands: &b,
-    };
+    let ctx = HandlerContext::new(&s, &b);
     let result = rt().block_on(OkJob.run(String::new(), ctx));
     assert_eq!(result.unwrap(), "");
 }
@@ -97,10 +88,7 @@ fn test_job_run_with_empty_request_edge() {
 #[test]
 fn test_run_dispatches_request_happy() {
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext {
-        security: &s,
-        commands: &b,
-    };
+    let ctx = HandlerContext::new(&s, &b);
     let result = rt().block_on(OkJob.run("payload".into(), ctx));
     assert_eq!(result.unwrap(), "payload");
 }
@@ -109,10 +97,7 @@ fn test_run_dispatches_request_happy() {
 #[test]
 fn test_run_handler_unavailable_error() {
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext {
-        security: &s,
-        commands: &b,
-    };
+    let ctx = HandlerContext::new(&s, &b);
     let result = rt().block_on(ErrJob.run("req".into(), ctx));
     assert!(matches!(result, Err(JobError::HandlerUnavailable(_))));
 }
@@ -121,10 +106,7 @@ fn test_run_handler_unavailable_error() {
 #[test]
 fn test_run_empty_string_request_edge() {
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext {
-        security: &s,
-        commands: &b,
-    };
+    let ctx = HandlerContext::new(&s, &b);
     let result = rt().block_on(OkJob.run(String::new(), ctx));
     assert_eq!(result.unwrap(), "");
 }

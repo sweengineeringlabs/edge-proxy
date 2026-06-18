@@ -9,10 +9,9 @@
 use futures::future::BoxFuture;
 use parking_lot::Mutex;
 
-use crate::api::lifecycle::errors::LifecycleError;
-use crate::api::lifecycle::traits::lifecycle_monitor::LifecycleMonitor;
-use crate::api::lifecycle::traits::monitor::Monitor;
-use crate::api::lifecycle::types::{ComponentHealth, HealthReport, HealthStatus};
+use crate::api::{
+    ComponentHealth, HealthReport, HealthStatus, LifecycleError, LifecycleMonitor, Monitor,
+};
 
 /// No-op lifecycle monitor suitable for tests and early bring-up.
 ///
@@ -39,7 +38,7 @@ impl Default for NullLifecycleMonitor {
 }
 
 // Use full path to avoid shadowing the local struct with a same-named trait import.
-impl crate::api::lifecycle::null_lifecycle_monitor::NullLifecycleMonitor for NullLifecycleMonitor {}
+impl crate::api::NullLifecycleMonitor for NullLifecycleMonitor {}
 impl Monitor for NullLifecycleMonitor {}
 
 impl LifecycleMonitor for NullLifecycleMonitor {

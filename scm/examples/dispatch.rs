@@ -128,10 +128,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let bus = NoopBus;
 
     // 4. Dispatch — known command routes to the echo handler.
-    let ctx = HandlerContext {
-        security: &security,
-        commands: &bus,
-    };
+    let ctx = HandlerContext::new(&security, &bus);
     let resp = job
         .run(
             Request {
@@ -144,10 +141,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("echo  → handler={} output={}", resp.handler, resp.output);
 
     // 5. Dispatch — routing miss is surfaced as a JobError.
-    let ctx2 = HandlerContext {
-        security: &security,
-        commands: &bus,
-    };
+    let ctx2 = HandlerContext::new(&security, &bus);
     let result = job
         .run(
             Request {
