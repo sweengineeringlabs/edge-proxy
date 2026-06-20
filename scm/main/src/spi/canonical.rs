@@ -6,7 +6,7 @@
 use edge_domain::HandlerContext;
 use futures::future::BoxFuture;
 
-use crate::api::{Job, JobError, Router, RoutingError};
+use crate::api::{Job, JobError, LifecycleMonitor, Router, RoutingError, Validator};
 
 struct CanonicalJobImpl;
 
@@ -40,6 +40,31 @@ impl CanonicalFactory {
     /// Returns the canonical null [`Router`] — always returns NoMatch.
     pub(crate) fn router() -> impl Router<String> {
         CanonicalRouterImpl
+    }
+
+    /// Returns a null [`Job`] for any `Req`/`Resp` — always returns `Cancelled`.
+    pub(crate) fn null_job<Req, Resp>() -> impl Job<Req, Resp>
+    where
+        Req: Send + 'static,
+        Resp: Send + 'static,
+    {
+        crate::core::job::null_job::NullJob
+    }
+
+    /// Returns a null [`Router`] — always returns `NoMatch`.
+    pub(crate) fn null_router() -> impl Router<String> {
+        crate::core::router::null_router::NullRouter
+    }
+
+    /// Returns a null [`LifecycleMonitor`] — always healthy, no-op shutdown.
+    pub(crate) fn null_lifecycle_monitor() -> impl LifecycleMonitor {
+        crate::core::lifecycle::NullLifecycleMonitor::new()
+    }
+
+    /// Returns a no-op [`Validator`] that accepts every `()` input.
+    pub(crate) fn noop_validator() -> impl Validator<Target = (), Error = std::convert::Infallible>
+    {
+        crate::core::validator::noop_validator::NoopValidator
     }
 }
 
@@ -79,5 +104,32 @@ mod tests {
     fn test_canonical_factory_router_returns_no_match() {
         let result = rt().block_on(CanonicalFactory::router().route("x"));
         assert!(matches!(result, Err(RoutingError::NoMatch)));
+    }
+
+    #[test]
+    fn test_null_job_returns_cancelled() {
+        let s = SecurityContext::unauthenticated();
+        let b = CanonicalBus;
+        let ctx = HandlerContext::new(&s, &b);
+        let result: Result<(), _> = rt().block_on(CanonicalFactory::null_job().run((), ctx));
+        assert!(matches!(result, Err(JobError::Cancelled)));
+    }
+
+    #[test]
+    fn test_null_router_returns_no_match() {
+        let result = rt().block_on(CanonicalFactory::null_router().route("anything"));
+        assert!(matches!(result, Err(RoutingError::NoMatch)));
+    }
+
+    #[test]
+    fn test_null_lifecycle_monitor_starts_healthy() {
+        use crate::api::HealthStatus;
+        let report = rt().block_on(CanonicalFactory::null_lifecycle_monitor().health());
+        assert_eq!(report.overall, HealthStatus::Healthy);
+    }
+
+    #[test]
+    fn test_noop_validator_accepts_unit() {
+        assert!(CanonicalFactory::noop_validator().validate(&()).is_ok());
     }
 }

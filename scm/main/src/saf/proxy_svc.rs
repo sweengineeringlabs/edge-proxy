@@ -3,10 +3,7 @@
 use std::sync::Arc;
 
 use crate::api::{Job, LifecycleMonitor, Router, Validator};
-use crate::core::job::null_job::NullJob;
-use crate::core::lifecycle::NullLifecycleMonitor;
-use crate::core::router::null_router::NullRouter;
-use crate::core::validator::noop_validator::NoopValidator as CoreNoopValidator;
+use crate::spi::CanonicalFactory;
 
 pub use crate::api::{ApplicationConfigBuilder, ProxyComposer, ProxyPattern, ProxySvc};
 
@@ -23,7 +20,7 @@ impl ProxySvc {
     /// Returned as `Arc<dyn LifecycleMonitor>` so the concrete impl type stays
     /// private.
     pub fn new_null_lifecycle_monitor() -> Arc<dyn LifecycleMonitor> {
-        Arc::new(NullLifecycleMonitor::new())
+        Arc::new(CanonicalFactory::null_lifecycle_monitor())
     }
 
     /// Construct a no-op validator that accepts every `()` input without inspection.
@@ -31,7 +28,7 @@ impl ProxySvc {
     /// Useful for bring-up and tests where validation is not yet implemented.
     pub fn new_noop_validator() -> Arc<dyn Validator<Target = (), Error = std::convert::Infallible>>
     {
-        Arc::new(CoreNoopValidator)
+        Arc::new(CanonicalFactory::noop_validator())
     }
 
     /// Apply `validator` to `value`, returning any validation error.
@@ -47,14 +44,14 @@ impl ProxySvc {
         Req: Send + 'static,
         Resp: Send + 'static,
     {
-        Arc::new(NullJob)
+        Arc::new(CanonicalFactory::null_job::<Req, Resp>())
     }
 
     /// Construct a no-op [`Router`] that always returns `RoutingError::NoMatch`.
     ///
     /// Useful as a placeholder during bring-up before a real router is wired.
     pub fn new_null_router() -> Arc<dyn Router<String>> {
-        Arc::new(NullRouter)
+        Arc::new(CanonicalFactory::null_router())
     }
 
     /// Construct the canonical [`Job`] — returns `JobError::Cancelled` for every

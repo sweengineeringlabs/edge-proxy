@@ -7,6 +7,11 @@ use crate::api::proxy::types::{ApplicationConfigBuilder, ProxyPattern, ProxySvc}
 /// Implement this to provide domain-specific factory variants.
 /// The default implementation is on [`ProxySvc`] itself in `core/proxy/`.
 pub trait ProxyComposer {
+    /// Stable identity name for this composer variant.
+    fn bootstrap_name(&self) -> &'static str {
+        "proxy_composer"
+    }
+
     /// Create a new proxy service facade handle.
     fn compose() -> ProxySvc
     where

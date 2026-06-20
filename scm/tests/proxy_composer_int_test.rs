@@ -68,6 +68,31 @@ fn test_builder_result_is_zero_sized_edge() {
     assert_eq!(std::mem::size_of::<ApplicationConfigBuilder>(), 0);
 }
 
+// bootstrap_name ──────────────────────────────────────────────────────────────
+
+/// bootstrap_name — happy: returns the stable "proxy_composer" literal.
+#[test]
+fn test_bootstrap_name_returns_stable_literal_happy() {
+    let svc = ProxySvc::compose();
+    assert_eq!(svc.bootstrap_name(), "proxy_composer");
+}
+
+/// bootstrap_name — error: calling on two instances returns the same literal.
+#[test]
+fn test_bootstrap_name_consistent_across_instances_error() {
+    let a = ProxySvc::compose();
+    let b = ProxySvc::compose();
+    assert_eq!(a.bootstrap_name(), b.bootstrap_name());
+}
+
+/// bootstrap_name — edge: return value is 'static and never empty.
+#[test]
+fn test_bootstrap_name_is_nonempty_static_edge() {
+    let svc = ProxySvc::compose();
+    let name: &'static str = svc.bootstrap_name();
+    assert!(!name.is_empty());
+}
+
 // ProxyComposer trait ─────────────────────────────────────────────────────────
 
 /// ProxyComposer — happy: ProxySvc satisfies the ProxyComposer trait bound.
