@@ -11,9 +11,9 @@ mod router_svc;
 mod validator_svc;
 
 // Context types (from edge-domain, not via api/)
-pub use edge_domain::CommandBus;
-pub use edge_domain::HandlerContext;
-pub use edge_domain::SecurityContext;
+pub use edge_domain_command::CommandBus;
+pub use edge_domain_handler::HandlerContext;
+pub use edge_domain_security::SecurityContext;
 
 pub use job_svc::*;
 pub use lifecycle_monitor_svc::*;

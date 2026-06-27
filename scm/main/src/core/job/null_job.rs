@@ -1,7 +1,8 @@
 //! `NullJob` — a no-op `Job` that always cancels, useful as a placeholder.
 
-use edge_domain::HandlerContext;
+use edge_domain_handler::HandlerContext;
 use futures::future::BoxFuture;
+
 
 use crate::api::{Job, JobError};
 
@@ -27,24 +28,28 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain::SecurityContext;
+    use edge_domain_security::SecurityContext;
     use futures::future::BoxFuture;
 
+
     struct NullBus;
-    impl edge_domain::CommandBus for NullBus {
+    impl edge_domain_command::CommandBus for NullBus {
         fn dispatch(
             &self,
-            _: Box<dyn edge_domain::Command>,
-        ) -> BoxFuture<'_, Result<(), edge_domain::CommandError>> {
+            _: Box<dyn edge_domain_command::Command>,
+        ) -> BoxFuture<'_, Result<(), edge_domain_command::CommandError>> {
             Box::pin(async { Ok(()) })
         }
     }
 
     #[tokio::test]
     async fn test_null_job_always_returns_cancelled() {
+        use edge_domain_observer::StdObserveFactory;
+
         let s = SecurityContext::unauthenticated();
         let b = NullBus;
-        let ctx = HandlerContext::new(&s, &b);
+        let observer = StdObserveFactory::noop_observer_context();
+        let ctx = HandlerContext::new(&s, &b, observer.as_ref());
         let result: Result<(), _> = NullJob.run((), ctx).await;
         assert!(matches!(result, Err(JobError::Cancelled)));
     }

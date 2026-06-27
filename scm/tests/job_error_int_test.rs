@@ -1,6 +1,6 @@
 //! Integration tests for JobError.
 
-use edge_domain::HandlerError;
+use edge_domain_handler::HandlerError;
 use edge_proxy::{JobError, RoutingError};
 
 /// @covers: JobError::Routing

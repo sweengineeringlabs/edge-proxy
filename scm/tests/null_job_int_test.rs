@@ -4,6 +4,7 @@
 
 use edge_proxy::{HandlerContext, JobError, NullJob, ProxySvc, SecurityContext};
 use futures::future::BoxFuture;
+use edge_domain_observer::StdObserveFactory;
 
 fn rt() -> tokio::runtime::Runtime {
     tokio::runtime::Builder::new_current_thread()
@@ -16,8 +17,8 @@ struct NullBus;
 impl edge_proxy::CommandBus for NullBus {
     fn dispatch(
         &self,
-        _: Box<dyn edge_domain::Command>,
-    ) -> BoxFuture<'_, Result<(), edge_domain::CommandError>> {
+        _: Box<dyn edge_domain_command::Command>,
+    ) -> BoxFuture<'_, Result<(), edge_domain_command::CommandError>> {
         Box::pin(async { Ok(()) })
     }
 }
@@ -32,7 +33,8 @@ fn test_null_job_type_alias_accepts_null_job_impl_happy() {
     let arc_job = ProxySvc::new_null_job::<String, String>();
     let null_job_ref: &NullJob = &*arc_job;
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext::new(&s, &b);
+    let observer = StdObserveFactory::noop_observer_context();
+    let ctx = HandlerContext::new(&s, &b, observer.as_ref());
     let result = rt().block_on(null_job_ref.run("x".into(), ctx));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }
@@ -43,7 +45,8 @@ fn test_null_job_via_alias_returns_cancelled_on_empty_input_error() {
     let arc_job = ProxySvc::new_null_job::<String, String>();
     let null_job_ref: &NullJob = &*arc_job;
     let (s, b) = anon_ctx_parts();
-    let ctx = HandlerContext::new(&s, &b);
+    let observer = StdObserveFactory::noop_observer_context();
+    let ctx = HandlerContext::new(&s, &b, observer.as_ref());
     let result = rt().block_on(null_job_ref.run(String::new(), ctx));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }

@@ -1,6 +1,6 @@
 //! Integration tests for null lifecycle monitor — exercises edge-domain dep.
 
-use edge_domain::HandlerError;
+use edge_domain_handler::HandlerError;
 use edge_proxy::{HealthStatus, JobError, ProxySvc};
 
 #[tokio::test]

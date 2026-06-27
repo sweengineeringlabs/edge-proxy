@@ -3,7 +3,7 @@
 //! The single entry point the gateway calls. Each Controller implementation
 //! provides one `Job` impl that orchestrates its full request→response flow.
 
-use edge_domain::HandlerContext;
+use edge_domain_handler::HandlerContext;
 use futures::future::BoxFuture;
 
 use crate::api::job::errors::JobError;
@@ -38,7 +38,7 @@ where
     ///
     /// [`HandlerContext`] carries the authenticated principal, tenant, claims,
     /// and command bus for the current request. Construct it at the inbound
-    /// boundary and thread it through to [`Handler::execute`].
+    /// boundary and thread it through to [`Handler::execute`](edge_domain::Handler::execute).
     fn run<'a>(
         &'a self,
         req: Request,

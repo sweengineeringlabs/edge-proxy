@@ -22,12 +22,16 @@ thiserror              = "2"
 futures                = "0.3"
 serde                  = { version = "1", features = ["derive"] }
 parking_lot            = "0.12"
-edge-domain            = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.10.7", default-features = false, features = ["handler", "security", "command"] }
+edge-domain-handler   = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.11.5" }
+edge-domain-command   = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.11.5" }
+edge-domain-security  = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.11.5" }
+edge-domain-observer  = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.11.5" }
 swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.3.0" }
 
 [dev-dependencies]
-async-trait = "0.1"
-tokio       = { version = "1", features = ["macros", "rt"] }
+async-trait           = "0.1"
+tokio                 = { version = "1", features = ["macros", "rt"] }
+edge-domain-observer  = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.11.5" }
 
 [lints.rust]
 unsafe_code  = "deny"
