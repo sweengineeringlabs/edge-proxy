@@ -2,9 +2,10 @@
 //! @covers: api/job/null_job.rs
 #![allow(clippy::expect_used)]
 
-use edge_proxy::{HandlerContext, JobError, NullJob, ProxySvc, SecurityContext};
-use futures::future::BoxFuture;
 use edge_domain_observer::StdObserveFactory;
+use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_proxy::{ExecutionRequest, HandlerContext, JobError, NullJob, ProxySvc, SecurityContext};
+use futures::future::BoxFuture;
 
 fn rt() -> tokio::runtime::Runtime {
     tokio::runtime::Builder::new_current_thread()
@@ -24,7 +25,7 @@ impl edge_proxy::CommandBus for NullBus {
 }
 
 fn anon_ctx_parts() -> (SecurityContext, NullBus) {
-    (SecurityContext::unauthenticated(), NullBus)
+    (SecurityServices::unauthenticated(), NullBus)
 }
 
 /// NullJob — happy: a concrete Job impl can be used through the NullJob alias.
@@ -34,8 +35,15 @@ fn test_null_job_type_alias_accepts_null_job_impl_happy() {
     let null_job_ref: &NullJob = &*arc_job;
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&s, &b, observer.as_ref());
-    let result = rt().block_on(null_job_ref.run("x".into(), ctx));
+    let ctx = HandlerContext {
+        security: &s,
+        commands: &b,
+        observer: observer.as_ref(),
+    };
+    let result = rt().block_on(null_job_ref.run(ExecutionRequest {
+        req: "x".into(),
+        ctx: &ctx,
+    }));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }
 
@@ -46,8 +54,15 @@ fn test_null_job_via_alias_returns_cancelled_on_empty_input_error() {
     let null_job_ref: &NullJob = &*arc_job;
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&s, &b, observer.as_ref());
-    let result = rt().block_on(null_job_ref.run(String::new(), ctx));
+    let ctx = HandlerContext {
+        security: &s,
+        commands: &b,
+        observer: observer.as_ref(),
+    };
+    let result = rt().block_on(null_job_ref.run(ExecutionRequest {
+        req: String::new(),
+        ctx: &ctx,
+    }));
     assert!(matches!(result, Err(JobError::Cancelled)));
 }
 

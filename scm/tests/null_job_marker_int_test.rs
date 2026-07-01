@@ -10,11 +10,15 @@ fn test_null_job_marker_is_zero_sized_happy() {
 
 #[test]
 fn test_null_job_marker_can_be_constructed_happy() {
-    let _m = NullJobMarker;
+    let m = NullJobMarker;
+    assert_eq!(std::mem::size_of_val(&m), 0);
 }
 
 #[test]
 fn test_null_job_marker_is_in_public_api_edge() {
-    fn _accept(_: NullJobMarker) {}
-    _accept(NullJobMarker);
+    fn accept(v: NullJobMarker) -> NullJobMarker {
+        v
+    }
+    let m = accept(NullJobMarker);
+    assert_eq!(std::mem::size_of_val(&m), 0);
 }

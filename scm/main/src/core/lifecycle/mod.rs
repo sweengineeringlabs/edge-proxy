@@ -1,5 +1,7 @@
 //! Lifecycle theme implementations — no-op monitor for bring-up and tests.
 
-pub(crate) mod null_lifecycle_monitor;
+pub(crate) mod component_health;
+pub(crate) mod health_response;
+pub(crate) mod noop_lifecycle_monitor;
 
-pub(crate) use null_lifecycle_monitor::NullLifecycleMonitor;
+pub(crate) use noop_lifecycle_monitor::NoopLifecycleMonitor;

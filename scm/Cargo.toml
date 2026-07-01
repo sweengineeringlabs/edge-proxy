@@ -10,7 +10,7 @@ description  = "edge — L2 Proxy: dispatch facade (Job, Router, LifecycleMonito
 keywords     = ["proxy", "orchestration", "facade", "sea", "swe"]
 categories   = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "proxy"
 

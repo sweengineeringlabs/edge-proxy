@@ -1,10 +1,8 @@
 //! `NullJob` — a no-op `Job` that always cancels, useful as a placeholder.
 
-use edge_domain_handler::HandlerContext;
 use futures::future::BoxFuture;
 
-
-use crate::api::{Job, JobError};
+use crate::api::{ExecutionRequest, Job, JobError};
 
 /// No-op job that returns `JobError::Cancelled` for every request.
 ///
@@ -16,11 +14,7 @@ where
     Req: Send + 'static,
     Resp: Send + 'static,
 {
-    fn run<'a>(
-        &'a self,
-        _req: Req,
-        _ctx: HandlerContext<'a>,
-    ) -> BoxFuture<'a, Result<Resp, JobError>> {
+    fn run<'a>(&'a self, _req: ExecutionRequest<'a, Req>) -> BoxFuture<'a, Result<Resp, JobError>> {
         Box::pin(async move { Err(JobError::Cancelled) })
     }
 }
@@ -28,9 +22,9 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_security::SecurityContext;
+    use edge_domain_handler::HandlerContext;
+    use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
     use futures::future::BoxFuture;
-
 
     struct NullBus;
     impl edge_domain_command::CommandBus for NullBus {
@@ -46,11 +40,15 @@ mod tests {
     async fn test_null_job_always_returns_cancelled() {
         use edge_domain_observer::StdObserveFactory;
 
-        let s = SecurityContext::unauthenticated();
+        let s: SecurityContext = SecurityServices::unauthenticated();
         let b = NullBus;
         let observer = StdObserveFactory::noop_observer_context();
-        let ctx = HandlerContext::new(&s, &b, observer.as_ref());
-        let result: Result<(), _> = NullJob.run((), ctx).await;
+        let ctx = HandlerContext {
+            security: &s,
+            commands: &b,
+            observer: observer.as_ref(),
+        };
+        let result: Result<(), _> = NullJob.run(ExecutionRequest { req: (), ctx: &ctx }).await;
         assert!(matches!(result, Err(JobError::Cancelled)));
     }
 }

@@ -1,26 +1,30 @@
 //! SAF layer — proxy public facade.
 
-mod job_svc;
-mod lifecycle_monitor_svc;
-mod monitor_svc;
+mod job;
+mod lifecycle;
+mod monitor;
 mod noop_validator_svc;
-mod null_lifecycle_monitor_svc;
+mod noop_validator_svc_factory;
+mod null;
 mod proxy;
 mod proxy_svc;
-mod router_svc;
-mod validator_svc;
+mod router;
+mod validator;
 
 // Context types (from edge-domain, not via api/)
 pub use edge_domain_command::CommandBus;
 pub use edge_domain_handler::HandlerContext;
 pub use edge_domain_security::SecurityContext;
 
-pub use job_svc::*;
-pub use lifecycle_monitor_svc::*;
-pub use monitor_svc::*;
-pub use noop_validator_svc::*;
-pub use null_lifecycle_monitor_svc::*;
-pub use proxy::PROXY_COMPOSER_CONCERN;
-pub use proxy_svc::*;
-pub use router_svc::*;
-pub use validator_svc::*;
+pub use job::{Job, JOB_CONCERN, JOB_SVC_FACTORY};
+pub use lifecycle::{LifecycleMonitor, LIFECYCLE_MONITOR_CONCERN, LIFECYCLE_MONITOR_SVC_FACTORY};
+pub use monitor::{NullMonitor, MONITOR_CONCERN, MONITOR_SVC_FACTORY};
+pub use noop_validator_svc::{NoopValidator, NOOP_VALIDATOR_CONCERN};
+pub use noop_validator_svc_factory::NOOP_VALIDATOR_SVC_FACTORY;
+pub use null::{
+    NullLifecycleMonitor, NULL_LIFECYCLE_MONITOR_CONCERN, NULL_LIFECYCLE_MONITOR_SVC_FACTORY,
+};
+pub use proxy::{PROXY_COMPOSER_CONCERN, PROXY_COMPOSER_SVC_FACTORY};
+pub use proxy_svc::ProxyComposer;
+pub use router::{Router, ROUTER_CONCERN, ROUTER_SVC_FACTORY};
+pub use validator::{Validator, VALIDATOR_CONCERN, VALIDATOR_SVC_FACTORY};

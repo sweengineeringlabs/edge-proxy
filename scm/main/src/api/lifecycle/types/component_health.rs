@@ -15,27 +15,3 @@ pub struct ComponentHealth {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message: Option<String>,
 }
-
-impl ComponentHealth {
-    /// Construct a `Healthy` component entry with no message.
-    pub fn healthy(id: impl Into<String>) -> Self {
-        Self {
-            id: id.into(),
-            status: HealthStatus::Healthy,
-            message: None,
-        }
-    }
-
-    /// Construct a non-healthy component entry with a reason.
-    pub fn with_status(
-        id: impl Into<String>,
-        status: HealthStatus,
-        message: impl Into<String>,
-    ) -> Self {
-        Self {
-            id: id.into(),
-            status,
-            message: Some(message.into()),
-        }
-    }
-}

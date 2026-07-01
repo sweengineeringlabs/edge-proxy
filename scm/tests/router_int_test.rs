@@ -5,7 +5,10 @@ use futures::future::BoxFuture;
 
 use std::sync::Arc;
 
-use edge_proxy::{NullRouterMarker, ProxySvc, Router, RoutingError};
+use edge_proxy::{
+    AsNullRouterMarkerRequest, AsNullRouterRequest, NullRouterMarker, ProxySvc, RouteRequest,
+    RouteResponse, Router, RoutingError,
+};
 
 fn rt() -> tokio::runtime::Runtime {
     tokio::runtime::Builder::new_current_thread()
@@ -24,22 +27,31 @@ struct FixedRouter {
 }
 
 impl Router<String> for FixedRouter {
-    fn route<'a>(&'a self, _input: &'a str) -> BoxFuture<'a, Result<String, RoutingError>> {
+    fn route<'a>(
+        &'a self,
+        _req: RouteRequest<'a>,
+    ) -> BoxFuture<'a, Result<RouteResponse<String>, RoutingError>> {
         let v = self.intent.to_string();
-        Box::pin(async move { Ok(v) })
+        Box::pin(async move { Ok(RouteResponse { intent: v }) })
     }
 }
 
 struct EmptyRejectRouter;
 
 impl Router<String> for EmptyRejectRouter {
-    fn route<'a>(&'a self, input: &'a str) -> BoxFuture<'a, Result<String, RoutingError>> {
+    fn route<'a>(
+        &'a self,
+        req: RouteRequest<'a>,
+    ) -> BoxFuture<'a, Result<RouteResponse<String>, RoutingError>> {
+        let input = req.input;
         let result = if input.is_empty() {
             Err(RoutingError::InvalidInput("empty input".into()))
         } else if input == "unknown" {
             Err(RoutingError::NoMatch)
         } else {
-            Ok(input.to_string())
+            Ok(RouteResponse {
+                intent: input.to_string(),
+            })
         };
         Box::pin(async move { result })
     }
@@ -51,15 +63,15 @@ impl Router<String> for EmptyRejectRouter {
 #[test]
 fn test_route_known_command_returns_handler_id_happy() {
     let r = FixedRouter { intent: "echo" };
-    let result = rt().block_on(r.route("echo"));
-    assert_eq!(result.unwrap(), "echo");
+    let result = rt().block_on(r.route(RouteRequest { input: "echo" }));
+    assert_eq!(result.unwrap().intent, "echo");
 }
 
 /// route — error: unknown command returns NoMatch.
 #[test]
 fn test_route_unknown_command_returns_no_match_error() {
     let r = EmptyRejectRouter;
-    let result = rt().block_on(r.route("unknown"));
+    let result = rt().block_on(r.route(RouteRequest { input: "unknown" }));
     assert!(matches!(result, Err(RoutingError::NoMatch)));
 }
 
@@ -67,7 +79,7 @@ fn test_route_unknown_command_returns_no_match_error() {
 #[test]
 fn test_route_empty_input_returns_invalid_input_edge() {
     let r = EmptyRejectRouter;
-    let result = rt().block_on(r.route(""));
+    let result = rt().block_on(r.route(RouteRequest { input: "" }));
     assert!(matches!(result, Err(RoutingError::InvalidInput(_))));
 }
 
@@ -77,14 +89,22 @@ fn test_route_empty_input_returns_invalid_input_edge() {
 #[test]
 fn test_as_null_router_default_returns_none_happy() {
     let r = FixedRouter { intent: "echo" };
-    assert!(r.as_null_router().is_none());
+    assert!(r
+        .as_null_router(AsNullRouterRequest)
+        .unwrap()
+        .router
+        .is_none());
 }
 
 /// as_null_router — error: null-router impl also returns None (no override needed).
 #[test]
 fn test_as_null_router_on_null_router_impl_returns_none_error() {
     let router: Arc<dyn Router<String>> = ProxySvc::new_null_router();
-    assert!((*router).as_null_router().is_none());
+    assert!((*router)
+        .as_null_router(AsNullRouterRequest)
+        .unwrap()
+        .router
+        .is_none());
 }
 
 /// as_null_router — edge: method is callable on a dyn Router trait object.
@@ -92,7 +112,11 @@ fn test_as_null_router_on_null_router_impl_returns_none_error() {
 fn test_as_null_router_accessible_on_dyn_trait_object_edge() {
     let r = FixedRouter { intent: "echo" };
     let dyn_ref: &dyn Router<String> = &r;
-    assert!(dyn_ref.as_null_router().is_none());
+    assert!(dyn_ref
+        .as_null_router(AsNullRouterRequest)
+        .unwrap()
+        .router
+        .is_none());
 }
 
 // Rule 222 scenario coverage for Router::as_null_router_marker ────────────────
@@ -101,7 +125,10 @@ fn test_as_null_router_accessible_on_dyn_trait_object_edge() {
 #[test]
 fn test_as_null_router_marker_default_returns_none_happy() {
     let r = FixedRouter { intent: "echo" };
-    let result: Option<NullRouterMarker> = r.as_null_router_marker();
+    let result: Option<NullRouterMarker> = r
+        .as_null_router_marker(AsNullRouterMarkerRequest)
+        .unwrap()
+        .marker;
     assert!(result.is_none());
 }
 
@@ -109,7 +136,10 @@ fn test_as_null_router_marker_default_returns_none_happy() {
 #[test]
 fn test_as_null_router_marker_on_reject_router_returns_none_error() {
     let r = EmptyRejectRouter;
-    let result: Option<NullRouterMarker> = r.as_null_router_marker();
+    let result: Option<NullRouterMarker> = r
+        .as_null_router_marker(AsNullRouterMarkerRequest)
+        .unwrap()
+        .marker;
     assert!(result.is_none());
 }
 
@@ -118,6 +148,9 @@ fn test_as_null_router_marker_on_reject_router_returns_none_error() {
 fn test_as_null_router_marker_accessible_on_dyn_trait_object_edge() {
     let r = FixedRouter { intent: "echo" };
     let dyn_ref: &dyn Router<String> = &r;
-    let result: Option<NullRouterMarker> = dyn_ref.as_null_router_marker();
+    let result: Option<NullRouterMarker> = dyn_ref
+        .as_null_router_marker(AsNullRouterMarkerRequest)
+        .unwrap()
+        .marker;
     assert!(result.is_none());
 }

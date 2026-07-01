@@ -1,4 +1,4 @@
-//! Validator SAF facade — re-export of the validation contract.
+//! Validator SAF facade — re-export of the Validator trait contract.
 
 pub use crate::api::Validator;
 

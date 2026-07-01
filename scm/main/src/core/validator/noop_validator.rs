@@ -1,6 +1,6 @@
 //! `NoopValidator` — always-valid implementation of [`Validator`].
 
-use crate::api::Validator;
+use crate::api::{ValidationRequest, Validator};
 
 /// A no-op validator that accepts every input without inspection.
 pub(crate) struct NoopValidator;
@@ -11,7 +11,7 @@ impl Validator for NoopValidator {
     type Target = ();
     type Error = std::convert::Infallible;
 
-    fn validate(&self, _value: &()) -> Result<(), Self::Error> {
+    fn validate(&self, _req: ValidationRequest<'_, ()>) -> Result<(), Self::Error> {
         Ok(())
     }
 }
@@ -22,6 +22,9 @@ mod tests {
 
     #[test]
     fn test_noop_validator_always_returns_ok() {
-        assert!(NoopValidator.validate(&()).is_ok());
+        assert_eq!(
+            NoopValidator.validate(ValidationRequest { value: &() }),
+            Ok(())
+        );
     }
 }

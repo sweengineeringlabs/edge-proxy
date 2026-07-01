@@ -7,17 +7,22 @@
 //!   request → Job::run → Router::route → HandlerRegistry::get → Handler::execute
 //!
 //! SEA layer boundaries kept explicit:
-//!   - `edge_domain::` — Handler + HandlerRegistry contracts and their SAF factory
+//!   - `edge_domain_handler::` — Handler + HandlerRegistry contracts and their provider factory
 //!   - `edge_proxy::` — Job + Router + LifecycleMonitor contracts and their SAF factory
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
-use edge_domain::{
-    Command, CommandBus, CommandError, Domain, Handler, HandlerContext, HandlerError,
-    HandlerRegistry, SecurityContext,
+use edge_domain_command::{Command, CommandBus, CommandError};
+use edge_domain_handler::{
+    Handler, HandlerContext, HandlerError, HandlerProvider, HandlerRegistry,
 };
-use edge_proxy::{Job, JobError, ProxySvc, Router, RoutingError};
+use edge_domain_observer::StdObserveFactory;
+use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_proxy::{
+    ExecutionRequest, HealthRequest, Job, JobError, ProxySvc, RouteRequest, RouteResponse, Router,
+    RoutingError,
+};
 use futures::future::BoxFuture;
 
 // ── request / response types ──────────────────────────────────────────────────
@@ -42,6 +47,11 @@ impl CommandBus for NoopBus {
         Box::pin(async { Ok(()) })
     }
 }
+
+// ── Handler provider — factory namespace for standard handler constructs ─────
+
+struct DispatchHandlerProvider;
+impl HandlerProvider for DispatchHandlerProvider {}
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
@@ -77,10 +87,15 @@ impl Handler for EchoHandlerImpl {
 struct CommandRouter;
 
 impl Router<String> for CommandRouter {
-    fn route<'a>(&'a self, input: &'a str) -> BoxFuture<'a, Result<String, RoutingError>> {
+    fn route<'a>(
+        &'a self,
+        req: RouteRequest<'a>,
+    ) -> BoxFuture<'a, Result<RouteResponse<String>, RoutingError>> {
         Box::pin(async move {
-            match input {
-                "echo" | "ping" => Ok("echo".into()),
+            match req.input {
+                "echo" | "ping" => Ok(RouteResponse {
+                    intent: "echo".into(),
+                }),
                 _ => Err(RoutingError::NoMatch),
             }
         })
@@ -97,14 +112,19 @@ struct DispatchJob {
 impl Job<Request, Response> for DispatchJob {
     fn run<'a>(
         &'a self,
-        req: Request,
-        ctx: HandlerContext<'a>,
+        req: ExecutionRequest<'a, Request>,
     ) -> BoxFuture<'a, Result<Response, JobError>> {
         Box::pin(async move {
-            let handler_id = self.router.route(&req.command).await?;
-            let err = JobError::HandlerUnavailable(handler_id.clone());
-            let handler = self.registry.get(&handler_id).ok_or(err)?;
-            Ok(handler.execute(req, ctx).await?)
+            let intent = self
+                .router
+                .route(RouteRequest {
+                    input: &req.req.command,
+                })
+                .await?
+                .intent;
+            let err = JobError::HandlerUnavailable(intent.clone());
+            let handler = self.registry.get(&intent).ok_or(err)?;
+            Ok(handler.execute(req.req, *req.ctx).await?)
         })
     }
 }
@@ -113,50 +133,61 @@ impl Job<Request, Response> for DispatchJob {
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // 1. Domain: populate the handler registry.
-    let registry = Domain::new_handler_registry::<Request, Response>();
+    // 1. Handler provider: populate the handler registry.
+    let registry = DispatchHandlerProvider::in_process_registry::<Request, Response>();
     registry.register(Arc::new(EchoHandlerImpl));
+    let registry: Arc<dyn HandlerRegistry<Request = Request, Response = Response>> =
+        Arc::new(registry);
 
     // 2. Proxy: wire router + registry into a Job.
     let job: Arc<dyn Job<Request, Response>> = Arc::new(DispatchJob {
         router: Arc::new(CommandRouter),
-        registry: registry.clone(),
+        registry,
     });
 
     // 3. Build the request context at the inbound boundary.
-    let security = SecurityContext::unauthenticated();
+    let security: SecurityContext = SecurityServices::unauthenticated();
     let bus = NoopBus;
+    let observer = StdObserveFactory::noop_observer_context();
 
     // 4. Dispatch — known command routes to the echo handler.
-    let ctx = HandlerContext::new(&security, &bus);
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &bus,
+        observer: observer.as_ref(),
+    };
     let resp = job
-        .run(
-            Request {
+        .run(ExecutionRequest {
+            req: Request {
                 command: "echo".into(),
                 payload: "hello proxy".into(),
             },
-            ctx,
-        )
+            ctx: &ctx,
+        })
         .await?;
     println!("echo  → handler={} output={}", resp.handler, resp.output);
 
     // 5. Dispatch — routing miss is surfaced as a JobError.
-    let ctx2 = HandlerContext::new(&security, &bus);
+    let ctx2 = HandlerContext {
+        security: &security,
+        commands: &bus,
+        observer: observer.as_ref(),
+    };
     let result = job
-        .run(
-            Request {
+        .run(ExecutionRequest {
+            req: Request {
                 command: "unknown".into(),
                 payload: "".into(),
             },
-            ctx2,
-        )
+            ctx: &ctx2,
+        })
         .await;
     let err = result.unwrap_err();
     println!("unknown → {err}");
 
     // 6. Lifecycle: null monitor reports Healthy out of the box.
     let lifecycle = ProxySvc::new_null_lifecycle_monitor();
-    let report = lifecycle.health().await;
+    let report = lifecycle.health(HealthRequest).await?;
     println!("lifecycle overall → {:?}", report.overall);
 
     Ok(())

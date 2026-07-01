@@ -8,4 +8,7 @@ pub mod types;
 pub use errors::{HandlerError, JobError};
 pub use null_job::NullJob;
 pub use traits::Job;
-pub use types::NullJobMarker;
+pub use types::{
+    AsNullJobMarkerRequest, AsNullJobMarkerResponse, AsNullJobRequest, AsNullJobResponse,
+    ExecutionRequest, NullJobMarker,
+};

@@ -8,4 +8,7 @@ pub mod types;
 pub use errors::RoutingError;
 pub use null_router::NullRouter;
 pub use traits::Router;
-pub use types::NullRouterMarker;
+pub use types::{
+    AsNullRouterMarkerRequest, AsNullRouterMarkerResponse, AsNullRouterRequest,
+    AsNullRouterResponse, NullRouterMarker, RouteRequest, RouteResponse,
+};

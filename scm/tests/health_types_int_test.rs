@@ -1,6 +1,6 @@
 //! Integration tests for proxy health types.
 
-use edge_proxy::{ComponentHealth, HealthReport, HealthStatus};
+use edge_proxy::{ComponentHealth, HealthResponse, HealthStatus};
 
 /// @covers: ComponentHealth::healthy
 #[test]
@@ -20,20 +20,20 @@ fn test_component_health_with_status_stores_message_and_status() {
     assert_eq!(c.id, "svc");
 }
 
-/// @covers: HealthReport::from_components
+/// @covers: HealthResponse::from_components
 #[test]
 fn test_health_report_all_healthy_yields_healthy() {
-    let report = HealthReport::from_components(vec![
+    let report = HealthResponse::from_components(vec![
         ComponentHealth::healthy("a"),
         ComponentHealth::healthy("b"),
     ]);
     assert_eq!(report.overall, HealthStatus::Healthy);
 }
 
-/// @covers: HealthReport::from_components
+/// @covers: HealthResponse::from_components
 #[test]
 fn test_health_report_any_unhealthy_wins() {
-    let report = HealthReport::from_components(vec![
+    let report = HealthResponse::from_components(vec![
         ComponentHealth::healthy("a"),
         ComponentHealth::with_status("b", HealthStatus::Degraded, "slow"),
         ComponentHealth::with_status("c", HealthStatus::Unhealthy, "dead"),
@@ -41,27 +41,28 @@ fn test_health_report_any_unhealthy_wins() {
     assert_eq!(report.overall, HealthStatus::Unhealthy);
 }
 
-/// @covers: HealthReport::from_components
+/// @covers: HealthResponse::from_components
 #[test]
 fn test_health_report_degraded_without_unhealthy() {
-    let report = HealthReport::from_components(vec![
+    let report = HealthResponse::from_components(vec![
         ComponentHealth::healthy("a"),
         ComponentHealth::with_status("b", HealthStatus::Degraded, "slow"),
     ]);
     assert_eq!(report.overall, HealthStatus::Degraded);
 }
 
-/// @covers: HealthReport::from_components
+/// @covers: HealthResponse::from_components
 #[test]
 fn test_health_report_empty_components_is_healthy() {
-    let report = HealthReport::from_components(vec![]);
+    let report = HealthResponse::from_components(vec![]);
     assert_eq!(report.overall, HealthStatus::Healthy);
 }
 
 /// @covers: HealthStatus
 #[test]
 fn test_health_status_equality() {
-    assert_eq!(HealthStatus::Healthy, HealthStatus::Healthy);
+    let healthy = ComponentHealth::healthy("svc").status;
+    assert_eq!(healthy, HealthStatus::Healthy);
     assert_ne!(HealthStatus::Healthy, HealthStatus::Unhealthy);
     assert_ne!(HealthStatus::Healthy, HealthStatus::Degraded);
 }

@@ -8,4 +8,7 @@ pub(crate) mod types;
 pub use errors::LifecycleError;
 pub use null_lifecycle_monitor::NullLifecycleMonitor;
 pub use traits::{LifecycleMonitor, Monitor};
-pub use types::{ComponentHealth, HealthReport, HealthStatus};
+pub use types::{
+    ComponentHealth, ComponentRequest, ComponentResponse, HealthRequest, HealthResponse,
+    HealthStatus, ShutdownRequest, StartBackgroundTasksRequest, StatusRequest, StatusResponse,
+};

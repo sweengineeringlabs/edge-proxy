@@ -2,7 +2,7 @@
 //! @covers: api/router/null_router.rs
 #![allow(clippy::expect_used)]
 
-use edge_proxy::{NullRouter, ProxySvc, RoutingError};
+use edge_proxy::{NullRouter, ProxySvc, RouteRequest, RoutingError};
 
 fn rt() -> tokio::runtime::Runtime {
     tokio::runtime::Builder::new_current_thread()
@@ -16,7 +16,7 @@ fn rt() -> tokio::runtime::Runtime {
 fn test_null_router_type_alias_accepts_null_router_impl_happy() {
     let arc_router = ProxySvc::new_null_router();
     let null_router_ref: &NullRouter = &*arc_router;
-    let result = rt().block_on(null_router_ref.route("any"));
+    let result = rt().block_on(null_router_ref.route(RouteRequest { input: "any" }));
     assert!(matches!(result, Err(RoutingError::NoMatch)));
 }
 
@@ -25,7 +25,7 @@ fn test_null_router_type_alias_accepts_null_router_impl_happy() {
 fn test_null_router_via_alias_returns_no_match_on_empty_input_error() {
     let arc_router = ProxySvc::new_null_router();
     let null_router_ref: &NullRouter = &*arc_router;
-    let result = rt().block_on(null_router_ref.route(""));
+    let result = rt().block_on(null_router_ref.route(RouteRequest { input: "" }));
     assert!(matches!(result, Err(RoutingError::NoMatch)));
 }
 

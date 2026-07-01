@@ -1,11 +1,15 @@
 //! Integration tests verifying job_svc re-exports are reachable from the crate boundary.
 
-use edge_proxy::{Job, JobError};
+use edge_proxy::{Job, JobError, ProxySvc};
 
 /// Verifies `Job` is exported at the crate level (compile-time check).
 #[test]
 fn test_job_type_is_reachable_from_crate_boundary() {
-    fn _assert_job_import<T: Job<String, String>>() {}
+    fn accepts_job<T: Job<String, String> + ?Sized>(_: &T) -> bool {
+        true
+    }
+    let job = ProxySvc::new_null_job::<String, String>();
+    assert!(accepts_job(job.as_ref()));
 }
 
 /// Verifies `JobError::Cancelled` variant is accessible.

@@ -5,5 +5,6 @@ use edge_proxy::ProxyPattern;
 /// @covers: ProxyPattern
 #[test]
 fn test_proxy_pattern_is_constructible() {
-    let _ = ProxyPattern;
+    let p = ProxyPattern;
+    assert_eq!(std::mem::size_of_val(&p), 0);
 }

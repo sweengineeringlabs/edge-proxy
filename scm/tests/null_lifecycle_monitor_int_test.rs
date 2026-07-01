@@ -1,13 +1,14 @@
 //! Integration tests for null lifecycle monitor — exercises edge-domain dep.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_handler::HandlerError;
-use edge_proxy::{HealthStatus, JobError, ProxySvc};
+use edge_proxy::{HealthRequest, HealthStatus, JobError, ProxySvc};
 
 #[tokio::test]
 async fn test_null_lifecycle_monitor_health_is_healthy() {
     let monitor = ProxySvc::new_null_lifecycle_monitor();
-    let report = monitor.health().await;
-    assert_eq!(report.overall, HealthStatus::Healthy);
+    let response = monitor.health(HealthRequest).await.unwrap();
+    assert_eq!(response.overall, HealthStatus::Healthy);
 }
 
 #[test]

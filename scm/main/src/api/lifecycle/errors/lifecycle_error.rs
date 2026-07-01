@@ -3,7 +3,7 @@
 use thiserror::Error;
 
 /// Errors raised by [`LifecycleMonitor::shutdown`](crate::LifecycleMonitor::shutdown).
-#[derive(Debug, Error)]
+#[derive(Debug, PartialEq, Error)]
 pub enum LifecycleError {
     /// Shutdown was called twice or on an already-stopped instance.
     #[error("already shut down")]

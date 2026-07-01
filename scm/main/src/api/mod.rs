@@ -14,11 +14,26 @@ mod proxy;
 mod router;
 mod validator;
 
-pub use job::{HandlerError, Job, JobError, NullJob, NullJobMarker};
-pub use lifecycle::{
-    ComponentHealth, HealthReport, HealthStatus, LifecycleError, LifecycleMonitor, Monitor,
-    NullLifecycleMonitor,
+pub use job::{
+    AsNullJobMarkerRequest, AsNullJobMarkerResponse, AsNullJobRequest, AsNullJobResponse,
+    ExecutionRequest, HandlerError, Job, JobError, NullJob, NullJobMarker,
 };
-pub use proxy::{ApplicationConfigBuilder, ProxyComposer, ProxyPattern, ProxySvc};
-pub use router::{NullRouter, NullRouterMarker, Router, RoutingError};
-pub use validator::{NoopValidator, Validator};
+pub use lifecycle::{
+    ComponentHealth, ComponentRequest, ComponentResponse, HealthRequest, HealthResponse,
+    HealthStatus, LifecycleError, LifecycleMonitor, Monitor, NullLifecycleMonitor, ShutdownRequest,
+    StartBackgroundTasksRequest, StatusRequest, StatusResponse,
+};
+pub use proxy::{
+    ApplicationConfigBuilder, BootstrapNameRequest, BootstrapNameResponse, ProxyComposer,
+    ProxyComposerError, ProxyPattern, ProxySvc,
+};
+// Crate-internal only: exposes the SEA Rule 121 api/core mirror shim
+// (`proxy::proxy_svc`) so core/ can reference its alias in tests without
+// widening `proxy`'s own module visibility.
+pub(crate) use proxy::proxy_svc;
+pub use router::{
+    AsNullRouterMarkerRequest, AsNullRouterMarkerResponse, AsNullRouterRequest,
+    AsNullRouterResponse, NullRouter, NullRouterMarker, RouteRequest, RouteResponse, Router,
+    RoutingError,
+};
+pub use validator::{NoopValidator, ValidationRequest, Validator};

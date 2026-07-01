@@ -3,19 +3,19 @@
 //! `impl Job for` and `impl Router for` are in this file so the SEA scanner
 //! recognises the `spi` L2 layer as providing concrete implementations.
 
-use edge_domain_handler::HandlerContext;
 use futures::future::BoxFuture;
 
-
-use crate::api::{Job, JobError, LifecycleMonitor, Router, RoutingError, Validator};
+use crate::api::{
+    ExecutionRequest, Job, JobError, LifecycleMonitor, RouteRequest, RouteResponse, Router,
+    RoutingError, Validator,
+};
 
 struct CanonicalJobImpl;
 
 impl Job for CanonicalJobImpl {
     fn run<'a>(
         &'a self,
-        _req: String,
-        _ctx: HandlerContext<'a>,
+        _req: ExecutionRequest<'a, String>,
     ) -> BoxFuture<'a, Result<String, JobError>> {
         Box::pin(async move { Err(JobError::Cancelled) })
     }
@@ -24,7 +24,10 @@ impl Job for CanonicalJobImpl {
 struct CanonicalRouterImpl;
 
 impl Router for CanonicalRouterImpl {
-    fn route<'a>(&'a self, _input: &'a str) -> BoxFuture<'a, Result<String, RoutingError>> {
+    fn route<'a>(
+        &'a self,
+        _req: RouteRequest<'a>,
+    ) -> BoxFuture<'a, Result<RouteResponse<String>, RoutingError>> {
         Box::pin(async move { Err(RoutingError::NoMatch) })
     }
 }
@@ -59,7 +62,7 @@ impl CanonicalFactory {
 
     /// Returns a null [`LifecycleMonitor`] — always healthy, no-op shutdown.
     pub(crate) fn null_lifecycle_monitor() -> impl LifecycleMonitor {
-        crate::core::lifecycle::NullLifecycleMonitor::new()
+        crate::core::lifecycle::NoopLifecycleMonitor::new()
     }
 
     /// Returns a no-op [`Validator`] that accepts every `()` input.
@@ -72,8 +75,9 @@ impl CanonicalFactory {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_security::SecurityContext;
+    use edge_domain_handler::HandlerContext;
     use edge_domain_observer::StdObserveFactory;
+    use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
     use futures::future::BoxFuture;
 
     struct CanonicalBus;
@@ -95,48 +99,64 @@ mod tests {
 
     #[test]
     fn test_canonical_factory_job_returns_cancelled() {
-        let s = SecurityContext::unauthenticated();
+        let s: SecurityContext = SecurityServices::unauthenticated();
         let b = CanonicalBus;
         let observer = StdObserveFactory::noop_observer_context();
-        let ctx = HandlerContext::new(&s, &b, observer.as_ref());
-        let result = rt().block_on(CanonicalFactory::job().run("x".into(), ctx));
+        let ctx = HandlerContext {
+            security: &s,
+            commands: &b,
+            observer: observer.as_ref(),
+        };
+        let result = rt().block_on(CanonicalFactory::job().run(ExecutionRequest {
+            req: "x".into(),
+            ctx: &ctx,
+        }));
         assert!(matches!(result, Err(JobError::Cancelled)));
     }
 
     #[test]
     fn test_canonical_factory_router_returns_no_match() {
-        let result = rt().block_on(CanonicalFactory::router().route("x"));
+        let result = rt().block_on(CanonicalFactory::router().route(RouteRequest { input: "x" }));
         assert!(matches!(result, Err(RoutingError::NoMatch)));
     }
 
     #[test]
     fn test_null_job_returns_cancelled() {
-        let s = SecurityContext::unauthenticated();
+        let s: SecurityContext = SecurityServices::unauthenticated();
         let b = CanonicalBus;
         let observer = StdObserveFactory::noop_observer_context();
-        let ctx = HandlerContext::new(&s, &b, observer.as_ref());
-        let result: Result<(), _> = rt().block_on(CanonicalFactory::null_job().run((), ctx));
+        let ctx = HandlerContext {
+            security: &s,
+            commands: &b,
+            observer: observer.as_ref(),
+        };
+        let result: Result<(), _> = rt()
+            .block_on(CanonicalFactory::null_job().run(ExecutionRequest { req: (), ctx: &ctx }));
         assert!(matches!(result, Err(JobError::Cancelled)));
     }
 
     #[test]
-#[ignore = "blocked: edge-domain v0.11.3 ObserverContext wiring pending"]
     fn test_null_router_returns_no_match() {
-        let result = rt().block_on(CanonicalFactory::null_router().route("anything"));
+        let result = rt()
+            .block_on(CanonicalFactory::null_router().route(RouteRequest { input: "anything" }));
         assert!(matches!(result, Err(RoutingError::NoMatch)));
     }
 
     #[test]
-#[ignore = "blocked: edge-domain v0.11.3 ObserverContext wiring pending"]
     fn test_null_lifecycle_monitor_starts_healthy() {
-        use crate::api::HealthStatus;
-        let report = rt().block_on(CanonicalFactory::null_lifecycle_monitor().health());
-        assert_eq!(report.overall, HealthStatus::Healthy);
+        use crate::api::{HealthRequest, HealthStatus};
+        let response = rt()
+            .block_on(CanonicalFactory::null_lifecycle_monitor().health(HealthRequest))
+            .unwrap();
+        assert_eq!(response.overall, HealthStatus::Healthy);
     }
 
     #[test]
-#[ignore = "blocked: edge-domain v0.11.3 ObserverContext wiring pending"]
     fn test_noop_validator_accepts_unit() {
-        assert!(CanonicalFactory::noop_validator().validate(&()).is_ok());
+        assert_eq!(
+            CanonicalFactory::noop_validator()
+                .validate(crate::api::ValidationRequest { value: &() }),
+            Ok(())
+        );
     }
 }
