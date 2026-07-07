@@ -81,14 +81,14 @@ mod tests {
     };
     use edge_domain_handler::HandlerContext;
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use futures::future::BoxFuture;
 
     struct ProxySvcNullBus;
     impl edge_domain_command::CommandBus for ProxySvcNullBus {
         fn dispatch(
             &self,
-            _: Box<dyn edge_domain_command::Command>,
+            _: edge_domain_command::CommandDispatchRequest,
         ) -> BoxFuture<'_, Result<(), edge_domain_command::CommandError>> {
             Box::pin(async { Ok(()) })
         }
@@ -150,7 +150,7 @@ mod tests {
     #[test]
     fn test_new_null_job_returns_cancelled() {
         let job = ProxySvc::new_null_job::<String, String>();
-        let s: SecurityContext = SecurityServices::unauthenticated();
+        let s: SecurityContext = SecurityContext::unauthenticated();
         let b = ProxySvcNullBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
@@ -177,7 +177,7 @@ mod tests {
     #[test]
     fn test_new_canonical_job_returns_cancelled() {
         let job = ProxySvc::new_canonical_job();
-        let s: SecurityContext = SecurityServices::unauthenticated();
+        let s: SecurityContext = SecurityContext::unauthenticated();
         let b = ProxySvcNullBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {

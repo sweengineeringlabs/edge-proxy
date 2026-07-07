@@ -182,10 +182,10 @@ fn test_validation_request_holds_value_happy() {
 fn test_execution_request_holds_req_and_ctx_happy() {
     use edge_domain_command::NoopCommandBus;
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityServices};
     use edge_proxy::HandlerContext;
+    use edge_security_runtime::SecurityContext;
 
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,

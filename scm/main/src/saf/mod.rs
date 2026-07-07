@@ -14,7 +14,7 @@ mod validator;
 // Context types (from edge-domain, not via api/)
 pub use edge_domain_command::CommandBus;
 pub use edge_domain_handler::HandlerContext;
-pub use edge_domain_security::SecurityContext;
+pub use edge_security_runtime::SecurityContext;
 
 pub use job::{Job, JOB_CONCERN, JOB_SVC_FACTORY};
 pub use lifecycle::{LifecycleMonitor, LIFECYCLE_MONITOR_CONCERN, LIFECYCLE_MONITOR_SVC_FACTORY};

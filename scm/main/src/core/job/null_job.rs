@@ -23,14 +23,14 @@ where
 mod tests {
     use super::*;
     use edge_domain_handler::HandlerContext;
-    use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use futures::future::BoxFuture;
 
     struct NullBus;
     impl edge_domain_command::CommandBus for NullBus {
         fn dispatch(
             &self,
-            _: Box<dyn edge_domain_command::Command>,
+            _: edge_domain_command::CommandDispatchRequest,
         ) -> BoxFuture<'_, Result<(), edge_domain_command::CommandError>> {
             Box::pin(async { Ok(()) })
         }
@@ -40,7 +40,7 @@ mod tests {
     async fn test_null_job_always_returns_cancelled() {
         use edge_domain_observer::StdObserveFactory;
 
-        let s: SecurityContext = SecurityServices::unauthenticated();
+        let s: SecurityContext = SecurityContext::unauthenticated();
         let b = NullBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {

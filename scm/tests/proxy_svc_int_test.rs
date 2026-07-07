@@ -2,7 +2,6 @@
 #![allow(clippy::expect_used, clippy::unwrap_used)]
 
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
 use edge_proxy::{
     ExecutionRequest, HandlerContext, HealthRequest, HealthStatus, JobError, ProxySvc,
     RouteRequest, RoutingError, SecurityContext, ShutdownRequest, ValidationRequest, Validator,
@@ -20,14 +19,14 @@ struct NullBus;
 impl edge_proxy::CommandBus for NullBus {
     fn dispatch(
         &self,
-        _: Box<dyn edge_domain_command::Command>,
+        _: edge_domain_command::CommandDispatchRequest,
     ) -> BoxFuture<'_, Result<(), edge_domain_command::CommandError>> {
         Box::pin(async { Ok(()) })
     }
 }
 
 fn anon_ctx_parts() -> (SecurityContext, NullBus) {
-    (SecurityServices::unauthenticated(), NullBus)
+    (SecurityContext::unauthenticated(), NullBus)
 }
 
 #[test]

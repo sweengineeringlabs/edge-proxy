@@ -7,8 +7,7 @@ use futures::future::BoxFuture;
 
 use std::sync::Arc;
 
-use edge_domain_command::{Command, CommandError};
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_domain_command::{CommandDispatchRequest, CommandError};
 use edge_proxy::{
     AsNullJobMarkerRequest, AsNullJobRequest, ExecutionRequest, HandlerContext, Job, JobError,
     NullJobMarker, ProxySvc, SecurityContext,
@@ -23,13 +22,13 @@ fn rt() -> tokio::runtime::Runtime {
 
 struct NullBus;
 impl edge_proxy::CommandBus for NullBus {
-    fn dispatch(&self, _: Box<dyn Command>) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn dispatch(&self, _: CommandDispatchRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Ok(()) })
     }
 }
 
 fn anon_ctx_parts() -> (SecurityContext, NullBus) {
-    (SecurityServices::unauthenticated(), NullBus)
+    (SecurityContext::unauthenticated(), NullBus)
 }
 
 struct OkJob;

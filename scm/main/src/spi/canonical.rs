@@ -77,14 +77,14 @@ mod tests {
     use super::*;
     use edge_domain_handler::HandlerContext;
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use futures::future::BoxFuture;
 
     struct CanonicalBus;
     impl edge_domain_command::CommandBus for CanonicalBus {
         fn dispatch(
             &self,
-            _: Box<dyn edge_domain_command::Command>,
+            _: edge_domain_command::CommandDispatchRequest,
         ) -> BoxFuture<'_, Result<(), edge_domain_command::CommandError>> {
             Box::pin(async { Ok(()) })
         }
@@ -99,7 +99,7 @@ mod tests {
 
     #[test]
     fn test_canonical_factory_job_returns_cancelled() {
-        let s: SecurityContext = SecurityServices::unauthenticated();
+        let s: SecurityContext = SecurityContext::unauthenticated();
         let b = CanonicalBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
@@ -122,7 +122,7 @@ mod tests {
 
     #[test]
     fn test_null_job_returns_cancelled() {
-        let s: SecurityContext = SecurityServices::unauthenticated();
+        let s: SecurityContext = SecurityContext::unauthenticated();
         let b = CanonicalBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
