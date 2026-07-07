@@ -7,22 +7,24 @@
 //!   request → Job::run → Router::route → HandlerRegistry::get → Handler::execute
 //!
 //! SEA layer boundaries kept explicit:
-//!   - `edge_domain_handler::` — Handler + HandlerRegistry contracts and their provider factory
+//!   - `edge_domain_handler::` — Handler + HandlerRegistry contracts
 //!   - `edge_proxy::` — Job + Router + LifecycleMonitor contracts and their SAF factory
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
-use edge_domain_command::{Command, CommandBus, CommandError};
+use edge_domain_command::{CommandBus, CommandDispatchRequest, CommandError};
 use edge_domain_handler::{
-    Handler, HandlerContext, HandlerError, HandlerProvider, HandlerRegistry,
+    ExecutionRequest as HandlerExecutionRequest, Handler, HandlerContext, HandlerError,
+    HandlerLookupRequest, HandlerRegistry, IdRequest, IdResponse, InProcessHandlerRegistry,
+    PatternRequest, PatternResponse, RegisterHandlerRequest,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
 use edge_proxy::{
     ExecutionRequest, HealthRequest, Job, JobError, ProxySvc, RouteRequest, RouteResponse, Router,
     RoutingError,
 };
+use edge_security_runtime::SecurityContext;
 use futures::future::BoxFuture;
 
 // ── request / response types ──────────────────────────────────────────────────
@@ -43,15 +45,10 @@ struct Response {
 
 struct NoopBus;
 impl CommandBus for NoopBus {
-    fn dispatch(&self, _: Box<dyn Command>) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn dispatch(&self, _: CommandDispatchRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Ok(()) })
     }
 }
-
-// ── Handler provider — factory namespace for standard handler constructs ─────
-
-struct DispatchHandlerProvider;
-impl HandlerProvider for DispatchHandlerProvider {}
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
@@ -62,22 +59,25 @@ impl Handler for EchoHandlerImpl {
     type Request = Request;
     type Response = Response;
 
-    fn id(&self) -> &str {
-        "echo"
+    fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+        Ok(IdResponse {
+            id: "echo".to_string(),
+        })
     }
-    fn pattern(&self) -> &str {
-        "direct"
+    fn pattern(&self, _req: PatternRequest) -> Result<PatternResponse, HandlerError> {
+        Ok(PatternResponse {
+            pattern: "direct".to_string(),
+        })
     }
 
     async fn execute(
         &self,
-        req: Request,
-        _ctx: HandlerContext<'_>,
+        req: HandlerExecutionRequest<'_, Request>,
     ) -> Result<Response, HandlerError> {
-        let id = self.id().to_string();
+        let id = self.id(IdRequest)?.id;
         Ok(Response {
             handler: id,
-            output: req.payload,
+            output: req.req.payload,
         })
     }
 }
@@ -123,8 +123,17 @@ impl Job<Request, Response> for DispatchJob {
                 .await?
                 .intent;
             let err = JobError::HandlerUnavailable(intent.clone());
-            let handler = self.registry.get(&intent).ok_or(err)?;
-            Ok(handler.execute(req.req, *req.ctx).await?)
+            let handler = self
+                .registry
+                .get(HandlerLookupRequest { id: intent })?
+                .handler
+                .ok_or(err)?;
+            Ok(handler
+                .execute(HandlerExecutionRequest {
+                    req: req.req,
+                    ctx: req.ctx,
+                })
+                .await?)
         })
     }
 }
@@ -133,9 +142,9 @@ impl Job<Request, Response> for DispatchJob {
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // 1. Handler provider: populate the handler registry.
-    let registry = DispatchHandlerProvider::in_process_registry::<Request, Response>();
-    registry.register(Arc::new(EchoHandlerImpl));
+    // 1. Handler registry: populate it directly.
+    let registry = InProcessHandlerRegistry::<Request, Response>::default();
+    registry.register(RegisterHandlerRequest::new(Arc::new(EchoHandlerImpl)))?;
     let registry: Arc<dyn HandlerRegistry<Request = Request, Response = Response>> =
         Arc::new(registry);
 
@@ -146,7 +155,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     // 3. Build the request context at the inbound boundary.
-    let security: SecurityContext = SecurityServices::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let bus = NoopBus;
     let observer = StdObserveFactory::noop_observer_context();
 
