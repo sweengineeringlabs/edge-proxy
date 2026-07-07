@@ -3,18 +3,18 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
 use edge_proxy::{
     AsNullJobMarkerRequest, AsNullJobRequest, ExecutionRequest, HandlerContext, Job, JobError,
     ProxySvc,
 };
+use edge_security_runtime::SecurityContext;
 use futures::future::BoxFuture;
 
 struct NullBus;
 impl edge_proxy::CommandBus for NullBus {
     fn dispatch(
         &self,
-        _: Box<dyn edge_domain_command::Command>,
+        _: edge_domain_command::CommandDispatchRequest,
     ) -> BoxFuture<'_, Result<(), edge_domain_command::CommandError>> {
         Box::pin(async { Ok(()) })
     }
@@ -40,7 +40,7 @@ fn rt() -> tokio::runtime::Runtime {
 /// @covers: Job::run
 #[test]
 fn test_run_dispatches_request_happy() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = NullBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -59,7 +59,7 @@ fn test_run_dispatches_request_happy() {
 #[test]
 fn test_run_null_job_returns_cancelled_error() {
     let job = ProxySvc::new_null_job::<String, String>();
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = NullBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
