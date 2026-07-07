@@ -58,7 +58,7 @@ dependencies = [
 [[package]]
 name = "edge-domain-command"
 version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.11.5#716bd3a925b509012d396e8cc0460f0b71040c0b"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.14.1#681b6ac9f11becb5a3f97dcb25754d3bfb9b7e86"
 dependencies = [
  "async-trait",
  "futures",
@@ -69,13 +69,13 @@ dependencies = [
 [[package]]
 name = "edge-domain-handler"
 version = "0.1.1"
-source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.11.5#716bd3a925b509012d396e8cc0460f0b71040c0b"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.14.1#681b6ac9f11becb5a3f97dcb25754d3bfb9b7e86"
 dependencies = [
  "async-trait",
  "edge-domain-command",
  "edge-domain-observer",
- "edge-domain-security",
  "edge-domain-service",
+ "edge-security-runtime",
  "parking_lot",
  "thiserror 2.0.18",
 ]
@@ -83,22 +83,12 @@ dependencies = [
 [[package]]
 name = "edge-domain-observer"
 version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.11.5#716bd3a925b509012d396e8cc0460f0b71040c0b"
-
-[[package]]
-name = "edge-domain-security"
-version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.11.5#716bd3a925b509012d396e8cc0460f0b71040c0b"
-dependencies = [
- "serde",
- "serde_json",
- "thiserror 2.0.18",
-]
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.14.1#681b6ac9f11becb5a3f97dcb25754d3bfb9b7e86"
 
 [[package]]
 name = "edge-domain-service"
 version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.11.5#716bd3a925b509012d396e8cc0460f0b71040c0b"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.14.1#681b6ac9f11becb5a3f97dcb25754d3bfb9b7e86"
 dependencies = [
  "futures",
  "parking_lot",
@@ -113,13 +103,21 @@ dependencies = [
  "edge-domain-command",
  "edge-domain-handler",
  "edge-domain-observer",
- "edge-domain-security",
+ "edge-security-runtime",
  "futures",
  "parking_lot",
  "serde",
  "swe-edge-configbuilder",
  "thiserror 2.0.18",
  "tokio",
+]
+
+[[package]]
+name = "edge-security-runtime"
+version = "0.3.7"
+source = "git+https://github.com/sweengineeringlabs/edge-security.git?tag=v0.3.7#0c23f4eee41a482877a556b38222c2186e21b6e3"
+dependencies = [
+ "thiserror 2.0.18",
 ]
 
 [[package]]
@@ -242,12 +240,6 @@ dependencies = [
  "equivalent",
  "hashbrown",
 ]
-
-[[package]]
-name = "itoa"
-version = "1.0.18"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
 
 [[package]]
 name = "libc"
@@ -421,19 +413,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "serde_json"
-version = "1.0.150"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8014e44b4736ed0538adeecded0fce2a272f22dc9578a7eb6b2d9993c74cfb9"
-dependencies = [
- "itoa",
- "memchr",
- "serde",
- "serde_core",
- "zmij",
 ]
 
 [[package]]
@@ -705,9 +684,3 @@ checksum = "df79d97927682d2fd8adb29682d1140b343be4ac0f08fd68b7765d9c059d3945"
 dependencies = [
  "memchr",
 ]
-
-[[package]]
-name = "zmij"
-version = "1.0.21"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"
