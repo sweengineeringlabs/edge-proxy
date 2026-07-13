@@ -18,6 +18,7 @@ service_type     = "proxy"
 path = "main/src/lib.rs"
 
 [dependencies]
+async-trait            = "0.1"
 thiserror              = "2"
 futures                = "0.3"
 serde                  = { version = "1", features = ["derive"] }
@@ -29,7 +30,6 @@ edge-domain-observer  = { git = "https://github.com/sweengineeringlabs/edge-doma
 swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.3.0" }
 
 [dev-dependencies]
-async-trait           = "0.1"
 tokio                 = { version = "1", features = ["macros", "rt"] }
 edge-domain-observer  = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.14.1" }
 

@@ -143,7 +143,7 @@ fn test_shutdown_then_health_reports_unhealthy_edge() {
 fn test_status_fresh_monitor_is_healthy_happy() {
     let m = ProxySvc::new_null_lifecycle_monitor();
     assert_eq!(
-        rt().block_on(m.status(StatusRequest)).unwrap().status,
+        rt().block_on(m.status(StatusRequest)).unwrap().value,
         HealthStatus::Healthy
     );
 }
@@ -155,7 +155,7 @@ fn test_status_after_shutdown_is_unhealthy_error() {
     rt().block_on(m.shutdown(ShutdownRequest))
         .expect("shutdown");
     assert_eq!(
-        rt().block_on(m.status(StatusRequest)).unwrap().status,
+        rt().block_on(m.status(StatusRequest)).unwrap().value,
         HealthStatus::Unhealthy
     );
 }
@@ -165,7 +165,7 @@ fn test_status_after_shutdown_is_unhealthy_error() {
 fn test_status_matches_health_overall_edge() {
     let m = ProxySvc::new_null_lifecycle_monitor();
     let report = rt().block_on(m.health(HealthRequest)).unwrap();
-    let status = rt().block_on(m.status(StatusRequest)).unwrap().status;
+    let status = rt().block_on(m.status(StatusRequest)).unwrap().value;
     assert_eq!(status, report.overall);
 }
 
@@ -176,7 +176,7 @@ fn test_component_unknown_id_returns_none_happy() {
     assert!(rt()
         .block_on(m.component(ComponentRequest { id: "any-id" }))
         .unwrap()
-        .health
+        .value
         .is_none());
 }
 
@@ -189,7 +189,7 @@ fn test_component_after_shutdown_returns_none_error() {
     assert!(rt()
         .block_on(m.component(ComponentRequest { id: "any-id" }))
         .unwrap()
-        .health
+        .value
         .is_none());
 }
 
@@ -200,6 +200,6 @@ fn test_component_with_empty_id_returns_none_edge() {
     assert!(rt()
         .block_on(m.component(ComponentRequest { id: "" }))
         .unwrap()
-        .health
+        .value
         .is_none());
 }

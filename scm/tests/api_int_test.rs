@@ -5,13 +5,12 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_proxy::{
-    AsNullJobMarkerRequest, AsNullJobMarkerResponse, AsNullJobRequest, AsNullJobResponse,
-    AsNullRouterMarkerRequest, AsNullRouterMarkerResponse, AsNullRouterRequest,
-    AsNullRouterResponse, BootstrapNameRequest, BootstrapNameResponse, ComponentRequest,
-    ComponentResponse, ExecutionRequest, HealthRequest, HealthResponse, HealthStatus, Job,
-    JobError, NullJob, NullRouter, ProxyComposerError, RouteRequest, RouteResponse, Router,
-    RoutingError, ShutdownRequest, StartBackgroundTasksRequest, StatusRequest, StatusResponse,
-    ValidationRequest,
+    AsNullJobMarkerRequest, AsNullJobRequest, AsNullJobResponse, AsNullRouterMarkerRequest,
+    AsNullRouterRequest, AsNullRouterResponse, BootstrapNameRequest, BootstrapNameResponse,
+    ComponentHealth, ComponentRequest, EmptyResponse, ExecutionRequest, HealthRequest,
+    HealthResponse, HealthStatus, Job, JobError, JobResponse, NullJob, NullJobMarker, NullRouter,
+    NullRouterMarker, ProxyComposerError, RouteRequest, RouteResponse, Router, RoutingError,
+    ShutdownRequest, StartBackgroundTasksRequest, StatusRequest, ValidationRequest,
 };
 
 // --- zero-sized marker request types ---
@@ -81,11 +80,11 @@ fn test_bootstrap_name_request_is_zero_sized_happy() {
 
 // --- field-carrying request/response types ---
 
-/// @covers: AsNullJobMarkerResponse
+/// @covers: EmptyResponse
 #[test]
-fn test_as_null_job_marker_response_holds_marker_edge() {
-    let r = AsNullJobMarkerResponse { marker: None };
-    assert!(r.marker.is_none());
+fn test_as_null_job_marker_uses_empty_response_edge() {
+    let r = EmptyResponse::<Option<NullJobMarker>> { value: None };
+    assert!(r.value.is_none());
 }
 
 /// @covers: AsNullJobResponse
@@ -96,11 +95,11 @@ fn test_as_null_job_response_holds_job_ref_edge() {
     assert!(r.job.is_none());
 }
 
-/// @covers: AsNullRouterMarkerResponse
+/// @covers: EmptyResponse
 #[test]
-fn test_as_null_router_marker_response_holds_marker_edge() {
-    let r = AsNullRouterMarkerResponse { marker: None };
-    assert!(r.marker.is_none());
+fn test_as_null_router_marker_uses_empty_response_edge() {
+    let r = EmptyResponse::<Option<NullRouterMarker>> { value: None };
+    assert!(r.value.is_none());
 }
 
 /// @covers: AsNullRouterResponse
@@ -127,11 +126,11 @@ fn test_component_request_holds_id_happy() {
     assert_eq!(r.id, "svc");
 }
 
-/// @covers: ComponentResponse
+/// @covers: EmptyResponse
 #[test]
-fn test_component_response_holds_health_edge() {
-    let r = ComponentResponse { health: None };
-    assert!(r.health.is_none());
+fn test_component_uses_empty_response_edge() {
+    let r = EmptyResponse::<Option<ComponentHealth>> { value: None };
+    assert!(r.value.is_none());
 }
 
 /// @covers: HealthResponse
@@ -145,13 +144,13 @@ fn test_health_response_holds_overall_and_components_happy() {
     assert!(r.components.is_empty());
 }
 
-/// @covers: StatusResponse
+/// @covers: EmptyResponse
 #[test]
-fn test_status_response_holds_status_happy() {
-    let r = StatusResponse {
-        status: HealthStatus::Degraded,
+fn test_status_uses_empty_response_happy() {
+    let r = EmptyResponse {
+        value: HealthStatus::Degraded,
     };
-    assert_eq!(r.status, HealthStatus::Degraded);
+    assert_eq!(r.value, HealthStatus::Degraded);
 }
 
 /// @covers: RouteRequest
@@ -224,12 +223,13 @@ fn test_null_job_type_is_send_sync_edge() {
         true
     }
     struct AlwaysCancel;
+    #[async_trait::async_trait]
     impl Job<String, String> for AlwaysCancel {
-        fn run<'a>(
-            &'a self,
-            _req: ExecutionRequest<'a, String>,
-        ) -> futures::future::BoxFuture<'a, Result<String, JobError>> {
-            Box::pin(async { Err(JobError::Cancelled) })
+        async fn run(
+            &self,
+            _req: ExecutionRequest<'_, String>,
+        ) -> Result<JobResponse<String>, JobError> {
+            Err(JobError::Cancelled)
         }
     }
     assert!(accepts(&AlwaysCancel));
@@ -242,12 +242,13 @@ fn test_null_router_type_is_send_sync_edge() {
         true
     }
     struct AlwaysNoMatch;
+    #[async_trait::async_trait]
     impl Router<String> for AlwaysNoMatch {
-        fn route<'a>(
-            &'a self,
-            _req: RouteRequest<'a>,
-        ) -> futures::future::BoxFuture<'a, Result<RouteResponse<String>, RoutingError>> {
-            Box::pin(async { Err(RoutingError::NoMatch) })
+        async fn route(
+            &self,
+            _req: RouteRequest<'_>,
+        ) -> Result<RouteResponse<String>, RoutingError> {
+            Err(RoutingError::NoMatch)
         }
     }
     assert!(accepts(&AlwaysNoMatch));

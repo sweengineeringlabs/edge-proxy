@@ -5,7 +5,7 @@
 use edge_domain_observer::StdObserveFactory;
 use edge_proxy::{
     AsNullJobMarkerRequest, AsNullJobRequest, ExecutionRequest, HandlerContext, Job, JobError,
-    ProxySvc,
+    JobResponse, ProxySvc,
 };
 use edge_security_runtime::SecurityContext;
 use futures::future::BoxFuture;
@@ -21,12 +21,13 @@ impl edge_proxy::CommandBus for NullBus {
 }
 
 struct JobDouble;
+#[async_trait::async_trait]
 impl Job<String, String> for JobDouble {
-    fn run<'a>(
-        &'a self,
-        req: ExecutionRequest<'a, String>,
-    ) -> BoxFuture<'a, Result<String, JobError>> {
-        Box::pin(async move { Ok(req.req) })
+    async fn run(
+        &self,
+        req: ExecutionRequest<'_, String>,
+    ) -> Result<JobResponse<String>, JobError> {
+        Ok(JobResponse { payload: req.req })
     }
 }
 
@@ -52,7 +53,7 @@ fn test_run_dispatches_request_happy() {
         req: "hi".into(),
         ctx: &ctx,
     }));
-    assert_eq!(result.unwrap(), "hi");
+    assert_eq!(result.unwrap().payload, "hi");
 }
 
 /// @covers: Job::run
@@ -90,6 +91,6 @@ fn test_as_null_job_marker_default_returns_none_edge() {
     assert!(JobDouble
         .as_null_job_marker(AsNullJobMarkerRequest)
         .unwrap()
-        .marker
+        .value
         .is_none());
 }

@@ -12,7 +12,7 @@
 //!
 //! ```ignore
 //! use std::sync::Arc;
-//! use edge_proxy::{Job, JobError, Router, ProxySvc};
+//! use edge_proxy::{Job, JobError, JobResponse, Router, ProxySvc};
 //! use edge_domain::{Handler, HandlerRegistry, new_handler_registry};
 //!
 //! // 1. Build a registry and register domain handlers.
@@ -33,24 +33,23 @@ mod spi;
 // trait contracts and service identity constants only).
 pub use api::ApplicationConfigBuilder;
 pub use api::AsNullJobMarkerRequest;
-pub use api::AsNullJobMarkerResponse;
 pub use api::AsNullJobRequest;
 pub use api::AsNullJobResponse;
 pub use api::AsNullRouterMarkerRequest;
-pub use api::AsNullRouterMarkerResponse;
 pub use api::AsNullRouterRequest;
 pub use api::AsNullRouterResponse;
 pub use api::BootstrapNameRequest;
 pub use api::BootstrapNameResponse;
 pub use api::ComponentHealth;
 pub use api::ComponentRequest;
-pub use api::ComponentResponse;
+pub use api::EmptyResponse;
 pub use api::ExecutionRequest;
 pub use api::HandlerError;
 pub use api::HealthRequest;
 pub use api::HealthResponse;
 pub use api::HealthStatus;
 pub use api::JobError;
+pub use api::JobResponse;
 pub use api::LifecycleError;
 pub use api::NullJob;
 pub use api::NullJobMarker;
@@ -65,8 +64,8 @@ pub use api::RoutingError;
 pub use api::ShutdownRequest;
 pub use api::StartBackgroundTasksRequest;
 pub use api::StatusRequest;
-pub use api::StatusResponse;
 pub use api::ValidationRequest;
+pub use api::WrappedHandlerError;
 
 // Trait contracts — via saf/
 pub use saf::CommandBus;

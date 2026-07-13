@@ -21,8 +21,8 @@ use edge_domain_handler::{
 };
 use edge_domain_observer::StdObserveFactory;
 use edge_proxy::{
-    ExecutionRequest, HealthRequest, Job, JobError, ProxySvc, RouteRequest, RouteResponse, Router,
-    RoutingError,
+    ExecutionRequest, HealthRequest, Job, JobError, JobResponse, ProxySvc, RouteRequest,
+    RouteResponse, Router, RoutingError,
 };
 use edge_security_runtime::SecurityContext;
 use futures::future::BoxFuture;
@@ -86,19 +86,15 @@ impl Handler for EchoHandlerImpl {
 
 struct CommandRouter;
 
+#[async_trait::async_trait]
 impl Router<String> for CommandRouter {
-    fn route<'a>(
-        &'a self,
-        req: RouteRequest<'a>,
-    ) -> BoxFuture<'a, Result<RouteResponse<String>, RoutingError>> {
-        Box::pin(async move {
-            match req.input {
-                "echo" | "ping" => Ok(RouteResponse {
-                    intent: "echo".into(),
-                }),
-                _ => Err(RoutingError::NoMatch),
-            }
-        })
+    async fn route(&self, req: RouteRequest<'_>) -> Result<RouteResponse<String>, RoutingError> {
+        match req.input {
+            "echo" | "ping" => Ok(RouteResponse {
+                intent: "echo".into(),
+            }),
+            _ => Err(RoutingError::NoMatch),
+        }
     }
 }
 
@@ -109,32 +105,32 @@ struct DispatchJob {
     registry: Arc<dyn HandlerRegistry<Request = Request, Response = Response>>,
 }
 
+#[async_trait::async_trait]
 impl Job<Request, Response> for DispatchJob {
-    fn run<'a>(
-        &'a self,
-        req: ExecutionRequest<'a, Request>,
-    ) -> BoxFuture<'a, Result<Response, JobError>> {
-        Box::pin(async move {
-            let intent = self
-                .router
-                .route(RouteRequest {
-                    input: &req.req.command,
-                })
-                .await?
-                .intent;
-            let err = JobError::HandlerUnavailable(intent.clone());
-            let handler = self
-                .registry
-                .get(HandlerLookupRequest { id: intent })?
-                .handler
-                .ok_or(err)?;
-            Ok(handler
-                .execute(HandlerExecutionRequest {
-                    req: req.req,
-                    ctx: req.ctx,
-                })
-                .await?)
-        })
+    async fn run(
+        &self,
+        req: ExecutionRequest<'_, Request>,
+    ) -> Result<JobResponse<Response>, JobError> {
+        let intent = self
+            .router
+            .route(RouteRequest {
+                input: &req.req.command,
+            })
+            .await?
+            .intent;
+        let err = JobError::HandlerUnavailable(intent.clone());
+        let handler = self
+            .registry
+            .get(HandlerLookupRequest { id: intent })?
+            .handler
+            .ok_or(err)?;
+        let payload = handler
+            .execute(HandlerExecutionRequest {
+                req: req.req,
+                ctx: req.ctx,
+            })
+            .await?;
+        Ok(JobResponse { payload })
     }
 }
 
@@ -174,7 +170,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             ctx: &ctx,
         })
         .await?;
-    println!("echo  → handler={} output={}", resp.handler, resp.output);
+    println!(
+        "echo  → handler={} output={}",
+        resp.payload.handler, resp.payload.output
+    );
 
     // 5. Dispatch — routing miss is surfaced as a JobError.
     let ctx2 = HandlerContext {

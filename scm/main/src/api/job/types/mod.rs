@@ -1,15 +1,13 @@
 //! Job public types — marker and value types for the job concern.
 
-pub mod as_null_job_marker_request;
-pub mod as_null_job_marker_response;
-pub mod as_null_job_request;
-pub mod as_null_job_response;
+pub mod ass;
 pub mod execution_request;
+pub mod job_response;
 pub mod null_job_marker;
+pub mod wrapped_handler_error;
 
-pub use as_null_job_marker_request::AsNullJobMarkerRequest;
-pub use as_null_job_marker_response::AsNullJobMarkerResponse;
-pub use as_null_job_request::AsNullJobRequest;
-pub use as_null_job_response::AsNullJobResponse;
+pub use ass::{AsNullJobMarkerRequest, AsNullJobRequest, AsNullJobResponse};
 pub use execution_request::ExecutionRequest;
+pub use job_response::JobResponse;
 pub use null_job_marker::NullJobMarker;
+pub use wrapped_handler_error::WrappedHandlerError;

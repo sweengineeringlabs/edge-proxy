@@ -2,44 +2,45 @@
 //! test-double implementation via the crate's public API.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+use async_trait::async_trait;
 use edge_proxy::{
-    ComponentRequest, ComponentResponse, HealthRequest, HealthResponse, HealthStatus,
+    ComponentHealth, ComponentRequest, EmptyResponse, HealthRequest, HealthResponse, HealthStatus,
     LifecycleError, LifecycleMonitor, NullMonitor, ShutdownRequest, StartBackgroundTasksRequest,
-    StatusRequest, StatusResponse,
+    StatusRequest,
 };
-use futures::future::BoxFuture;
 
 struct MonitorDouble;
+
+#[async_trait]
 impl LifecycleMonitor for MonitorDouble {
-    fn health(&self, _req: HealthRequest) -> BoxFuture<'_, Result<HealthResponse, LifecycleError>> {
-        Box::pin(async {
-            Ok(HealthResponse {
-                overall: HealthStatus::Healthy,
-                components: vec![],
-            })
+    async fn health(&self, _req: HealthRequest) -> Result<HealthResponse, LifecycleError> {
+        Ok(HealthResponse {
+            overall: HealthStatus::Healthy,
+            components: vec![],
         })
     }
-    fn start_background_tasks(
+    async fn start_background_tasks(
         &self,
         _req: StartBackgroundTasksRequest,
-    ) -> BoxFuture<'_, Result<(), LifecycleError>> {
-        Box::pin(async { Ok(()) })
+    ) -> Result<(), LifecycleError> {
+        Ok(())
     }
-    fn shutdown(&self, _req: ShutdownRequest) -> BoxFuture<'_, Result<(), LifecycleError>> {
-        Box::pin(async { Ok(()) })
+    async fn shutdown(&self, _req: ShutdownRequest) -> Result<(), LifecycleError> {
+        Ok(())
     }
-    fn status(&self, _req: StatusRequest) -> BoxFuture<'_, Result<StatusResponse, LifecycleError>> {
-        Box::pin(async {
-            Ok(StatusResponse {
-                status: HealthStatus::Healthy,
-            })
+    async fn status(
+        &self,
+        _req: StatusRequest,
+    ) -> Result<EmptyResponse<HealthStatus>, LifecycleError> {
+        Ok(EmptyResponse {
+            value: HealthStatus::Healthy,
         })
     }
-    fn component<'a>(
-        &'a self,
+    async fn component(
+        &self,
         _req: ComponentRequest<'_>,
-    ) -> BoxFuture<'a, Result<ComponentResponse, LifecycleError>> {
-        Box::pin(async { Ok(ComponentResponse { health: None }) })
+    ) -> Result<EmptyResponse<Option<ComponentHealth>>, LifecycleError> {
+        Ok(EmptyResponse { value: None })
     }
 }
 impl NullMonitor for MonitorDouble {}

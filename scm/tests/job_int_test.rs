@@ -10,7 +10,7 @@ use std::sync::Arc;
 use edge_domain_command::{CommandDispatchRequest, CommandError};
 use edge_proxy::{
     AsNullJobMarkerRequest, AsNullJobRequest, ExecutionRequest, HandlerContext, Job, JobError,
-    NullJobMarker, ProxySvc, SecurityContext,
+    JobResponse, NullJobMarker, ProxySvc, SecurityContext,
 };
 
 fn rt() -> tokio::runtime::Runtime {
@@ -33,23 +33,25 @@ fn anon_ctx_parts() -> (SecurityContext, NullBus) {
 
 struct OkJob;
 
+#[async_trait::async_trait]
 impl Job<String, String> for OkJob {
-    fn run<'a>(
-        &'a self,
-        req: ExecutionRequest<'a, String>,
-    ) -> BoxFuture<'a, Result<String, JobError>> {
-        Box::pin(async move { Ok(req.req) })
+    async fn run(
+        &self,
+        req: ExecutionRequest<'_, String>,
+    ) -> Result<JobResponse<String>, JobError> {
+        Ok(JobResponse { payload: req.req })
     }
 }
 
 struct ErrJob;
 
+#[async_trait::async_trait]
 impl Job<String, String> for ErrJob {
-    fn run<'a>(
-        &'a self,
-        _req: ExecutionRequest<'a, String>,
-    ) -> BoxFuture<'a, Result<String, JobError>> {
-        Box::pin(async move { Err(JobError::HandlerUnavailable("none".into())) })
+    async fn run(
+        &self,
+        _req: ExecutionRequest<'_, String>,
+    ) -> Result<JobResponse<String>, JobError> {
+        Err(JobError::HandlerUnavailable("none".into()))
     }
 }
 
@@ -71,7 +73,7 @@ fn test_job_run_dispatches_request_happy() {
         req: "hello".into(),
         ctx: &ctx,
     }));
-    assert_eq!(result.unwrap(), "hello");
+    assert_eq!(result.unwrap().payload, "hello");
 }
 
 #[test]
@@ -103,7 +105,7 @@ fn test_job_run_with_empty_request_edge() {
         req: String::new(),
         ctx: &ctx,
     }));
-    assert_eq!(result.unwrap(), "");
+    assert_eq!(result.unwrap().payload, "");
 }
 
 // Rule 222 scenario coverage — test_run_* naming pattern ─────────────────────
@@ -122,7 +124,7 @@ fn test_run_dispatches_request_happy() {
         req: "payload".into(),
         ctx: &ctx,
     }));
-    assert_eq!(result.unwrap(), "payload");
+    assert_eq!(result.unwrap().payload, "payload");
 }
 
 /// run — error: handler unavailable propagates as HandlerUnavailable.
@@ -156,7 +158,7 @@ fn test_run_empty_string_request_edge() {
         req: String::new(),
         ctx: &ctx,
     }));
-    assert_eq!(result.unwrap(), "");
+    assert_eq!(result.unwrap().payload, "");
 }
 
 // Rule 222 scenario coverage for Job::as_null_job ─────────────────────────────
@@ -189,7 +191,7 @@ fn test_as_null_job_marker_default_returns_none_happy() {
     let result: Option<NullJobMarker> = OkJob
         .as_null_job_marker(AsNullJobMarkerRequest)
         .unwrap()
-        .marker;
+        .value;
     assert!(result.is_none());
 }
 
@@ -199,7 +201,7 @@ fn test_as_null_job_marker_on_err_job_returns_none_error() {
     let result: Option<NullJobMarker> = ErrJob
         .as_null_job_marker(AsNullJobMarkerRequest)
         .unwrap()
-        .marker;
+        .value;
     assert!(result.is_none());
 }
 
@@ -210,6 +212,6 @@ fn test_as_null_job_marker_accessible_on_dyn_trait_object_edge() {
     let result: Option<NullJobMarker> = dyn_ref
         .as_null_job_marker(AsNullJobMarkerRequest)
         .unwrap()
-        .marker;
+        .value;
     assert!(result.is_none());
 }

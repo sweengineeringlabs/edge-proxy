@@ -14,7 +14,12 @@ fn test_job_error_wraps_routing_error() {
 #[test]
 fn test_job_error_wraps_handler_error() {
     let err: JobError = HandlerError::Unhealthy.into();
-    assert!(matches!(err, JobError::Handler(HandlerError::Unhealthy)));
+    match err {
+        JobError::Handler(wrapped) => {
+            assert!(matches!(wrapped.inner(), HandlerError::Unhealthy));
+        }
+        other => panic!("expected JobError::Handler, got {other:?}"),
+    }
 }
 
 /// @covers: JobError::HandlerUnavailable

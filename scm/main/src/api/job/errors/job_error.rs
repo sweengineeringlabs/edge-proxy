@@ -4,6 +4,7 @@ use thiserror::Error;
 
 pub use edge_domain_handler::HandlerError;
 
+use crate::api::job::types::WrappedHandlerError;
 use crate::api::router::errors::routing_error::RoutingError;
 
 /// Errors raised by [`Job::run`](crate::Job::run).
@@ -19,7 +20,7 @@ pub enum JobError {
 
     /// The chosen handler failed during execution.
     #[error("handler failed: {0}")]
-    Handler(#[from] HandlerError),
+    Handler(#[from] WrappedHandlerError),
 
     /// The job was cancelled by a lifecycle event (e.g. shutdown).
     #[error("job cancelled")]

@@ -14,14 +14,19 @@ async fn test_null_lifecycle_monitor_health_is_healthy() {
 #[test]
 fn test_handler_error_unhealthy_wraps_into_job_error() {
     let err: JobError = HandlerError::Unhealthy.into();
-    assert!(matches!(err, JobError::Handler(HandlerError::Unhealthy)));
+    match err {
+        JobError::Handler(wrapped) => assert!(matches!(wrapped.inner(), HandlerError::Unhealthy)),
+        other => panic!("expected JobError::Handler, got {other:?}"),
+    }
 }
 
 #[test]
 fn test_handler_error_invalid_request_wraps_into_job_error() {
     let err: JobError = HandlerError::InvalidRequest("bad input".into()).into();
-    assert!(matches!(
-        err,
-        JobError::Handler(HandlerError::InvalidRequest(_))
-    ));
+    match err {
+        JobError::Handler(wrapped) => {
+            assert!(matches!(wrapped.inner(), HandlerError::InvalidRequest(_)));
+        }
+        other => panic!("expected JobError::Handler, got {other:?}"),
+    }
 }

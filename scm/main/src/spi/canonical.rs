@@ -3,32 +3,31 @@
 //! `impl Job for` and `impl Router for` are in this file so the SEA scanner
 //! recognises the `spi` L2 layer as providing concrete implementations.
 
-use futures::future::BoxFuture;
+use async_trait::async_trait;
 
 use crate::api::{
-    ExecutionRequest, Job, JobError, LifecycleMonitor, RouteRequest, RouteResponse, Router,
-    RoutingError, Validator,
+    ExecutionRequest, Job, JobError, JobResponse, LifecycleMonitor, RouteRequest, RouteResponse,
+    Router, RoutingError, Validator,
 };
 
 struct CanonicalJobImpl;
 
+#[async_trait]
 impl Job for CanonicalJobImpl {
-    fn run<'a>(
-        &'a self,
-        _req: ExecutionRequest<'a, String>,
-    ) -> BoxFuture<'a, Result<String, JobError>> {
-        Box::pin(async move { Err(JobError::Cancelled) })
+    async fn run(
+        &self,
+        _req: ExecutionRequest<'_, String>,
+    ) -> Result<JobResponse<String>, JobError> {
+        Err(JobError::Cancelled)
     }
 }
 
 struct CanonicalRouterImpl;
 
+#[async_trait]
 impl Router for CanonicalRouterImpl {
-    fn route<'a>(
-        &'a self,
-        _req: RouteRequest<'a>,
-    ) -> BoxFuture<'a, Result<RouteResponse<String>, RoutingError>> {
-        Box::pin(async move { Err(RoutingError::NoMatch) })
+    async fn route(&self, _req: RouteRequest<'_>) -> Result<RouteResponse<String>, RoutingError> {
+        Err(RoutingError::NoMatch)
     }
 }
 
@@ -130,7 +129,7 @@ mod tests {
             commands: &b,
             observer: observer.as_ref(),
         };
-        let result: Result<(), _> = rt()
+        let result: Result<JobResponse<()>, _> = rt()
             .block_on(CanonicalFactory::null_job().run(ExecutionRequest { req: (), ctx: &ctx }));
         assert!(matches!(result, Err(JobError::Cancelled)));
     }

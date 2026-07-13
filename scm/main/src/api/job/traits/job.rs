@@ -3,13 +3,14 @@
 //! The single entry point the gateway calls. Each Controller implementation
 //! provides one `Job` impl that orchestrates its full request→response flow.
 
-use futures::future::BoxFuture;
+use async_trait::async_trait;
 
 use crate::api::job::errors::JobError;
 use crate::api::job::types::{
-    AsNullJobMarkerRequest, AsNullJobMarkerResponse, AsNullJobRequest, AsNullJobResponse,
-    ExecutionRequest,
+    AsNullJobMarkerRequest, AsNullJobRequest, AsNullJobResponse, ExecutionRequest, JobResponse,
+    NullJobMarker,
 };
+use crate::api::types::EmptyResponse;
 
 /// The single entry point for proxy dispatch.
 ///
@@ -19,17 +20,19 @@ use crate::api::job::types::{
 /// # Examples
 ///
 /// ```rust,no_run
-/// use futures::future::BoxFuture;
-/// use edge_proxy::{Job, JobError, ExecutionRequest};
+/// use async_trait::async_trait;
+/// use edge_proxy::{Job, JobError, JobResponse, ExecutionRequest};
 ///
 /// struct EchoJob;
 ///
+/// #[async_trait]
 /// impl Job<String, String> for EchoJob {
-///     fn run<'a>(&'a self, req: ExecutionRequest<'a, String>) -> BoxFuture<'a, Result<String, JobError>> {
-///         Box::pin(async move { Ok(req.req) })
+///     async fn run(&self, req: ExecutionRequest<'_, String>) -> Result<JobResponse<String>, JobError> {
+///         Ok(JobResponse { payload: req.req })
 ///     }
 /// }
 /// ```
+#[async_trait]
 pub trait Job<Request = String, Response = String>: Send + Sync
 where
     Request: Send + 'static,
@@ -40,10 +43,10 @@ where
     /// [`ExecutionRequest::ctx`] carries the authenticated principal, tenant, claims,
     /// and command bus for the current request. Construct it at the inbound
     /// boundary and thread it through to [`Handler::execute`](edge_domain::Handler::execute).
-    fn run<'a>(
-        &'a self,
-        req: ExecutionRequest<'a, Request>,
-    ) -> BoxFuture<'a, Result<Response, JobError>>;
+    async fn run(
+        &self,
+        req: ExecutionRequest<'_, Request>,
+    ) -> Result<JobResponse<Response>, JobError>;
 
     /// Return a reference to the erased null-job form, if this implementation
     /// is a null object.  Returns `None` by default.
@@ -57,7 +60,7 @@ where
     fn as_null_job_marker(
         &self,
         _req: AsNullJobMarkerRequest,
-    ) -> Result<AsNullJobMarkerResponse, JobError> {
-        Ok(AsNullJobMarkerResponse { marker: None })
+    ) -> Result<EmptyResponse<Option<NullJobMarker>>, JobError> {
+        Ok(EmptyResponse { value: None })
     }
 }
