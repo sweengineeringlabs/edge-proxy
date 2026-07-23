@@ -7,19 +7,19 @@
 //!   request → Job::run → Router::route → HandlerRegistry::get → Handler::execute
 //!
 //! SEA layer boundaries kept explicit:
-//!   - `edge_domain_handler::` — Handler + HandlerRegistry contracts
+//!   - `edge_application_handler::` — Handler + HandlerRegistry contracts
 //!   - `edge_proxy::` — Job + Router + LifecycleMonitor contracts and their SAF factory
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
-use edge_domain_command::{CommandBus, CommandDispatchRequest, CommandError};
-use edge_domain_handler::{
+use edge_application_command::{CommandBus, CommandDispatchRequest, CommandError};
+use edge_application_handler::{
     ExecutionRequest as HandlerExecutionRequest, Handler, HandlerContext, HandlerError,
     HandlerLookupRequest, HandlerRegistry, IdRequest, IdResponse, InProcessHandlerRegistry,
-    PatternRequest, PatternResponse, RegisterHandlerRequest,
+    ObserverContextAdapter, PatternRequest, PatternResponse, RegisterHandlerRequest,
 };
-use edge_domain_observer::StdObserveFactory;
+use edge_application_observer::StdObserveFactory;
 use edge_proxy::{
     ExecutionRequest, HealthRequest, Job, JobError, JobResponse, ProxySvc, RouteRequest,
     RouteResponse, Router, RoutingError,
@@ -154,12 +154,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let security: SecurityContext = SecurityContext::unauthenticated();
     let bus = NoopBus;
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
 
     // 4. Dispatch — known command routes to the echo handler.
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let resp = job
         .run(ExecutionRequest {
@@ -179,7 +180,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ctx2 = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let result = job
         .run(ExecutionRequest {

@@ -2,12 +2,13 @@
 //! @covers: api/job/traits/job.rs
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_observer::StdObserveFactory;
+use edge_application_handler::ObserverContextAdapter;
+use edge_application_observer::StdObserveFactory;
 use futures::future::BoxFuture;
 
 use std::sync::Arc;
 
-use edge_domain_command::{CommandDispatchRequest, CommandError};
+use edge_application_command::{CommandDispatchRequest, CommandError};
 use edge_proxy::{
     AsNullJobMarkerRequest, AsNullJobRequest, ExecutionRequest, HandlerContext, Job, JobError,
     JobResponse, NullJobMarker, ProxySvc, SecurityContext,
@@ -64,10 +65,11 @@ fn test_job_trait_is_object_safe() {
 fn test_job_run_dispatches_request_happy() {
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &s,
         commands: &b,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let result = rt().block_on(OkJob.run(ExecutionRequest {
         req: "hello".into(),
@@ -80,10 +82,11 @@ fn test_job_run_dispatches_request_happy() {
 fn test_job_run_propagates_handler_error_error() {
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &s,
         commands: &b,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let result = rt().block_on(ErrJob.run(ExecutionRequest {
         req: "x".into(),
@@ -96,10 +99,11 @@ fn test_job_run_propagates_handler_error_error() {
 fn test_job_run_with_empty_request_edge() {
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &s,
         commands: &b,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let result = rt().block_on(OkJob.run(ExecutionRequest {
         req: String::new(),
@@ -115,10 +119,11 @@ fn test_job_run_with_empty_request_edge() {
 fn test_run_dispatches_request_happy() {
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &s,
         commands: &b,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let result = rt().block_on(OkJob.run(ExecutionRequest {
         req: "payload".into(),
@@ -132,10 +137,11 @@ fn test_run_dispatches_request_happy() {
 fn test_run_handler_unavailable_error() {
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &s,
         commands: &b,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let result = rt().block_on(ErrJob.run(ExecutionRequest {
         req: "req".into(),
@@ -149,10 +155,11 @@ fn test_run_handler_unavailable_error() {
 fn test_run_empty_string_request_edge() {
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &s,
         commands: &b,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let result = rt().block_on(OkJob.run(ExecutionRequest {
         req: String::new(),

@@ -85,6 +85,54 @@ spi/       — extension points (`canonical.rs`).
 
 ---
 
+## Block diagram — SEA layer composition
+
+Module-level composition, derived from the actual `use crate::...` edges in each layer (not just
+the linear `api → core → saf → spi` gloss in the table above — `core/` and `spi/` cross-reference
+each other within the crate):
+
+```mermaid
+flowchart TB
+    subgraph API["api/ — L1 public contracts (no impl)"]
+        ApiTraits["Job · Router · LifecycleMonitor<br/>Validator · ProxyComposer (marker type)"]
+        ApiDto["DTOs / errors: ExecutionRequest re-export,<br/>JobResponse, JobError, RouteRequest/Response,<br/>RoutingError, HealthReport, LifecycleError"]
+    end
+
+    subgraph CORE["core/ — L2 default implementations (pub(crate))"]
+        CoreImpls["NullJob · NullRouter<br/>NoopValidator · NoopLifecycleMonitor<br/>WrappedHandlerError · ApplicationConfigBuilder"]
+        CoreFactory["impl ProxySvc { new_null_*, new_noop_*, new_canonical_* }"]
+    end
+
+    subgraph SPI["spi/ — extension points"]
+        SpiFactory["CanonicalFactory<br/>(job, router, null_job, null_router,<br/>null_lifecycle_monitor, noop_validator)"]
+        SpiImpls["CanonicalJobImpl / CanonicalRouterImpl<br/>(always Cancelled / NoMatch)"]
+    end
+
+    subgraph SAF["saf/ — public facade (Service Abstraction Framework)"]
+        SafTraits["Trait re-exports:<br/>Job, Router, LifecycleMonitor, Validator, ProxyComposer"]
+        SafConst["CONCERN + SVC_FACTORY identity constants"]
+        SafForeign["Foreign re-exports (bypass api/ entirely):<br/>HandlerContext, CommandBus, SecurityContext"]
+    end
+
+    API --> CORE
+    API --> SPI
+    CoreFactory -- "delegates null/noop/canonical<br/>construction to" --> SpiFactory
+    SpiFactory -- "returns core's Null* types<br/>for null_job/null_router" --> CoreImpls
+    CORE --> SAF
+    API --> SAF
+
+    Upstream1(["edge-application-handler"]) -.-> SafForeign
+    Upstream2(["edge-application-command"]) -.-> SafForeign
+    Upstream3(["edge-security-runtime"]) -.-> SafForeign
+```
+
+`api/` is the only layer with zero inbound edges — everything implements or re-exports it, it
+depends on nothing internal. `saf/` never imports `spi/` directly; it only re-exports the trait
+contracts `api/` defines plus the three foreign context types, so a consumer depending on this
+crate never needs to know `spi/` exists.
+
+---
+
 ## Governing ADRs
 
 | ADR | Title | Governs |
@@ -97,7 +145,7 @@ the upstream link. Status reflects this repo's own doc, not necessarily the upst
 
 ---
 
-## Confirmed dataflow (within this crate's own dependency graph)
+## Dataflow diagram (confirmed, within this crate's own dependency graph)
 
 ```mermaid
 graph TB
@@ -134,6 +182,66 @@ these together, per its own doc comments.
 whether/how a `Job` implementation looks up a domain `Handler` via a `HandlerRegistry`, and what
 transport sits upstream of that runtime. Those are downstream facts this repo cannot see from its
 own Cargo.toml or source tree.
+
+---
+
+## Sequence diagram — canonical dispatch path
+
+Traced from `examples/dispatch.rs` (compiled, `cargo run --example dispatch` — not a doctest-ignored
+sketch). `DispatchJob` is one concrete `Job` impl a consumer could write; the `Router` and
+`HandlerRegistry` steps are not part of this crate's own contract (`HandlerRegistry` is
+`edge-application-handler`'s), but this is the shape `Job::run` is designed to sit in front of.
+
+```mermaid
+sequenceDiagram
+    participant RT as Runtime
+    participant J as Job (DispatchJob)
+    participant R as Router
+    participant HR as HandlerRegistry
+    participant H as Handler
+
+    RT->>J: run(ExecutionRequest { req, ctx })
+    J->>R: route(RouteRequest { input: req.command })
+    alt route matched
+        R-->>J: Ok(RouteResponse { intent })
+        J->>HR: get(HandlerLookupRequest { id: intent })
+        alt handler registered
+            HR-->>J: Some(handler)
+            J->>H: execute(ExecutionRequest { req, ctx })
+            alt handler succeeds
+                H-->>J: Ok(Response)
+                J-->>RT: Ok(JobResponse { payload })
+            else handler fails
+                H-->>J: Err(HandlerError)
+                J-->>RT: Err(JobError::Handler(WrappedHandlerError))
+            end
+        else no handler for intent
+            HR-->>J: None
+            J-->>RT: Err(JobError::HandlerUnavailable)
+        end
+    else no route match
+        R-->>J: Err(RoutingError::NoMatch)
+        J-->>RT: Err(JobError::Routing(RoutingError))
+    end
+```
+
+## Sequence diagram — lifecycle health check
+
+`LifecycleMonitor` is a separate concern from `Job` — a runtime polls it independently of dispatch.
+Shown here via the null implementation `ProxySvc::new_null_lifecycle_monitor()` returns (always
+`Healthy`, no background tasks):
+
+```mermaid
+sequenceDiagram
+    participant RT as Runtime
+    participant PS as ProxySvc (core/spi factory)
+    participant LM as LifecycleMonitor (NoopLifecycleMonitor)
+
+    RT->>PS: new_null_lifecycle_monitor()
+    PS-->>RT: Arc<dyn LifecycleMonitor>
+    RT->>LM: health(HealthRequest)
+    LM-->>RT: Ok(HealthReport { overall: Healthy, .. })
+```
 
 ---
 

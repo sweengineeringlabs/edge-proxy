@@ -56,9 +56,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "edge-domain-command"
+name = "edge-application-command"
 version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.14.1#681b6ac9f11becb5a3f97dcb25754d3bfb9b7e86"
+source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.16.0#b1db626391788835a486c0190fe0a03d66ac2c53"
 dependencies = [
  "async-trait",
  "futures",
@@ -67,28 +67,28 @@ dependencies = [
 ]
 
 [[package]]
-name = "edge-domain-handler"
+name = "edge-application-handler"
 version = "0.1.1"
-source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.14.1#681b6ac9f11becb5a3f97dcb25754d3bfb9b7e86"
+source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.16.0#b1db626391788835a486c0190fe0a03d66ac2c53"
 dependencies = [
  "async-trait",
- "edge-domain-command",
- "edge-domain-observer",
- "edge-domain-service",
+ "edge-application-command",
+ "edge-application-observer",
+ "edge-application-service",
  "edge-security-runtime",
  "parking_lot",
  "thiserror 2.0.18",
 ]
 
 [[package]]
-name = "edge-domain-observer"
+name = "edge-application-observer"
 version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.14.1#681b6ac9f11becb5a3f97dcb25754d3bfb9b7e86"
+source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.16.0#b1db626391788835a486c0190fe0a03d66ac2c53"
 
 [[package]]
-name = "edge-domain-service"
+name = "edge-application-service"
 version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.14.1#681b6ac9f11becb5a3f97dcb25754d3bfb9b7e86"
+source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.16.0#b1db626391788835a486c0190fe0a03d66ac2c53"
 dependencies = [
  "futures",
  "parking_lot",
@@ -100,9 +100,9 @@ name = "edge-proxy"
 version = "0.3.4"
 dependencies = [
  "async-trait",
- "edge-domain-command",
- "edge-domain-handler",
- "edge-domain-observer",
+ "edge-application-command",
+ "edge-application-handler",
+ "edge-application-observer",
  "edge-security-runtime",
  "futures",
  "parking_lot",

@@ -2,7 +2,7 @@
 
 use thiserror::Error;
 
-pub use edge_domain_handler::HandlerError;
+pub use edge_application_handler::HandlerError;
 
 use crate::api::job::types::WrappedHandlerError;
 use crate::api::router::errors::routing_error::RoutingError;

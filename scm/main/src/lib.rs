@@ -13,7 +13,7 @@
 //! ```ignore
 //! use std::sync::Arc;
 //! use edge_proxy::{Job, JobError, JobResponse, Router, ProxySvc};
-//! use edge_domain::{Handler, HandlerRegistry, new_handler_registry};
+//! use edge_application::{Handler, HandlerRegistry, new_handler_registry};
 //!
 //! // 1. Build a registry and register domain handlers.
 //! let registry: Arc<HandlerRegistry<MyReq, MyResponse>> = new_handler_registry();

@@ -2,7 +2,8 @@
 //! @covers: api/job/null_job.rs
 #![allow(clippy::expect_used)]
 
-use edge_domain_observer::StdObserveFactory;
+use edge_application_handler::ObserverContextAdapter;
+use edge_application_observer::StdObserveFactory;
 use edge_proxy::{ExecutionRequest, HandlerContext, JobError, NullJob, ProxySvc, SecurityContext};
 use futures::future::BoxFuture;
 
@@ -17,8 +18,8 @@ struct NullBus;
 impl edge_proxy::CommandBus for NullBus {
     fn dispatch(
         &self,
-        _: edge_domain_command::CommandDispatchRequest,
-    ) -> BoxFuture<'_, Result<(), edge_domain_command::CommandError>> {
+        _: edge_application_command::CommandDispatchRequest,
+    ) -> BoxFuture<'_, Result<(), edge_application_command::CommandError>> {
         Box::pin(async { Ok(()) })
     }
 }
@@ -34,10 +35,11 @@ fn test_null_job_type_alias_accepts_null_job_impl_happy() {
     let null_job_ref: &NullJob = &*arc_job;
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &s,
         commands: &b,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let result = rt().block_on(null_job_ref.run(ExecutionRequest {
         req: "x".into(),
@@ -53,10 +55,11 @@ fn test_null_job_via_alias_returns_cancelled_on_empty_input_error() {
     let null_job_ref: &NullJob = &*arc_job;
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &s,
         commands: &b,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let result = rt().block_on(null_job_ref.run(ExecutionRequest {
         req: String::new(),

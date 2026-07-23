@@ -1,7 +1,7 @@
-//! Integration tests for null lifecycle monitor — exercises edge-domain dep.
+//! Integration tests for null lifecycle monitor — exercises edge-application dep.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::HandlerError;
+use edge_application_handler::HandlerError;
 use edge_proxy::{HealthRequest, HealthStatus, JobError, ProxySvc};
 
 #[tokio::test]

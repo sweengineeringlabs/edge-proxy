@@ -42,7 +42,7 @@ where
     ///
     /// [`ExecutionRequest::ctx`] carries the authenticated principal, tenant, claims,
     /// and command bus for the current request. Construct it at the inbound
-    /// boundary and thread it through to [`Handler::execute`](edge_domain::Handler::execute).
+    /// boundary and thread it through to [`Handler::execute`](edge_application::Handler::execute).
     async fn run(
         &self,
         req: ExecutionRequest<'_, Request>,
