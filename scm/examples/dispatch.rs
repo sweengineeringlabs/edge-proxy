@@ -34,12 +34,14 @@ struct Request {
     command: String,
     payload: String,
 }
+impl edge_application_handler::Request for Request {}
 
 #[derive(Debug)]
 struct Response {
     handler: String,
     output: String,
 }
+impl edge_application_handler::Response for Response {}
 
 // ── Noop command bus for example wiring ──────────────────────────────────────
 

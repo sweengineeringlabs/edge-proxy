@@ -74,7 +74,7 @@ api/       — public contract surface: Job, Router, LifecycleMonitor, Validator
              DTOs/errors (JobError, RoutingError, LifecycleError, JobResponse, ExecutionRequest
              re-export, health types). No implementation.
 core/      — concrete implementations: NullJob, NullRouter, NoopValidator,
-             NoopLifecycleMonitor, WrappedHandlerError, ApplicationConfigBuilder.
+             NoopLifecycleMonitor, ApplicationConfigBuilder.
 saf/       — Service Abstraction Framework: the public re-export/discovery surface. `_svc.rs`
              files (one `pub const X_CONCERN: &str` identity marker + trait re-export + optional
              factory) for job, router, lifecycle_monitor, monitor, validator, proxy composer.
@@ -99,7 +99,7 @@ flowchart TB
     end
 
     subgraph CORE["core/ — L2 default implementations (pub(crate))"]
-        CoreImpls["NullJob · NullRouter<br/>NoopValidator · NoopLifecycleMonitor<br/>WrappedHandlerError · ApplicationConfigBuilder"]
+        CoreImpls["NullJob · NullRouter<br/>NoopValidator · NoopLifecycleMonitor<br/>ApplicationConfigBuilder"]
         CoreFactory["impl ProxySvc { new_null_*, new_noop_*, new_canonical_* }"]
     end
 
@@ -213,7 +213,7 @@ sequenceDiagram
                 J-->>RT: Ok(JobResponse { payload })
             else handler fails
                 H-->>J: Err(HandlerError)
-                J-->>RT: Err(JobError::Handler(WrappedHandlerError))
+                J-->>RT: Err(JobError::Handler(message))
             end
         else no handler for intent
             HR-->>J: None

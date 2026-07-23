@@ -65,7 +65,6 @@ pub use api::ShutdownRequest;
 pub use api::StartBackgroundTasksRequest;
 pub use api::StatusRequest;
 pub use api::ValidationRequest;
-pub use api::WrappedHandlerError;
 
 // Trait contracts — via saf/
 pub use saf::CommandBus;

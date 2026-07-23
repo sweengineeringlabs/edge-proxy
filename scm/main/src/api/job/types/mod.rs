@@ -4,10 +4,8 @@ pub mod ass;
 pub mod execution_request;
 pub mod job_response;
 pub mod null_job_marker;
-pub mod wrapped_handler_error;
 
 pub use ass::{AsNullJobMarkerRequest, AsNullJobRequest, AsNullJobResponse};
 pub use execution_request::ExecutionRequest;
 pub use job_response::JobResponse;
 pub use null_job_marker::NullJobMarker;
-pub use wrapped_handler_error::WrappedHandlerError;
