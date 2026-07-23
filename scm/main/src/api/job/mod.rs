@@ -10,5 +10,5 @@ pub use null_job::NullJob;
 pub use traits::Job;
 pub use types::{
     AsNullJobMarkerRequest, AsNullJobRequest, AsNullJobResponse, ExecutionRequest, JobResponse,
-    NullJobMarker, WrappedHandlerError,
+    NullJobMarker,
 };

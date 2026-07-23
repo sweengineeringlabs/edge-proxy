@@ -1,7 +1,7 @@
-//! Integration tests for null lifecycle monitor — exercises edge-domain dep.
+//! Integration tests for null lifecycle monitor — exercises edge-application dep.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::HandlerError;
+use edge_application_handler::HandlerError;
 use edge_proxy::{HealthRequest, HealthStatus, JobError, ProxySvc};
 
 #[tokio::test]
@@ -15,7 +15,7 @@ async fn test_null_lifecycle_monitor_health_is_healthy() {
 fn test_handler_error_unhealthy_wraps_into_job_error() {
     let err: JobError = HandlerError::Unhealthy.into();
     match err {
-        JobError::Handler(wrapped) => assert!(matches!(wrapped.inner(), HandlerError::Unhealthy)),
+        JobError::Handler(message) => assert!(message.contains("handler unhealthy")),
         other => panic!("expected JobError::Handler, got {other:?}"),
     }
 }
@@ -24,8 +24,8 @@ fn test_handler_error_unhealthy_wraps_into_job_error() {
 fn test_handler_error_invalid_request_wraps_into_job_error() {
     let err: JobError = HandlerError::InvalidRequest("bad input".into()).into();
     match err {
-        JobError::Handler(wrapped) => {
-            assert!(matches!(wrapped.inner(), HandlerError::InvalidRequest(_)));
+        JobError::Handler(message) => {
+            assert!(message.contains("invalid request: bad input"));
         }
         other => panic!("expected JobError::Handler, got {other:?}"),
     }

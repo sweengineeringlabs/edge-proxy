@@ -1,6 +1,6 @@
 //! Integration tests for JobError.
 
-use edge_domain_handler::HandlerError;
+use edge_application_handler::HandlerError;
 use edge_proxy::{JobError, RoutingError};
 
 /// @covers: JobError::Routing
@@ -15,8 +15,8 @@ fn test_job_error_wraps_routing_error() {
 fn test_job_error_wraps_handler_error() {
     let err: JobError = HandlerError::Unhealthy.into();
     match err {
-        JobError::Handler(wrapped) => {
-            assert!(matches!(wrapped.inner(), HandlerError::Unhealthy));
+        JobError::Handler(message) => {
+            assert!(message.contains("handler unhealthy"));
         }
         other => panic!("expected JobError::Handler, got {other:?}"),
     }

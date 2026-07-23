@@ -20,18 +20,17 @@ path = "main/src/lib.rs"
 [dependencies]
 async-trait            = "0.1"
 thiserror              = "2"
-futures                = "0.3"
 serde                  = { version = "1", features = ["derive"] }
 parking_lot            = "0.12"
-edge-domain-handler   = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.14.1" }
-edge-domain-command   = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.14.1" }
+edge-application-handler   = { git = "https://github.com/sweengineeringlabs/edge-application.git", tag = "v0.18.0" }
+edge-application-command   = { git = "https://github.com/sweengineeringlabs/edge-application.git", tag = "v0.18.0" }
 edge-security-runtime = { git = "https://github.com/sweengineeringlabs/edge-security.git", tag = "v0.3.7" }
-edge-domain-observer  = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.14.1" }
 swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.3.0" }
 
 [dev-dependencies]
 tokio                 = { version = "1", features = ["macros", "rt"] }
-edge-domain-observer  = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.14.1" }
+futures                = "0.3"
+edge-application-observer  = { git = "https://github.com/sweengineeringlabs/edge-application.git", tag = "v0.18.0" }
 
 [lints.rust]
 unsafe_code  = "deny"

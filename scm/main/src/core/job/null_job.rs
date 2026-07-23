@@ -23,31 +23,32 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_handler::HandlerContext;
+    use edge_application_handler::{HandlerContext, ObserverContextAdapter};
     use edge_security_runtime::SecurityContext;
     use futures::future::BoxFuture;
 
     struct NullBus;
-    impl edge_domain_command::CommandBus for NullBus {
+    impl edge_application_command::CommandBus for NullBus {
         fn dispatch(
             &self,
-            _: edge_domain_command::CommandDispatchRequest,
-        ) -> BoxFuture<'_, Result<(), edge_domain_command::CommandError>> {
+            _: edge_application_command::CommandDispatchRequest,
+        ) -> BoxFuture<'_, Result<(), edge_application_command::CommandError>> {
             Box::pin(async { Ok(()) })
         }
     }
 
     #[tokio::test]
     async fn test_null_job_always_returns_cancelled() {
-        use edge_domain_observer::StdObserveFactory;
+        use edge_application_observer::StdObserveFactory;
 
         let s: SecurityContext = SecurityContext::unauthenticated();
         let b = NullBus;
         let observer = StdObserveFactory::noop_observer_context();
+        let observer_adapter = ObserverContextAdapter(observer.as_ref());
         let ctx = HandlerContext {
             security: &s,
             commands: &b,
-            observer: observer.as_ref(),
+            observer: &observer_adapter,
         };
         let result: Result<JobResponse<()>, _> =
             NullJob.run(ExecutionRequest { req: (), ctx: &ctx }).await;

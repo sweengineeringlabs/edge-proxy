@@ -17,7 +17,7 @@ mod validator;
 
 pub use job::{
     AsNullJobMarkerRequest, AsNullJobRequest, AsNullJobResponse, ExecutionRequest, HandlerError,
-    Job, JobError, JobResponse, NullJob, NullJobMarker, WrappedHandlerError,
+    Job, JobError, JobResponse, NullJob, NullJobMarker,
 };
 pub use lifecycle::{
     ComponentHealth, ComponentRequest, HealthRequest, HealthResponse, HealthStatus, LifecycleError,
