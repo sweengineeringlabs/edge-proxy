@@ -12,16 +12,17 @@ mod job;
 mod lifecycle;
 mod proxy;
 mod router;
+mod types;
 mod validator;
 
 pub use job::{
-    AsNullJobMarkerRequest, AsNullJobMarkerResponse, AsNullJobRequest, AsNullJobResponse,
-    ExecutionRequest, HandlerError, Job, JobError, NullJob, NullJobMarker,
+    AsNullJobMarkerRequest, AsNullJobRequest, AsNullJobResponse, ExecutionRequest, HandlerError,
+    Job, JobError, JobResponse, NullJob, NullJobMarker,
 };
 pub use lifecycle::{
-    ComponentHealth, ComponentRequest, ComponentResponse, HealthRequest, HealthResponse,
-    HealthStatus, LifecycleError, LifecycleMonitor, Monitor, NullLifecycleMonitor, ShutdownRequest,
-    StartBackgroundTasksRequest, StatusRequest, StatusResponse,
+    ComponentHealth, ComponentRequest, HealthRequest, HealthResponse, HealthStatus, LifecycleError,
+    LifecycleMonitor, Monitor, NullLifecycleMonitor, ShutdownRequest, StartBackgroundTasksRequest,
+    StatusRequest,
 };
 pub use proxy::{
     ApplicationConfigBuilder, BootstrapNameRequest, BootstrapNameResponse, ProxyComposer,
@@ -32,8 +33,8 @@ pub use proxy::{
 // widening `proxy`'s own module visibility.
 pub(crate) use proxy::proxy_svc;
 pub use router::{
-    AsNullRouterMarkerRequest, AsNullRouterMarkerResponse, AsNullRouterRequest,
-    AsNullRouterResponse, NullRouter, NullRouterMarker, RouteRequest, RouteResponse, Router,
-    RoutingError,
+    AsNullRouterMarkerRequest, AsNullRouterRequest, AsNullRouterResponse, NullRouter,
+    NullRouterMarker, RouteRequest, RouteResponse, Router, RoutingError,
 };
+pub use types::EmptyResponse;
 pub use validator::{NoopValidator, ValidationRequest, Validator};

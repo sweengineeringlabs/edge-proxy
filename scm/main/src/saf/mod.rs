@@ -11,9 +11,9 @@ mod proxy_svc;
 mod router;
 mod validator;
 
-// Context types (from edge-domain, not via api/)
-pub use edge_domain_command::CommandBus;
-pub use edge_domain_handler::HandlerContext;
+// Context types (from edge-application, not via api/)
+pub use edge_application_command::CommandBus;
+pub use edge_application_handler::HandlerContext;
 pub use edge_security_runtime::SecurityContext;
 
 pub use job::{Job, JOB_CONCERN, JOB_SVC_FACTORY};

@@ -22,14 +22,14 @@ fn run(&self, req: Request) -> BoxFuture<'_, Result<Response, JobError>>;
 fn run(&self, req: Request, ctx: SecurityContext) -> BoxFuture<'_, Result<Response, JobError>>;
 ```
 
-`SecurityContext` is from `edge-domain-security` via the `edge-domain/security` feature.
+`SecurityContext` is from `edge-security-runtime` (the `edge-security` repo).
 
 ---
 
 ## Dependency change
 
 ```toml
-edge-domain = { git = "https://github.com/sweengineeringlabs/edge-domain", features = ["security"], tag = "..." }
+edge-security-runtime = { git = "https://github.com/sweengineeringlabs/edge-security.git", tag = "v0.3.7" }
 ```
 
 ---

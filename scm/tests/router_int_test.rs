@@ -1,8 +1,6 @@
 //! Integration tests for the Router trait.
 #![allow(clippy::expect_used, clippy::unwrap_used)]
 
-use futures::future::BoxFuture;
-
 use std::sync::Arc;
 
 use edge_proxy::{
@@ -26,25 +24,21 @@ struct FixedRouter {
     intent: &'static str,
 }
 
+#[async_trait::async_trait]
 impl Router<String> for FixedRouter {
-    fn route<'a>(
-        &'a self,
-        _req: RouteRequest<'a>,
-    ) -> BoxFuture<'a, Result<RouteResponse<String>, RoutingError>> {
+    async fn route(&self, _req: RouteRequest<'_>) -> Result<RouteResponse<String>, RoutingError> {
         let v = self.intent.to_string();
-        Box::pin(async move { Ok(RouteResponse { intent: v }) })
+        Ok(RouteResponse { intent: v })
     }
 }
 
 struct EmptyRejectRouter;
 
+#[async_trait::async_trait]
 impl Router<String> for EmptyRejectRouter {
-    fn route<'a>(
-        &'a self,
-        req: RouteRequest<'a>,
-    ) -> BoxFuture<'a, Result<RouteResponse<String>, RoutingError>> {
+    async fn route(&self, req: RouteRequest<'_>) -> Result<RouteResponse<String>, RoutingError> {
         let input = req.input;
-        let result = if input.is_empty() {
+        if input.is_empty() {
             Err(RoutingError::InvalidInput("empty input".into()))
         } else if input == "unknown" {
             Err(RoutingError::NoMatch)
@@ -52,8 +46,7 @@ impl Router<String> for EmptyRejectRouter {
             Ok(RouteResponse {
                 intent: input.to_string(),
             })
-        };
-        Box::pin(async move { result })
+        }
     }
 }
 
@@ -128,7 +121,7 @@ fn test_as_null_router_marker_default_returns_none_happy() {
     let result: Option<NullRouterMarker> = r
         .as_null_router_marker(AsNullRouterMarkerRequest)
         .unwrap()
-        .marker;
+        .value;
     assert!(result.is_none());
 }
 
@@ -139,7 +132,7 @@ fn test_as_null_router_marker_on_reject_router_returns_none_error() {
     let result: Option<NullRouterMarker> = r
         .as_null_router_marker(AsNullRouterMarkerRequest)
         .unwrap()
-        .marker;
+        .value;
     assert!(result.is_none());
 }
 
@@ -151,6 +144,6 @@ fn test_as_null_router_marker_accessible_on_dyn_trait_object_edge() {
     let result: Option<NullRouterMarker> = dyn_ref
         .as_null_router_marker(AsNullRouterMarkerRequest)
         .unwrap()
-        .marker;
+        .value;
     assert!(result.is_none());
 }
