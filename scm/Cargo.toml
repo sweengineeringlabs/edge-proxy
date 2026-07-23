@@ -20,7 +20,6 @@ path = "main/src/lib.rs"
 [dependencies]
 async-trait            = "0.1"
 thiserror              = "2"
-futures                = "0.3"
 serde                  = { version = "1", features = ["derive"] }
 parking_lot            = "0.12"
 edge-application-handler   = { git = "https://github.com/sweengineeringlabs/edge-application.git", tag = "v0.16.0" }
@@ -30,6 +29,7 @@ swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-con
 
 [dev-dependencies]
 tokio                 = { version = "1", features = ["macros", "rt"] }
+futures                = "0.3"
 edge-application-observer  = { git = "https://github.com/sweengineeringlabs/edge-application.git", tag = "v0.16.0" }
 
 [lints.rust]
