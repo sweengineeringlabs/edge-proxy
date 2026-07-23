@@ -1,54 +1,57 @@
 //! `NullJob` — a no-op `Job` that always cancels, useful as a placeholder.
 
-use futures::future::BoxFuture;
+use async_trait::async_trait;
 
-use crate::api::{ExecutionRequest, Job, JobError};
+use crate::api::{ExecutionRequest, Job, JobError, JobResponse};
 
 /// No-op job that returns `JobError::Cancelled` for every request.
 ///
 /// `pub(crate)` — consumers obtain jobs through their own `Job` implementations.
 pub(crate) struct NullJob;
 
+#[async_trait]
 impl<Req, Resp> Job<Req, Resp> for NullJob
 where
     Req: Send + 'static,
     Resp: Send + 'static,
 {
-    fn run<'a>(&'a self, _req: ExecutionRequest<'a, Req>) -> BoxFuture<'a, Result<Resp, JobError>> {
-        Box::pin(async move { Err(JobError::Cancelled) })
+    async fn run(&self, _req: ExecutionRequest<'_, Req>) -> Result<JobResponse<Resp>, JobError> {
+        Err(JobError::Cancelled)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_handler::HandlerContext;
+    use edge_application_handler::{HandlerContext, ObserverContextAdapter};
     use edge_security_runtime::SecurityContext;
     use futures::future::BoxFuture;
 
     struct NullBus;
-    impl edge_domain_command::CommandBus for NullBus {
+    impl edge_application_command::CommandBus for NullBus {
         fn dispatch(
             &self,
-            _: edge_domain_command::CommandDispatchRequest,
-        ) -> BoxFuture<'_, Result<(), edge_domain_command::CommandError>> {
+            _: edge_application_command::CommandDispatchRequest,
+        ) -> BoxFuture<'_, Result<(), edge_application_command::CommandError>> {
             Box::pin(async { Ok(()) })
         }
     }
 
     #[tokio::test]
     async fn test_null_job_always_returns_cancelled() {
-        use edge_domain_observer::StdObserveFactory;
+        use edge_application_observer::StdObserveFactory;
 
         let s: SecurityContext = SecurityContext::unauthenticated();
         let b = NullBus;
         let observer = StdObserveFactory::noop_observer_context();
+        let observer_adapter = ObserverContextAdapter(observer.as_ref());
         let ctx = HandlerContext {
             security: &s,
             commands: &b,
-            observer: observer.as_ref(),
+            observer: &observer_adapter,
         };
-        let result: Result<(), _> = NullJob.run(ExecutionRequest { req: (), ctx: &ctx }).await;
+        let result: Result<JobResponse<()>, _> =
+            NullJob.run(ExecutionRequest { req: (), ctx: &ctx }).await;
         assert!(matches!(result, Err(JobError::Cancelled)));
     }
 }

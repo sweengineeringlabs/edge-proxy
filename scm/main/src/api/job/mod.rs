@@ -9,6 +9,6 @@ pub use errors::{HandlerError, JobError};
 pub use null_job::NullJob;
 pub use traits::Job;
 pub use types::{
-    AsNullJobMarkerRequest, AsNullJobMarkerResponse, AsNullJobRequest, AsNullJobResponse,
-    ExecutionRequest, NullJobMarker,
+    AsNullJobMarkerRequest, AsNullJobRequest, AsNullJobResponse, ExecutionRequest, JobResponse,
+    NullJobMarker,
 };

@@ -9,6 +9,6 @@ pub use errors::RoutingError;
 pub use null_router::NullRouter;
 pub use traits::Router;
 pub use types::{
-    AsNullRouterMarkerRequest, AsNullRouterMarkerResponse, AsNullRouterRequest,
-    AsNullRouterResponse, NullRouterMarker, RouteRequest, RouteResponse,
+    AsNullRouterMarkerRequest, AsNullRouterRequest, AsNullRouterResponse, NullRouterMarker,
+    RouteRequest, RouteResponse,
 };

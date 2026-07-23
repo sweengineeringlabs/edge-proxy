@@ -71,7 +71,7 @@ fn test_shutdown_second_call_already_shut_down_error() {
 fn test_status_fresh_monitor_is_healthy_happy() {
     let m = ProxySvc::new_null_lifecycle_monitor();
     assert_eq!(
-        rt().block_on(m.status(StatusRequest)).unwrap().status,
+        rt().block_on(m.status(StatusRequest)).unwrap().value,
         HealthStatus::Healthy
     );
 }
@@ -83,6 +83,6 @@ fn test_component_unknown_id_returns_none_edge() {
     assert!(rt()
         .block_on(m.component(ComponentRequest { id: "unknown" }))
         .unwrap()
-        .health
+        .value
         .is_none());
 }

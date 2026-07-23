@@ -18,14 +18,14 @@ exchange. No transport knowledge; no ingress or egress imports.
 
 ```rust
 use async_trait::async_trait;
-use edge_proxy::{Job, JobError};
+use edge_proxy::{ExecutionRequest, Job, JobError, JobResponse};
 
 struct EchoJob;
 
 #[async_trait]
 impl Job<String, String> for EchoJob {
-    async fn run(&self, req: String) -> Result<String, JobError> {
-        Ok(req)
+    async fn run(&self, req: ExecutionRequest<'_, String>) -> Result<JobResponse<String>, JobError> {
+        Ok(JobResponse { payload: req.req })
     }
 }
 ```

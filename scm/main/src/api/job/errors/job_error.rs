@@ -2,7 +2,7 @@
 
 use thiserror::Error;
 
-pub use edge_domain_handler::HandlerError;
+pub use edge_application_handler::HandlerError;
 
 use crate::api::router::errors::routing_error::RoutingError;
 
@@ -17,9 +17,11 @@ pub enum JobError {
     #[error("routing failed: {0}")]
     Routing(#[from] RoutingError),
 
-    /// The chosen handler failed during execution.
+    /// The chosen handler failed during execution. Carries the upstream
+    /// [`edge_application_handler::HandlerError`]'s formatted message —
+    /// not the error itself, so `api/` never depends on its exact shape.
     #[error("handler failed: {0}")]
-    Handler(#[from] HandlerError),
+    Handler(String),
 
     /// The job was cancelled by a lifecycle event (e.g. shutdown).
     #[error("job cancelled")]

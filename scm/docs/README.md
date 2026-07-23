@@ -10,7 +10,7 @@ Key capabilities:
 - **`Job<Req, Resp>`** — core dispatch trait: single entry point called by ingress; no transport knowledge
 - **`Router<Intent>`** — classifies input text into domain-specific intents (handler IDs)
 - **`LifecycleMonitor`** — manages health, background tasks, and graceful shutdown; aggregates component health into `HealthReport`
-- **`ProxySvc`** — SAF factory: `new_null_lifecycle_monitor()`, `new_router()`, `new_job()` — constructs the dispatch chain
+- **`ProxySvc`** — SAF factory: `new_null_lifecycle_monitor()`, `new_noop_validator()`, `new_null_router()` / `new_canonical_router()`, `new_null_job()` / `new_canonical_job()`, `create_config_builder()`
 - **`JobError`** / **`RoutingError`** / **`LifecycleError`** — typed error enums; `JobError` bridges from domain `HandlerError`
 - **`HealthReport`** / **`ComponentHealth`** / **`HealthStatus`** — per-subsystem health aggregation for readiness probes
 
