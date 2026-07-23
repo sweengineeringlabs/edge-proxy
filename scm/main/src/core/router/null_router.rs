@@ -1,6 +1,6 @@
 //! `NullRouter` — a no-op `Router` that always returns `NoMatch`.
 
-use futures::future::BoxFuture;
+use async_trait::async_trait;
 
 use crate::api::{RouteRequest, RouteResponse, Router, RoutingError};
 
@@ -9,12 +9,10 @@ use crate::api::{RouteRequest, RouteResponse, Router, RoutingError};
 /// `pub(crate)` — consumers provide their own `Router` implementations.
 pub(crate) struct NullRouter;
 
+#[async_trait]
 impl Router<String> for NullRouter {
-    fn route<'a>(
-        &'a self,
-        _req: RouteRequest<'a>,
-    ) -> BoxFuture<'a, Result<RouteResponse<String>, RoutingError>> {
-        Box::pin(async move { Err(RoutingError::NoMatch) })
+    async fn route(&self, _req: RouteRequest<'_>) -> Result<RouteResponse<String>, RoutingError> {
+        Err(RoutingError::NoMatch)
     }
 }
 
