@@ -6,16 +6,13 @@ use edge_proxy::{
     AsNullRouterMarkerRequest, AsNullRouterRequest, ProxySvc, RouteRequest, RouteResponse, Router,
     RoutingError,
 };
-use futures::future::BoxFuture;
 
 struct RouterDouble;
+#[async_trait::async_trait]
 impl Router<String> for RouterDouble {
-    fn route<'a>(
-        &'a self,
-        req: RouteRequest<'a>,
-    ) -> BoxFuture<'a, Result<RouteResponse<String>, RoutingError>> {
+    async fn route(&self, req: RouteRequest<'_>) -> Result<RouteResponse<String>, RoutingError> {
         let intent = req.input.to_string();
-        Box::pin(async move { Ok(RouteResponse { intent }) })
+        Ok(RouteResponse { intent })
     }
 }
 
@@ -57,6 +54,6 @@ fn test_as_null_router_marker_default_returns_none_edge() {
     assert!(RouterDouble
         .as_null_router_marker(AsNullRouterMarkerRequest)
         .unwrap()
-        .marker
+        .value
         .is_none());
 }

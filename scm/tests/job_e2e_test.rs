@@ -2,10 +2,11 @@
 //! test-double implementation via the crate's public API.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_observer::StdObserveFactory;
+use edge_application_handler::ObserverContextAdapter;
+use edge_application_observer::StdObserveFactory;
 use edge_proxy::{
     AsNullJobMarkerRequest, AsNullJobRequest, ExecutionRequest, HandlerContext, Job, JobError,
-    ProxySvc,
+    JobResponse, ProxySvc,
 };
 use edge_security_runtime::SecurityContext;
 use futures::future::BoxFuture;
@@ -14,19 +15,20 @@ struct NullBus;
 impl edge_proxy::CommandBus for NullBus {
     fn dispatch(
         &self,
-        _: edge_domain_command::CommandDispatchRequest,
-    ) -> BoxFuture<'_, Result<(), edge_domain_command::CommandError>> {
+        _: edge_application_command::CommandDispatchRequest,
+    ) -> BoxFuture<'_, Result<(), edge_application_command::CommandError>> {
         Box::pin(async { Ok(()) })
     }
 }
 
 struct JobDouble;
+#[async_trait::async_trait]
 impl Job<String, String> for JobDouble {
-    fn run<'a>(
-        &'a self,
-        req: ExecutionRequest<'a, String>,
-    ) -> BoxFuture<'a, Result<String, JobError>> {
-        Box::pin(async move { Ok(req.req) })
+    async fn run(
+        &self,
+        req: ExecutionRequest<'_, String>,
+    ) -> Result<JobResponse<String>, JobError> {
+        Ok(JobResponse { payload: req.req })
     }
 }
 
@@ -43,16 +45,17 @@ fn test_run_dispatches_request_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = NullBus;
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let result = rt().block_on(JobDouble.run(ExecutionRequest {
         req: "hi".into(),
         ctx: &ctx,
     }));
-    assert_eq!(result.unwrap(), "hi");
+    assert_eq!(result.unwrap().payload, "hi");
 }
 
 /// @covers: Job::run
@@ -62,10 +65,11 @@ fn test_run_null_job_returns_cancelled_error() {
     let security = SecurityContext::unauthenticated();
     let bus = NullBus;
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let result = rt().block_on(job.run(ExecutionRequest {
         req: "hi".into(),
@@ -90,6 +94,6 @@ fn test_as_null_job_marker_default_returns_none_edge() {
     assert!(JobDouble
         .as_null_job_marker(AsNullJobMarkerRequest)
         .unwrap()
-        .marker
+        .value
         .is_none());
 }

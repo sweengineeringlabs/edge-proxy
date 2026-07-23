@@ -6,7 +6,7 @@
 - `Job::run` now accepts `SecurityContext` as second parameter (ADR-001).
 
 ### Added
-- `SecurityContext` re-exported from `edge-domain` via `edge_proxy::SecurityContext`.
+- `SecurityContext` re-exported from `edge-security-runtime` via `edge_proxy::SecurityContext`.
 - `LifecycleMonitor::status` — returns `HealthStatus` directly.
 - `LifecycleMonitor::component` — returns a named component's health snapshot.
 

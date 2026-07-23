@@ -5,39 +5,44 @@
 //! shutdown. Kept separate from `Job` so the operator surface (health, shutdown)
 //! can be exposed without granting execution privileges.
 
-use futures::future::BoxFuture;
+use async_trait::async_trait;
 
 use crate::api::lifecycle::errors::LifecycleError;
 use crate::api::lifecycle::types::{
-    ComponentRequest, ComponentResponse, HealthRequest, HealthResponse, ShutdownRequest,
-    StartBackgroundTasksRequest, StatusRequest, StatusResponse,
+    ComponentHealth, ComponentRequest, HealthRequest, HealthResponse, HealthStatus,
+    ShutdownRequest, StartBackgroundTasksRequest, StatusRequest,
 };
+use crate::api::types::EmptyResponse;
 
 /// Runtime lifecycle management for a Controller instance.
+#[async_trait]
 pub trait LifecycleMonitor: Send + Sync {
     /// Aggregate health across all handlers and subsystems.
-    fn health(&self, req: HealthRequest) -> BoxFuture<'_, Result<HealthResponse, LifecycleError>>;
+    async fn health(&self, req: HealthRequest) -> Result<HealthResponse, LifecycleError>;
 
     /// Start any long-running background tasks (watchdogs, pollers).
     ///
     /// Idempotent: implementations must tolerate repeated calls by no-op'ing
     /// after the first successful start.
-    fn start_background_tasks(
+    async fn start_background_tasks(
         &self,
         req: StartBackgroundTasksRequest,
-    ) -> BoxFuture<'_, Result<(), LifecycleError>>;
+    ) -> Result<(), LifecycleError>;
 
     /// Gracefully shut down: stop accepting new work, drain in-flight work,
     /// release resources. After `shutdown` returns, `health` is expected to
     /// report a non-healthy status.
-    fn shutdown(&self, req: ShutdownRequest) -> BoxFuture<'_, Result<(), LifecycleError>>;
+    async fn shutdown(&self, req: ShutdownRequest) -> Result<(), LifecycleError>;
 
     /// Return the overall health status without the full component breakdown.
-    fn status(&self, req: StatusRequest) -> BoxFuture<'_, Result<StatusResponse, LifecycleError>>;
+    async fn status(
+        &self,
+        req: StatusRequest,
+    ) -> Result<EmptyResponse<HealthStatus>, LifecycleError>;
 
     /// Return the health snapshot for a named component, if tracked.
-    fn component<'a>(
-        &'a self,
+    async fn component(
+        &self,
         req: ComponentRequest<'_>,
-    ) -> BoxFuture<'a, Result<ComponentResponse, LifecycleError>>;
+    ) -> Result<EmptyResponse<Option<ComponentHealth>>, LifecycleError>;
 }
