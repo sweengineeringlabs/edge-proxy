@@ -438,7 +438,7 @@ checksum = "8ed6a63f02c8539c91a8685a86f4099661ba3da017932f6ebbea6de3f0fa7c90"
 [[package]]
 name = "swe-edge-configbuilder"
 version = "0.3.0"
-source = "git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0#e5f50d6308bf30da1e5c51ff9166b9402b70a245"
+source = "git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.4.2#8fe784a7c246c84cc2e04ffa226d940d9d011ad0"
 dependencies = [
  "dirs",
  "regex",
