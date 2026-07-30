@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::super::health::health_status::HealthStatus;
+use crate::api::lifecycle::vo::health_status::HealthStatus;
 
 /// Health snapshot for a single component (handler, subsystem, backend).
 #[derive(Debug, Clone, Serialize, Deserialize)]

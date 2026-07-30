@@ -1,9 +1,8 @@
 //! `ProxyComposer` — build-up entry point for proxy application configuration.
 
+use crate::api::proxy::dto::{BootstrapNameRequest, BootstrapNameResponse};
 use crate::api::proxy::errors::ProxyComposerError;
-use crate::api::proxy::types::{
-    ApplicationConfigBuilder, BootstrapNameRequest, BootstrapNameResponse, ProxyPattern, ProxySvc,
-};
+use crate::api::proxy::vo::{ApplicationConfigBuilder, ProxyPattern, ProxySvc};
 
 /// Build and configure a proxy service instance.
 ///
