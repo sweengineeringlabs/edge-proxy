@@ -7,11 +7,12 @@
 
 use async_trait::async_trait;
 
-use crate::api::lifecycle::errors::LifecycleError;
-use crate::api::lifecycle::types::{
-    ComponentHealth, ComponentRequest, HealthRequest, HealthResponse, HealthStatus,
-    ShutdownRequest, StartBackgroundTasksRequest, StatusRequest,
+use crate::api::lifecycle::dto::{
+    ComponentRequest, HealthRequest, HealthResponse, ShutdownRequest, StartBackgroundTasksRequest,
+    StatusRequest,
 };
+use crate::api::lifecycle::errors::LifecycleError;
+use crate::api::lifecycle::vo::{ComponentHealth, HealthStatus};
 use crate::api::types::EmptyResponse;
 
 /// Runtime lifecycle management for a Controller instance.

@@ -6,11 +6,12 @@
 
 use async_trait::async_trait;
 
-use crate::api::router::errors::RoutingError;
-use crate::api::router::types::{
-    AsNullRouterMarkerRequest, AsNullRouterRequest, AsNullRouterResponse, NullRouterMarker,
-    RouteRequest, RouteResponse,
+use crate::api::router::dto::{
+    AsNullRouterMarkerRequest, AsNullRouterRequest, AsNullRouterResponse, RouteRequest,
+    RouteResponse,
 };
+use crate::api::router::errors::RoutingError;
+use crate::api::router::vo::NullRouterMarker;
 use crate::api::types::EmptyResponse;
 
 /// Classifies input into a domain-specific intent.
@@ -37,7 +38,7 @@ where
         Ok(AsNullRouterResponse { router: None })
     }
 
-    /// Return a [`NullRouterMarker`](crate::api::router::types::NullRouterMarker) token if
+    /// Return a [`NullRouterMarker`](crate::api::router::vo::NullRouterMarker) token if
     /// this implementation is a null-object router, or `None` for real implementations.  Used
     /// to identify inert routers in bring-up and testing contexts without downcasting.
     fn as_null_router_marker(

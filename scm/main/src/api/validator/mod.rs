@@ -1,7 +1,7 @@
 //! Validator theme — pre-dispatch validation contracts.
 
+pub(crate) mod dto;
 pub(crate) mod traits;
-pub mod types;
 
+pub use dto::ValidationRequest;
 pub use traits::{NoopValidator, Validator};
-pub use types::ValidationRequest;

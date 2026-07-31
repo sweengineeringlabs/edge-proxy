@@ -1,7 +1,6 @@
 //! Integration tests for ProxySvc facade type.
 #![allow(clippy::expect_used, clippy::unwrap_used)]
 
-use edge_application_handler::ObserverContextAdapter;
 use edge_application_observer::StdObserveFactory;
 use edge_proxy::{
     ExecutionRequest, HandlerContext, HealthRequest, HealthStatus, JobError, ProxySvc,
@@ -202,11 +201,10 @@ fn test_new_null_job_returns_cancelled_happy() {
     let job = ProxySvc::new_null_job::<String, String>();
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &s,
         commands: &b,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     let result = rt().block_on(job.run(ExecutionRequest {
         req: "input".into(),
@@ -221,11 +219,10 @@ fn test_new_null_job_with_empty_request_also_cancels_error() {
     let job = ProxySvc::new_null_job::<String, String>();
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &s,
         commands: &b,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     let result = rt().block_on(job.run(ExecutionRequest {
         req: String::new(),
@@ -240,11 +237,10 @@ fn test_new_null_job_with_unit_type_cancels_edge() {
     let job = ProxySvc::new_null_job::<(), ()>();
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &s,
         commands: &b,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     let result = rt().block_on(job.run(ExecutionRequest { req: (), ctx: &ctx }));
     assert!(matches!(result, Err(JobError::Cancelled)));
@@ -286,11 +282,10 @@ fn test_new_canonical_job_returns_cancelled_happy() {
     let job = ProxySvc::new_canonical_job();
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &s,
         commands: &b,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     let result = rt().block_on(job.run(ExecutionRequest {
         req: "ping".into(),
@@ -305,11 +300,10 @@ fn test_new_canonical_job_empty_request_returns_cancelled_error() {
     let job = ProxySvc::new_canonical_job();
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &s,
         commands: &b,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     let result = rt().block_on(job.run(ExecutionRequest {
         req: String::new(),
@@ -325,11 +319,10 @@ fn test_new_canonical_job_two_instances_both_cancel_edge() {
     let j2 = ProxySvc::new_canonical_job();
     let (s, b) = anon_ctx_parts();
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &s,
         commands: &b,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     let r1 = rt().block_on(j1.run(ExecutionRequest {
         req: "a".into(),
