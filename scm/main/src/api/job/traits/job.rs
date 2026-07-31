@@ -5,11 +5,11 @@
 
 use async_trait::async_trait;
 
-use crate::api::job::errors::JobError;
-use crate::api::job::types::{
+use crate::api::job::dto::{
     AsNullJobMarkerRequest, AsNullJobRequest, AsNullJobResponse, ExecutionRequest, JobResponse,
-    NullJobMarker,
 };
+use crate::api::job::errors::JobError;
+use crate::api::job::vo::NullJobMarker;
 use crate::api::types::EmptyResponse;
 
 /// The single entry point for proxy dispatch.
@@ -54,7 +54,7 @@ where
         Ok(AsNullJobResponse { job: None })
     }
 
-    /// Return a [`NullJobMarker`](crate::api::job::types::NullJobMarker) token if this
+    /// Return a [`NullJobMarker`](crate::api::job::vo::NullJobMarker) token if this
     /// implementation is a null-object job, or `None` for real implementations.  Used to
     /// identify inert jobs in bring-up and testing contexts without downcasting.
     fn as_null_job_marker(

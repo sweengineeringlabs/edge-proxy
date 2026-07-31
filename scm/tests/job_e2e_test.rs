@@ -2,7 +2,6 @@
 //! test-double implementation via the crate's public API.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_application_handler::ObserverContextAdapter;
 use edge_application_observer::StdObserveFactory;
 use edge_proxy::{
     AsNullJobMarkerRequest, AsNullJobRequest, ExecutionRequest, HandlerContext, Job, JobError,
@@ -45,11 +44,10 @@ fn test_run_dispatches_request_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = NullBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     let result = rt().block_on(JobDouble.run(ExecutionRequest {
         req: "hi".into(),
@@ -65,11 +63,10 @@ fn test_run_null_job_returns_cancelled_error() {
     let security = SecurityContext::unauthenticated();
     let bus = NullBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     let result = rt().block_on(job.run(ExecutionRequest {
         req: "hi".into(),
