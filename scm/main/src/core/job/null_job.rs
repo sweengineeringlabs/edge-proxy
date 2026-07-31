@@ -23,7 +23,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_application_handler::{HandlerContext, ObserverContextAdapter};
+    use edge_application_handler::HandlerContext;
     use edge_security_runtime::SecurityContext;
     use futures::future::BoxFuture;
 
@@ -44,11 +44,10 @@ mod tests {
         let s: SecurityContext = SecurityContext::unauthenticated();
         let b = NullBus;
         let observer = StdObserveFactory::noop_observer_context();
-        let observer_adapter = ObserverContextAdapter(observer.as_ref());
         let ctx = HandlerContext {
             security: &s,
             commands: &b,
-            observer: &observer_adapter,
+            observer: observer.as_ref(),
         };
         let result: Result<JobResponse<()>, _> =
             NullJob.run(ExecutionRequest { req: (), ctx: &ctx }).await;
