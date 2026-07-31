@@ -79,7 +79,7 @@ mod tests {
     use crate::api::{
         ExecutionRequest, HealthRequest, HealthStatus, JobError, RouteRequest, RoutingError,
     };
-    use edge_application_handler::{HandlerContext, ObserverContextAdapter};
+    use edge_application_handler::HandlerContext;
     use edge_application_observer::StdObserveFactory;
     use edge_security_runtime::SecurityContext;
     use futures::future::BoxFuture;
@@ -153,11 +153,10 @@ mod tests {
         let s: SecurityContext = SecurityContext::unauthenticated();
         let b = ProxySvcNullBus;
         let observer = StdObserveFactory::noop_observer_context();
-        let observer_adapter = ObserverContextAdapter(observer.as_ref());
         let ctx = HandlerContext {
             security: &s,
             commands: &b,
-            observer: &observer_adapter,
+            observer: observer.as_ref(),
         };
         let result = rt().block_on(job.run(ExecutionRequest {
             req: "x".into(),
@@ -181,11 +180,10 @@ mod tests {
         let s: SecurityContext = SecurityContext::unauthenticated();
         let b = ProxySvcNullBus;
         let observer = StdObserveFactory::noop_observer_context();
-        let observer_adapter = ObserverContextAdapter(observer.as_ref());
         let ctx = HandlerContext {
             security: &s,
             commands: &b,
-            observer: &observer_adapter,
+            observer: observer.as_ref(),
         };
         let result = rt().block_on(job.run(ExecutionRequest {
             req: "x".into(),

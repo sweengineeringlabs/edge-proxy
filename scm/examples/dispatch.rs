@@ -17,7 +17,7 @@ use edge_application_command::{CommandBus, CommandDispatchRequest, CommandError}
 use edge_application_handler::{
     ExecutionRequest as HandlerExecutionRequest, Handler, HandlerContext, HandlerError,
     HandlerLookupRequest, HandlerRegistry, IdRequest, IdResponse, InProcessHandlerRegistry,
-    ObserverContextAdapter, PatternRequest, PatternResponse, RegisterHandlerRequest,
+    PatternRequest, PatternResponse, RegisterHandlerRequest,
 };
 use edge_application_observer::StdObserveFactory;
 use edge_proxy::{
@@ -156,13 +156,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let security: SecurityContext = SecurityContext::unauthenticated();
     let bus = NoopBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
 
     // 4. Dispatch — known command routes to the echo handler.
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     let resp = job
         .run(ExecutionRequest {
@@ -182,7 +181,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ctx2 = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     let result = job
         .run(ExecutionRequest {
