@@ -57,15 +57,21 @@ dependencies = [
 
 [[package]]
 name = "edge-application-base"
-version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.18.0#884962e13fbf84983c8fb1702f61db9f8089d15d"
+version = "0.2.0"
+source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.20.0#d1f05c1b6d65d38750d05b6317235dfcf97df38d"
+dependencies = [
+ "edge-security-runtime",
+ "serde",
+ "thiserror 2.0.19",
+]
 
 [[package]]
 name = "edge-application-command"
 version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.18.0#884962e13fbf84983c8fb1702f61db9f8089d15d"
+source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.20.0#d1f05c1b6d65d38750d05b6317235dfcf97df38d"
 dependencies = [
  "async-trait",
+ "edge-application-base",
  "futures",
  "serde",
  "thiserror 2.0.19",
@@ -75,7 +81,7 @@ dependencies = [
 [[package]]
 name = "edge-application-handler"
 version = "0.2.0"
-source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.18.0#884962e13fbf84983c8fb1702f61db9f8089d15d"
+source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.20.0#d1f05c1b6d65d38750d05b6317235dfcf97df38d"
 dependencies = [
  "async-trait",
  "edge-application-base",
@@ -89,8 +95,9 @@ dependencies = [
 [[package]]
 name = "edge-application-observer"
 version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.18.0#884962e13fbf84983c8fb1702f61db9f8089d15d"
+source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.20.0#d1f05c1b6d65d38750d05b6317235dfcf97df38d"
 dependencies = [
+ "edge-application-base",
  "serde",
 ]
 
@@ -113,8 +120,8 @@ dependencies = [
 
 [[package]]
 name = "edge-security-runtime"
-version = "0.3.7"
-source = "git+https://github.com/sweengineeringlabs/edge-security.git?tag=v0.3.7#0c23f4eee41a482877a556b38222c2186e21b6e3"
+version = "0.3.8"
+source = "git+https://github.com/sweengineeringlabs/edge-security.git?tag=v0.3.22#747cc155cb09a029dffdb8763cc485824b12761c"
 dependencies = [
  "thiserror 2.0.19",
 ]
@@ -438,7 +445,7 @@ checksum = "8ed6a63f02c8539c91a8685a86f4099661ba3da017932f6ebbea6de3f0fa7c90"
 [[package]]
 name = "swe-edge-configbuilder"
 version = "0.3.0"
-source = "git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0#e5f50d6308bf30da1e5c51ff9166b9402b70a245"
+source = "git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.4.2#8fe784a7c246c84cc2e04ffa226d940d9d011ad0"
 dependencies = [
  "dirs",
  "regex",

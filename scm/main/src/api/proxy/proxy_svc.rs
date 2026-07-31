@@ -7,4 +7,4 @@
 //! and a type alias cannot stand in for that value-namespace usage.
 
 /// Type alias for the proxy factory facade handle.
-pub type ProxySvc = crate::api::proxy::types::proxy_svc::ProxySvc;
+pub type ProxySvc = crate::api::proxy::vo::proxy_svc::ProxySvc;

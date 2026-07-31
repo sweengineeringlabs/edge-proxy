@@ -1,6 +1,6 @@
 //! Shared trait contracts required for all non-orchestrator proxy crates.
 
-use crate::api::validator::types::ValidationRequest;
+use crate::api::validator::dto::ValidationRequest;
 
 /// Validates a value before it enters the dispatch pipeline.
 pub trait Validator: Send + Sync {
