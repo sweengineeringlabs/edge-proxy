@@ -57,8 +57,8 @@ dependencies = [
 
 [[package]]
 name = "edge-application-base"
-version = "0.2.0"
-source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.20.0#d1f05c1b6d65d38750d05b6317235dfcf97df38d"
+version = "0.3.0"
+source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.21.1#45d06c06dfcf29c7090eda6cca80f55b6c023adc"
 dependencies = [
  "edge-security-runtime",
  "serde",
@@ -68,7 +68,7 @@ dependencies = [
 [[package]]
 name = "edge-application-command"
 version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.20.0#d1f05c1b6d65d38750d05b6317235dfcf97df38d"
+source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.21.1#45d06c06dfcf29c7090eda6cca80f55b6c023adc"
 dependencies = [
  "async-trait",
  "edge-application-base",
@@ -80,8 +80,8 @@ dependencies = [
 
 [[package]]
 name = "edge-application-handler"
-version = "0.2.0"
-source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.20.0#d1f05c1b6d65d38750d05b6317235dfcf97df38d"
+version = "0.3.0"
+source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.21.1#45d06c06dfcf29c7090eda6cca80f55b6c023adc"
 dependencies = [
  "async-trait",
  "edge-application-base",
@@ -95,7 +95,7 @@ dependencies = [
 [[package]]
 name = "edge-application-observer"
 version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.20.0#d1f05c1b6d65d38750d05b6317235dfcf97df38d"
+source = "git+https://github.com/sweengineeringlabs/edge-application.git?tag=v0.21.1#45d06c06dfcf29c7090eda6cca80f55b6c023adc"
 dependencies = [
  "edge-application-base",
  "serde",
@@ -121,7 +121,16 @@ dependencies = [
 [[package]]
 name = "edge-security-runtime"
 version = "0.3.8"
-source = "git+https://github.com/sweengineeringlabs/edge-security.git?tag=v0.3.22#747cc155cb09a029dffdb8763cc485824b12761c"
+source = "git+https://github.com/sweengineeringlabs/edge-security.git?tag=v0.3.25#a023f5c80aa2e5e7913c2d7e095f7a517faa72c4"
+dependencies = [
+ "edge-security-runtime-identity-port",
+ "thiserror 2.0.19",
+]
+
+[[package]]
+name = "edge-security-runtime-identity-port"
+version = "0.3.8"
+source = "git+https://github.com/sweengineeringlabs/edge-security.git?tag=v0.3.25#a023f5c80aa2e5e7913c2d7e095f7a517faa72c4"
 dependencies = [
  "thiserror 2.0.19",
 ]
