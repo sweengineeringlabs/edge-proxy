@@ -15,11 +15,17 @@ fn test_job_error_wraps_routing_error() {
 fn test_job_error_wraps_handler_error() {
     let err: JobError = HandlerError::Unhealthy.into();
     match err {
-        JobError::Handler(message) => {
-            assert!(message.contains("handler unhealthy"));
-        }
+        // `Handler` now carries the `HandlerError` itself, not a formatted
+        // string — so ingress adapters can map its variant to a transport
+        // status. The wrapped error is preserved verbatim.
+        JobError::Handler(HandlerError::Unhealthy) => {}
+        JobError::Handler(other) => panic!("expected HandlerError::Unhealthy, got {other:?}"),
         other => panic!("expected JobError::Handler, got {other:?}"),
     }
+    // Display still renders the wrapped error's message.
+    assert!(JobError::Handler(HandlerError::Unhealthy)
+        .to_string()
+        .contains("handler unhealthy"));
 }
 
 /// @covers: JobError::HandlerUnavailable
