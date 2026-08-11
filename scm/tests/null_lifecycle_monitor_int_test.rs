@@ -14,19 +14,15 @@ async fn test_null_lifecycle_monitor_health_is_healthy() {
 #[test]
 fn test_handler_error_unhealthy_wraps_into_job_error() {
     let err: JobError = HandlerError::Unhealthy.into();
-    match err {
-        JobError::Handler(message) => assert!(message.contains("handler unhealthy")),
-        other => panic!("expected JobError::Handler, got {other:?}"),
-    }
+    // `Handler` carries the `HandlerError` verbatim, not a formatted string.
+    assert!(matches!(err, JobError::Handler(HandlerError::Unhealthy)));
 }
 
 #[test]
 fn test_handler_error_invalid_request_wraps_into_job_error() {
     let err: JobError = HandlerError::InvalidRequest("bad input".into()).into();
     match err {
-        JobError::Handler(message) => {
-            assert!(message.contains("invalid request: bad input"));
-        }
-        other => panic!("expected JobError::Handler, got {other:?}"),
+        JobError::Handler(HandlerError::InvalidRequest(msg)) => assert_eq!(msg, "bad input"),
+        other => panic!("expected JobError::Handler(InvalidRequest), got {other:?}"),
     }
 }
