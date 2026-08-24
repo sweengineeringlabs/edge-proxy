@@ -182,7 +182,7 @@ fn test_execution_request_holds_req_and_ctx_happy() {
     use edge_application_command::NoopCommandBus;
     use edge_application_observer::StdObserveFactory;
     use edge_proxy::HandlerContext;
-    use edge_security_runtime::SecurityContext;
+    use edge_security_application::SecurityContext;
 
     let security = SecurityContext::unauthenticated();
     let observer = StdObserveFactory::noop_observer_context();
