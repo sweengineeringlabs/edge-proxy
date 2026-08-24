@@ -5,12 +5,11 @@
 use edge_application_observer::StdObserveFactory;
 use futures::future::BoxFuture;
 
-use std::sync::Arc;
-
 use edge_application_command::{CommandDispatchRequest, CommandError};
 use edge_proxy::{
     AsNullJobMarkerRequest, AsNullJobRequest, ExecutionRequest, HandlerContext, Job, JobError,
-    JobResponse, NullJobMarker, ProxySvc, SecurityContext,
+    JobResponse, NullJobMarker, ProxySvc, RouteRequest, RouteResponse, Router, RouterRequest,
+    RouterResponse, RoutingError, SecurityContext,
 };
 
 fn rt() -> tokio::runtime::Runtime {
@@ -31,10 +30,26 @@ fn anon_ctx_parts() -> (SecurityContext, NullBus) {
     (SecurityContext::unauthenticated(), NullBus)
 }
 
+struct NoRouting;
+
+#[async_trait::async_trait]
+impl Router<String> for NoRouting {
+    async fn route(&self, _req: RouteRequest<'_>) -> Result<RouteResponse<String>, RoutingError> {
+        Err(RoutingError::NoMatch)
+    }
+}
+
 struct OkJob;
 
 #[async_trait::async_trait]
 impl Job<String, String> for OkJob {
+    type Intent = String;
+    type Router = NoRouting;
+
+    fn router(&self, _req: RouterRequest) -> Result<RouterResponse<'_, Self::Router>, JobError> {
+        Ok(RouterResponse { router: &NoRouting })
+    }
+
     async fn run(
         &self,
         req: ExecutionRequest<'_, String>,
@@ -47,6 +62,13 @@ struct ErrJob;
 
 #[async_trait::async_trait]
 impl Job<String, String> for ErrJob {
+    type Intent = String;
+    type Router = NoRouting;
+
+    fn router(&self, _req: RouterRequest) -> Result<RouterResponse<'_, Self::Router>, JobError> {
+        Ok(RouterResponse { router: &NoRouting })
+    }
+
     async fn run(
         &self,
         _req: ExecutionRequest<'_, String>,
@@ -57,7 +79,7 @@ impl Job<String, String> for ErrJob {
 
 #[test]
 fn test_job_trait_is_object_safe() {
-    fn _accept(_j: &dyn Job<String, String>) {}
+    fn _accept(_j: &dyn Job<String, String, Intent = String, Router = NoRouting>) {}
 }
 
 #[test]
@@ -172,14 +194,14 @@ fn test_as_null_job_default_returns_none_happy() {
 /// as_null_job — error: null-job impl also returns None (no override needed).
 #[test]
 fn test_as_null_job_on_null_job_impl_returns_none_error() {
-    let job: Arc<dyn Job<String, String>> = ProxySvc::new_null_job::<String, String>();
+    let job = ProxySvc::new_null_job::<String, String>();
     assert!((*job).as_null_job(AsNullJobRequest).unwrap().job.is_none());
 }
 
 /// as_null_job — edge: method is callable on a dyn Job trait object.
 #[test]
 fn test_as_null_job_accessible_on_dyn_trait_object_edge() {
-    let dyn_ref: &dyn Job<String, String> = &OkJob;
+    let dyn_ref: &dyn Job<String, String, Intent = String, Router = NoRouting> = &OkJob;
     assert!(dyn_ref.as_null_job(AsNullJobRequest).unwrap().job.is_none());
 }
 
@@ -208,7 +230,7 @@ fn test_as_null_job_marker_on_err_job_returns_none_error() {
 /// as_null_job_marker — edge: method is accessible through a dyn Job trait object.
 #[test]
 fn test_as_null_job_marker_accessible_on_dyn_trait_object_edge() {
-    let dyn_ref: &dyn Job<String, String> = &OkJob;
+    let dyn_ref: &dyn Job<String, String, Intent = String, Router = NoRouting> = &OkJob;
     let result: Option<NullJobMarker> = dyn_ref
         .as_null_job_marker(AsNullJobMarkerRequest)
         .unwrap()
