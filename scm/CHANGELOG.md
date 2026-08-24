@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.0] — 2026-08-24
+
+### Breaking
+- Crate renamed `edge-proxy` -> `edge-application-proxy` (package name and crate root; every
+  `use edge_proxy::...` becomes `use edge_application_proxy::...`) (#11). This repo describes
+  itself as an application-layer dispatch facade and depends only on `edge-application-*` /
+  `edge-security-application` — the old name carried no signal of that, unlike sibling crates
+  `edge-application-handler` / `-command` / `-observer`.
+- Scoped to this repo only: the GitHub repository URL/remote is unchanged
+  (`sweengineeringlabs/edge-proxy`) — renaming the repo itself and updating downstream consumers
+  is separate, not-yet-scheduled follow-up work, not part of this release.
+
 ## [0.4.0] — 2026-08-24
 
 ### Breaking
