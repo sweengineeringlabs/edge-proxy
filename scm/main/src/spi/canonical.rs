@@ -3,17 +3,38 @@
 //! `impl Job for` and `impl Router for` are in this file so the SEA scanner
 //! recognises the `spi` L2 layer as providing concrete implementations.
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 
 use crate::api::{
     ExecutionRequest, Job, JobError, JobResponse, LifecycleMonitor, RouteRequest, RouteResponse,
-    Router, RoutingError, Validator,
+    Router, RouterRequest, RouterResponse, RoutingError, Validator,
 };
 
-struct CanonicalJobImpl;
+struct CanonicalJobImpl {
+    router: Arc<dyn Router<String>>,
+}
+
+impl CanonicalJobImpl {
+    fn new() -> Self {
+        Self {
+            router: Arc::new(CanonicalRouterImpl),
+        }
+    }
+}
 
 #[async_trait]
 impl Job for CanonicalJobImpl {
+    type Intent = String;
+    type Router = Arc<dyn Router<String>>;
+
+    fn router(&self, _req: RouterRequest) -> Result<RouterResponse<'_, Self::Router>, JobError> {
+        Ok(RouterResponse {
+            router: &self.router,
+        })
+    }
+
     async fn run(
         &self,
         _req: ExecutionRequest<'_, String>,
@@ -36,8 +57,9 @@ pub(crate) struct CanonicalFactory;
 
 impl CanonicalFactory {
     /// Returns the canonical null [`Job`] — always cancels.
-    pub(crate) fn job() -> impl Job<String, String> {
-        CanonicalJobImpl
+    pub(crate) fn job(
+    ) -> impl Job<String, String, Intent = String, Router = Arc<dyn Router<String>>> {
+        CanonicalJobImpl::new()
     }
 
     /// Returns the canonical null [`Router`] — always returns NoMatch.
@@ -46,12 +68,13 @@ impl CanonicalFactory {
     }
 
     /// Returns a null [`Job`] for any `Req`/`Resp` — always returns `Cancelled`.
-    pub(crate) fn null_job<Req, Resp>() -> impl Job<Req, Resp>
+    pub(crate) fn null_job<Req, Resp>(
+    ) -> impl Job<Req, Resp, Intent = String, Router = Arc<dyn Router<String>>>
     where
         Req: Send + 'static,
         Resp: Send + 'static,
     {
-        crate::core::job::null_job::NullJob
+        crate::core::job::null_job::NullJob::new()
     }
 
     /// Returns a null [`Router`] — always returns `NoMatch`.

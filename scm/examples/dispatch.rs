@@ -22,7 +22,7 @@ use edge_application_handler::{
 use edge_application_observer::StdObserveFactory;
 use edge_proxy::{
     ExecutionRequest, HealthRequest, Job, JobError, JobResponse, ProxySvc, RouteRequest,
-    RouteResponse, Router, RoutingError,
+    RouteResponse, Router, RouterRequest, RouterResponse, RoutingError,
 };
 use edge_security_application::SecurityContext;
 use futures::future::BoxFuture;
@@ -109,6 +109,15 @@ struct DispatchJob {
 
 #[async_trait::async_trait]
 impl Job<Request, Response> for DispatchJob {
+    type Intent = String;
+    type Router = Arc<dyn Router<String>>;
+
+    fn router(&self, _req: RouterRequest) -> Result<RouterResponse<'_, Self::Router>, JobError> {
+        Ok(RouterResponse {
+            router: &self.router,
+        })
+    }
+
     async fn run(
         &self,
         req: ExecutionRequest<'_, Request>,
@@ -147,10 +156,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Arc::new(registry);
 
     // 2. Proxy: wire router + registry into a Job.
-    let job: Arc<dyn Job<Request, Response>> = Arc::new(DispatchJob {
-        router: Arc::new(CommandRouter),
-        registry,
-    });
+    let job: Arc<dyn Job<Request, Response, Intent = String, Router = Arc<dyn Router<String>>>> =
+        Arc::new(DispatchJob {
+            router: Arc::new(CommandRouter),
+            registry,
+        });
 
     // 3. Build the request context at the inbound boundary.
     let security: SecurityContext = SecurityContext::unauthenticated();

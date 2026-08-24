@@ -23,6 +23,9 @@ Controller pattern":
   Result<JobResponse<Response>, JobError>`. Note the generic trait parameters (`Request`,
   `Response` on the trait itself, defaulting to `String`) — a different polymorphism shape than
   `edge-application-handler`'s `Handler`, which fixes `Request`/`Response` as associated types.
+  `Job` also requires two associated items, `type Intent` and `type Router: Router<Self::Intent>`
+  plus `fn router(...)` — a compile-time witness that a real `Router` is wired in, not just
+  documented (ADR-004).
 - **`Router<Intent>`** — classifies input into a domain-specific intent/route id.
 - **`LifecycleMonitor`** — health, background tasks, graceful shutdown; aggregates into
   `HealthReport`.
@@ -140,6 +143,7 @@ crate never needs to know `spi/` exists.
 | [001](../adr/ADR-001-security-context-propagation.md) | Security Context Propagation | How `SecurityContext` flows through `Job`/`ExecutionRequest` |
 | [002](../adr/ADR-002-handler-context-construction.md) | HandlerContext Construction | Where/how `HandlerContext` is built before reaching `ExecutionRequest::ctx` |
 | [003](../adr/ADR-003-transport-runtime-extension.md) | Transport Runtime Extension | Proposed `ProxyRuntime` concern — `DefaultProxy` native impl + Pingora/Hyper/Tower/Axum SPI backends |
+| [004](../adr/ADR-004-job-router-associated-type.md) | Job→Router Associated Type | `Job` requires `type Router: Router<Self::Intent>` — compile-time wiring enforcement |
 
 Each mirrors a governing decision made in the `edge` platform repo — see each ADR's own header for
 the upstream link. Status reflects this repo's own doc, not necessarily the upstream one's.
