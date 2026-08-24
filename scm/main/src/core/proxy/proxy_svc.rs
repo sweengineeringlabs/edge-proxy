@@ -1,4 +1,4 @@
-//! Public factory and validation entry points for `edge-proxy`.
+//! Public factory and validation entry points for `edge-application-proxy`.
 
 use std::sync::Arc;
 

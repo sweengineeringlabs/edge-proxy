@@ -54,7 +54,7 @@ shape `as_null_job`/`as_null_job_marker` already use.
 
 ## The erasure problem, and its resolution
 
-`edge-proxy` had an existing pattern of erasing `Job`/`Router` behind `Arc<dyn Job<Request,
+`edge-application-proxy` had an existing pattern of erasing `Job`/`Router` behind `Arc<dyn Job<Request,
 Response>>`/`Arc<dyn Router<Intent>>` — most visibly `api::NullJob`, previously a bare type alias
 (`pub type NullJob = dyn Job<String, String>;`). Once `Job` requires associated types, forming a
 `dyn Job<..>` value requires pinning every associated type — Rust does not allow eliding them.

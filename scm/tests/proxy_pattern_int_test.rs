@@ -1,6 +1,6 @@
 //! Integration tests for ProxyPattern marker type.
 
-use edge_proxy::ProxyPattern;
+use edge_application_proxy::ProxyPattern;
 
 /// @covers: ProxyPattern
 #[test]

@@ -1,4 +1,4 @@
-use edge_proxy::LIFECYCLE_MONITOR_SVC_FACTORY;
+use edge_application_proxy::LIFECYCLE_MONITOR_SVC_FACTORY;
 
 #[test]
 fn test_lifecycle_monitor_svc_factory_constant_value_happy() {

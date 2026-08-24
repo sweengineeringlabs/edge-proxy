@@ -1,7 +1,7 @@
 //! End-to-end contract tests for the `Validator` trait, exercised through a
 //! test-double implementation via the crate's public API.
 
-use edge_proxy::{ProxySvc, ValidationRequest, Validator};
+use edge_application_proxy::{ProxySvc, ValidationRequest, Validator};
 
 struct RejectEmptyDouble;
 impl Validator for RejectEmptyDouble {

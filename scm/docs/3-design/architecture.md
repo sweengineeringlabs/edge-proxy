@@ -1,9 +1,9 @@
-# edge-proxy Architecture
+# edge-application-proxy Architecture
 
 **Audience:** Developers and architects working in this repo, and any agent (human or AI)
 picking up dispatch-facade work here.
 
-This is the entry point for understanding how `edge-proxy` is structured internally and what it
+This is the entry point for understanding how `edge-application-proxy` is structured internally and what it
 depends on. It synthesizes the ADRs in `docs/adr/` and the crate's own public surface
 (`main/src/lib.rs`); it does not duplicate either, it points at them.
 
@@ -11,7 +11,7 @@ depends on. It synthesizes the ADRs in `docs/adr/` and the crate's own public su
 
 ## What this repo is
 
-`edge-proxy` (package `edge-proxy`, crate root `edge_proxy`) is a single-crate, SEA-compliant
+`edge-application-proxy` (package `edge-application-proxy`, crate root `edge_application_proxy`) is a single-crate, SEA-compliant
 (`api/` → `core/` → `saf/` → `spi/`) Rust library defining the L2 dispatch facade for swe-edge — the
 contract layer between an inbound runtime/transport and the domain layer, with **no transport
 knowledge of its own** (no ingress/egress imports).
@@ -161,7 +161,7 @@ graph TB
         Config["swe_edge_configbuilder<br/><i>config composition</i>"]
     end
 
-    subgraph crate["edge-proxy"]
+    subgraph crate["edge-application-proxy"]
         Api["api/<br/><i>Job, Router, LifecycleMonitor,<br/>Validator + DTOs/errors</i>"]
         Core["core/<br/><i>NullJob, NullRouter, NoopValidator,<br/>NoopLifecycleMonitor</i>"]
         Saf["saf/<br/><i>ProxyComposer + CONCERN identity<br/>constants; re-exports foreign<br/>context types directly</i>"]

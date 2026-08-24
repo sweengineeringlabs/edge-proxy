@@ -1,6 +1,6 @@
 //! Integration tests for RoutingError.
 
-use edge_proxy::RoutingError;
+use edge_application_proxy::RoutingError;
 
 /// @covers: RoutingError::NoMatch
 #[test]

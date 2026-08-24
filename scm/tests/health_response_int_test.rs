@@ -1,6 +1,6 @@
 //! Integration tests for HealthResponse::from_components.
 
-use edge_proxy::{ComponentHealth, HealthResponse, HealthStatus};
+use edge_application_proxy::{ComponentHealth, HealthResponse, HealthStatus};
 
 /// @covers: from_components
 #[test]

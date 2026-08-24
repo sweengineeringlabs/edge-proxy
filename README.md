@@ -1,4 +1,4 @@
-# swe-edge-proxy
+# swe-edge-application-proxy
 
 > **TLDR:** L2 dispatch facade for swe-edge — `Job`, `Router`, and `LifecycleMonitor` traits; sits between ingress and domain with no transport knowledge. See [Overview](scm/docs/README.md) for details.
 
@@ -18,7 +18,7 @@ exchange. No transport knowledge; no ingress or egress imports.
 
 ```rust
 use async_trait::async_trait;
-use edge_proxy::{ExecutionRequest, Job, JobError, JobResponse};
+use edge_application_proxy::{ExecutionRequest, Job, JobError, JobResponse};
 
 struct EchoJob;
 

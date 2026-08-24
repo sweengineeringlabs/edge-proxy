@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 /// # Examples
 ///
 /// ```rust
-/// use edge_proxy::HealthStatus;
+/// use edge_application_proxy::HealthStatus;
 ///
 /// assert_eq!(HealthStatus::Healthy, HealthStatus::Healthy);
 /// assert_ne!(HealthStatus::Healthy, HealthStatus::Unhealthy);

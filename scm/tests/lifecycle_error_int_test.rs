@@ -1,6 +1,6 @@
 //! Integration tests for LifecycleError.
 
-use edge_proxy::LifecycleError;
+use edge_application_proxy::LifecycleError;
 
 /// @covers: LifecycleError::DrainFailed
 #[test]

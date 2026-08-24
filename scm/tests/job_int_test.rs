@@ -6,7 +6,7 @@ use edge_application_observer::StdObserveFactory;
 use futures::future::BoxFuture;
 
 use edge_application_command::{CommandDispatchRequest, CommandError};
-use edge_proxy::{
+use edge_application_proxy::{
     AsNullJobMarkerRequest, AsNullJobRequest, ExecutionRequest, HandlerContext, Job, JobError,
     JobResponse, NullJobMarker, ProxySvc, RouteRequest, RouteResponse, Router, RouterRequest,
     RouterResponse, RoutingError, SecurityContext,
@@ -20,7 +20,7 @@ fn rt() -> tokio::runtime::Runtime {
 }
 
 struct NullBus;
-impl edge_proxy::CommandBus for NullBus {
+impl edge_application_proxy::CommandBus for NullBus {
     fn dispatch(&self, _: CommandDispatchRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Ok(()) })
     }

@@ -1,4 +1,4 @@
-//! # edge-proxy
+//! # edge-application-proxy
 //!
 //! The L2 Proxy — dispatch facade sitting between ingress and domain.
 //!
@@ -12,7 +12,7 @@
 //!
 //! ```ignore
 //! use std::sync::Arc;
-//! use edge_proxy::{Job, JobError, JobResponse, Router, ProxySvc};
+//! use edge_application_proxy::{Job, JobError, JobResponse, Router, ProxySvc};
 //! use edge_application::{Handler, HandlerRegistry, new_handler_registry};
 //!
 //! // 1. Build a registry and register domain handlers.

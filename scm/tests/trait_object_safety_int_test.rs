@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use edge_proxy::{Job, LifecycleMonitor, Router};
+use edge_application_proxy::{Job, LifecycleMonitor, Router};
 
 /// @covers: Job
 #[test]

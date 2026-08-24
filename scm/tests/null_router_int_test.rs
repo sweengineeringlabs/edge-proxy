@@ -2,7 +2,7 @@
 //! @covers: api/router/null_router.rs
 #![allow(clippy::expect_used)]
 
-use edge_proxy::{NullRouter, ProxySvc, RouteRequest, RoutingError};
+use edge_application_proxy::{NullRouter, ProxySvc, RouteRequest, RoutingError};
 
 fn rt() -> tokio::runtime::Runtime {
     tokio::runtime::Builder::new_current_thread()

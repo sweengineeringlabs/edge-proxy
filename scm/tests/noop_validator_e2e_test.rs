@@ -1,7 +1,7 @@
 //! End-to-end contract tests for the `NoopValidator` marker trait, exercised through
 //! `ProxySvc::new_noop_validator` via the crate's public API.
 
-use edge_proxy::{NoopValidator, ProxySvc, ValidationRequest, Validator};
+use edge_application_proxy::{NoopValidator, ProxySvc, ValidationRequest, Validator};
 
 /// @covers: NoopValidator
 #[test]

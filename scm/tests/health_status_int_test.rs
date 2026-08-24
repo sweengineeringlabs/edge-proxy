@@ -1,6 +1,6 @@
 //! Integration tests for HealthStatus.
 
-use edge_proxy::{ComponentHealth, HealthStatus};
+use edge_application_proxy::{ComponentHealth, HealthStatus};
 
 /// @covers: HealthStatus
 #[test]

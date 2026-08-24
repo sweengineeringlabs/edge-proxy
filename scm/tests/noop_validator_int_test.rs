@@ -1,6 +1,6 @@
 //! Integration tests for NoopValidator marker trait.
 
-use edge_proxy::{NoopValidator, ProxySvc, ValidationRequest, Validator};
+use edge_application_proxy::{NoopValidator, ProxySvc, ValidationRequest, Validator};
 
 /// @covers: NoopValidator
 #[test]

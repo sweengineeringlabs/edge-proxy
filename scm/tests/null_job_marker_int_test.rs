@@ -1,7 +1,7 @@
 //! Integration tests for the NullJobMarker type.
 //! @covers: api/job/null_job.rs
 
-use edge_proxy::NullJobMarker;
+use edge_application_proxy::NullJobMarker;
 
 #[test]
 fn test_null_job_marker_is_zero_sized_happy() {

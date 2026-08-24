@@ -3,7 +3,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application_observer::StdObserveFactory;
-use edge_proxy::{
+use edge_application_proxy::{
     AsNullJobMarkerRequest, AsNullJobRequest, ExecutionRequest, HandlerContext, Job, JobError,
     JobResponse, ProxySvc, RouteRequest, RouteResponse, Router, RouterRequest, RouterResponse,
     RoutingError,
@@ -21,7 +21,7 @@ impl Router<String> for NoRouting {
 }
 
 struct NullBus;
-impl edge_proxy::CommandBus for NullBus {
+impl edge_application_proxy::CommandBus for NullBus {
     fn dispatch(
         &self,
         _: edge_application_command::CommandDispatchRequest,

@@ -1,6 +1,6 @@
 //! Integration tests verifying router_svc re-exports are reachable.
 
-use edge_proxy::{ProxySvc, Router, RoutingError};
+use edge_application_proxy::{ProxySvc, Router, RoutingError};
 
 /// Verifies `Router` trait is exported at the crate level.
 #[test]

@@ -2,7 +2,7 @@
 //! @covers: api/proxy/traits/proxy_composer.rs
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_proxy::{
+use edge_application_proxy::{
     ApplicationConfigBuilder, BootstrapNameRequest, ProxyComposer, ProxyPattern, ProxySvc,
 };
 

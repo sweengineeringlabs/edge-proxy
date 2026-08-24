@@ -2,7 +2,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application_handler::HandlerError;
-use edge_proxy::{HealthRequest, HealthStatus, JobError, ProxySvc};
+use edge_application_proxy::{HealthRequest, HealthStatus, JobError, ProxySvc};
 
 #[tokio::test]
 async fn test_null_lifecycle_monitor_health_is_healthy() {

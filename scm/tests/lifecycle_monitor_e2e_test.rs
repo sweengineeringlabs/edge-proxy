@@ -2,7 +2,7 @@
 //! crate's canonical null implementation via the public API.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_proxy::{
+use edge_application_proxy::{
     ComponentRequest, HealthRequest, HealthStatus, ProxySvc, ShutdownRequest,
     StartBackgroundTasksRequest, StatusRequest,
 };
@@ -56,7 +56,7 @@ fn test_shutdown_first_call_ok_happy() {
 /// @covers: LifecycleMonitor::shutdown
 #[test]
 fn test_shutdown_second_call_already_shut_down_error() {
-    use edge_proxy::LifecycleError;
+    use edge_application_proxy::LifecycleError;
     let m = ProxySvc::new_null_lifecycle_monitor();
     rt().block_on(m.shutdown(ShutdownRequest))
         .expect("first ok");

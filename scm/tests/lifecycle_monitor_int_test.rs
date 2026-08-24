@@ -1,7 +1,7 @@
 //! Integration tests for the LifecycleMonitor trait.
 #![allow(clippy::expect_used, clippy::unwrap_used)]
 
-use edge_proxy::{
+use edge_application_proxy::{
     ComponentRequest, HealthRequest, HealthStatus, LifecycleMonitor, ProxySvc, ShutdownRequest,
     StartBackgroundTasksRequest, StatusRequest,
 };
@@ -116,7 +116,7 @@ fn test_shutdown_first_call_succeeds_happy() {
 /// shutdown — error: second call returns AlreadyShutDown.
 #[test]
 fn test_shutdown_second_call_returns_already_shut_down_error() {
-    use edge_proxy::LifecycleError;
+    use edge_application_proxy::LifecycleError;
     let m = ProxySvc::new_null_lifecycle_monitor();
     rt().block_on(m.shutdown(ShutdownRequest))
         .expect("first ok");

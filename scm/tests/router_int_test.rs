@@ -3,7 +3,7 @@
 
 use std::sync::Arc;
 
-use edge_proxy::{
+use edge_application_proxy::{
     AsNullRouterMarkerRequest, AsNullRouterRequest, NullRouterMarker, ProxySvc, RouteRequest,
     RouteResponse, Router, RoutingError,
 };

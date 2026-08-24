@@ -1,6 +1,6 @@
 //! Integration tests verifying validator_svc re-exports are reachable.
 
-use edge_proxy::{ProxySvc, ValidationRequest, Validator};
+use edge_application_proxy::{ProxySvc, ValidationRequest, Validator};
 
 /// Verifies `Validator` trait is exported at the crate level.
 #[test]

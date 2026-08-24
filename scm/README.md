@@ -1,4 +1,4 @@
-# edge-proxy
+# edge-application-proxy
 
 L2 Proxy — dispatch facade sitting between ingress and domain.
 
@@ -7,7 +7,7 @@ Implements the 5-Concern Controller pattern: **Job**, **Routing**, **Lifecycle**
 ## Usage
 
 ```toml
-edge-proxy = { git = "https://github.com/sweengineeringlabs/edge-proxy", tag = "v0.3.4" }
+edge-application-proxy = { git = "https://github.com/sweengineeringlabs/edge-proxy", tag = "v0.5.0" }
 ```
 
 ## Architecture

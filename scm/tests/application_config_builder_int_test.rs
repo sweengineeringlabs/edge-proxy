@@ -1,6 +1,6 @@
 //! Integration tests for ApplicationConfigBuilder.
 
-use edge_proxy::ApplicationConfigBuilder;
+use edge_application_proxy::ApplicationConfigBuilder;
 
 /// @covers: ApplicationConfigBuilder::new
 #[test]

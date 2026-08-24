@@ -1,6 +1,6 @@
 //! Integration tests verifying lifecycle_monitor_svc re-exports are reachable.
 
-use edge_proxy::{ComponentHealth, HealthResponse, HealthStatus, LifecycleMonitor};
+use edge_application_proxy::{ComponentHealth, HealthResponse, HealthStatus, LifecycleMonitor};
 
 /// Verifies `LifecycleMonitor` is exported at the crate level.
 #[test]

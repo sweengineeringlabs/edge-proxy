@@ -1,7 +1,7 @@
 //! Integration tests for the ProxyComposer SAF facade.
 //! @covers: saf/proxy/composer_svc.rs
 
-use edge_proxy::{ProxyComposer, ProxySvc, PROXY_COMPOSER_CONCERN};
+use edge_application_proxy::{ProxyComposer, ProxySvc, PROXY_COMPOSER_CONCERN};
 
 #[test]
 fn test_proxy_composer_svc_concern_tag_is_correct_happy() {

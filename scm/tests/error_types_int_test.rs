@@ -1,6 +1,6 @@
 //! Integration tests for proxy error types.
 
-use edge_proxy::{JobError, LifecycleError, RoutingError};
+use edge_application_proxy::{JobError, LifecycleError, RoutingError};
 
 /// @covers: LifecycleError::DrainFailed
 #[test]

@@ -3,7 +3,7 @@
 #![allow(clippy::expect_used)]
 
 use edge_application_observer::StdObserveFactory;
-use edge_proxy::{ExecutionRequest, HandlerContext, JobError, NullJob, ProxySvc, SecurityContext};
+use edge_application_proxy::{ExecutionRequest, HandlerContext, JobError, NullJob, ProxySvc, SecurityContext};
 use futures::future::BoxFuture;
 
 fn rt() -> tokio::runtime::Runtime {
@@ -14,7 +14,7 @@ fn rt() -> tokio::runtime::Runtime {
 }
 
 struct NullBus;
-impl edge_proxy::CommandBus for NullBus {
+impl edge_application_proxy::CommandBus for NullBus {
     fn dispatch(
         &self,
         _: edge_application_command::CommandDispatchRequest,

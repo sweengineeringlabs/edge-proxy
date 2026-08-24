@@ -102,6 +102,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "edge-application-proxy"
+version = "0.5.0"
+dependencies = [
+ "async-trait",
+ "edge-application-command",
+ "edge-application-handler",
+ "edge-application-observer",
+ "edge-security-application",
+ "futures",
+ "parking_lot",
+ "serde",
+ "swe-edge-configbuilder",
+ "thiserror 2.0.19",
+ "tokio",
+]
+
+[[package]]
 name = "edge-pipeline"
 version = "0.4.0"
 source = "git+https://github.com/sweengineeringlabs/edge-pipeline.git?tag=v0.4.0#2bc7a5da50badbd6d5192ae0a6d74d6b22537d6b"
@@ -129,23 +146,6 @@ dependencies = [
 name = "edge-pipeline-registry"
 version = "0.1.0"
 source = "git+https://github.com/sweengineeringlabs/edge-pipeline.git?tag=v0.4.0#2bc7a5da50badbd6d5192ae0a6d74d6b22537d6b"
-
-[[package]]
-name = "edge-proxy"
-version = "0.4.0"
-dependencies = [
- "async-trait",
- "edge-application-command",
- "edge-application-handler",
- "edge-application-observer",
- "edge-security-application",
- "futures",
- "parking_lot",
- "serde",
- "swe-edge-configbuilder",
- "thiserror 2.0.19",
- "tokio",
-]
 
 [[package]]
 name = "edge-security-application"

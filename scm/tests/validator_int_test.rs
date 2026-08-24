@@ -1,6 +1,6 @@
 //! Integration tests for the Validator trait contract.
 
-use edge_proxy::{ProxySvc, ValidationRequest, Validator};
+use edge_application_proxy::{ProxySvc, ValidationRequest, Validator};
 
 struct RejectEmpty;
 impl Validator for RejectEmpty {

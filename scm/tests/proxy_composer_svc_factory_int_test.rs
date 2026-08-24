@@ -1,4 +1,4 @@
-use edge_proxy::PROXY_COMPOSER_SVC_FACTORY;
+use edge_application_proxy::PROXY_COMPOSER_SVC_FACTORY;
 
 #[test]
 fn test_proxy_composer_svc_factory_constant_value_happy() {

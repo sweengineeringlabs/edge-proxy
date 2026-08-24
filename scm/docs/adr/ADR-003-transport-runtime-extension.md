@@ -8,7 +8,7 @@
 
 ## Mandate
 
-`edge-proxy` today is a dispatch **facade** only: `Job`, `Router`, `LifecycleMonitor`, `Validator`,
+`edge-application-proxy` today is a dispatch **facade** only: `Job`, `Router`, `LifecycleMonitor`, `Validator`,
 `ProxyComposer` are contracts with no transport knowledge — `architecture.md` states this as a
 design tenet ("no transport knowledge of its own (no ingress/egress imports)") and asserts this
 repo cannot see what runtime holds `Arc<dyn Job<Request, Response>>` or what sits upstream of it.
@@ -18,7 +18,7 @@ consumer must hand-roll its own transport wiring against whichever HTTP/L4/L7 st
 no shared, tested binding and no guarantee that binding respects the SEA layering this crate
 otherwise enforces (`no_foreign_type`, `api/` → `core/` → `saf/` → `spi/`).
 
-**Decision:** extend `edge-proxy` with a fifth concern, `ProxyRuntime`, that owns the transport
+**Decision:** extend `edge-application-proxy` with a fifth concern, `ProxyRuntime`, that owns the transport
 boundary — binding a listener, translating wire requests into `ExecutionRequest`, and returning
 `JobResponse`/`JobError` back over the wire. Multiple runtime backends are supported as SPI
 implementations behind Cargo features, unified under one `api/`-defined trait, with a dependency-free

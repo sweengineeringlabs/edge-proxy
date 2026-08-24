@@ -2,7 +2,7 @@
 #![allow(clippy::expect_used, clippy::unwrap_used)]
 
 use edge_application_observer::StdObserveFactory;
-use edge_proxy::{
+use edge_application_proxy::{
     ExecutionRequest, HandlerContext, HealthRequest, HealthStatus, JobError, ProxySvc,
     RouteRequest, RoutingError, SecurityContext, ShutdownRequest, ValidationRequest, Validator,
 };
@@ -16,7 +16,7 @@ fn rt() -> tokio::runtime::Runtime {
 }
 
 struct NullBus;
-impl edge_proxy::CommandBus for NullBus {
+impl edge_application_proxy::CommandBus for NullBus {
     fn dispatch(
         &self,
         _: edge_application_command::CommandDispatchRequest,

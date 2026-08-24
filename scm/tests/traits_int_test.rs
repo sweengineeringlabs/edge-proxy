@@ -1,6 +1,6 @@
 //! Integration tests for proxy public surface (api/traits.rs concern).
 
-use edge_proxy::{JobError, RoutingError};
+use edge_application_proxy::{JobError, RoutingError};
 
 #[test]
 fn test_job_error_is_accessible_from_public_surface() {

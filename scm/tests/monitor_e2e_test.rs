@@ -3,7 +3,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use async_trait::async_trait;
-use edge_proxy::{
+use edge_application_proxy::{
     ComponentHealth, ComponentRequest, EmptyResponse, HealthRequest, HealthResponse, HealthStatus,
     LifecycleError, LifecycleMonitor, NullMonitor, ShutdownRequest, StartBackgroundTasksRequest,
     StatusRequest,

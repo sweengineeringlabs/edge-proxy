@@ -4,7 +4,7 @@
 //! crate's public API and asserts on its real shape or field values.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_proxy::{
+use edge_application_proxy::{
     AsNullJobMarkerRequest, AsNullJobRequest, AsNullJobResponse, AsNullRouterMarkerRequest,
     AsNullRouterRequest, AsNullRouterResponse, BootstrapNameRequest, BootstrapNameResponse,
     ComponentHealth, ComponentRequest, EmptyResponse, ExecutionRequest, HealthRequest,
@@ -182,7 +182,7 @@ fn test_validation_request_holds_value_happy() {
 fn test_execution_request_holds_req_and_ctx_happy() {
     use edge_application_command::NoopCommandBus;
     use edge_application_observer::StdObserveFactory;
-    use edge_proxy::HandlerContext;
+    use edge_application_proxy::HandlerContext;
     use edge_security_application::SecurityContext;
 
     let security = SecurityContext::unauthenticated();

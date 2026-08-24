@@ -1,6 +1,6 @@
 //! Integration tests for null lifecycle monitor marker traits and noop validator.
 
-use edge_proxy::{ProxySvc, ValidationRequest};
+use edge_application_proxy::{ProxySvc, ValidationRequest};
 
 /// @covers: ProxySvc::new_noop_validator
 #[test]

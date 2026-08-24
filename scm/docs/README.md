@@ -1,4 +1,4 @@
-# edge-proxy
+# edge-application-proxy
 
 ## WHAT
 

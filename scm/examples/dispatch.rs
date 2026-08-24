@@ -1,14 +1,14 @@
 //! Proxy dispatch — Router classifies input, Job runs the handler, LifecycleMonitor reports health.
 //!
 //! Run:
-//!     cargo run -p edge-proxy --example dispatch
+//!     cargo run -p edge-application-proxy --example dispatch
 //!
 //! Demonstrates the full proxy dispatch path:
 //!   request → Job::run → Router::route → HandlerRegistry::get → Handler::execute
 //!
 //! SEA layer boundaries kept explicit:
 //!   - `edge_application_handler::` — Handler + HandlerRegistry contracts
-//!   - `edge_proxy::` — Job + Router + LifecycleMonitor contracts and their SAF factory
+//!   - `edge_application_proxy::` — Job + Router + LifecycleMonitor contracts and their SAF factory
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
@@ -20,7 +20,7 @@ use edge_application_handler::{
     PatternRequest, PatternResponse, RegisterHandlerRequest,
 };
 use edge_application_observer::StdObserveFactory;
-use edge_proxy::{
+use edge_application_proxy::{
     ExecutionRequest, HealthRequest, Job, JobError, JobResponse, ProxySvc, RouteRequest,
     RouteResponse, Router, RouterRequest, RouterResponse, RoutingError,
 };

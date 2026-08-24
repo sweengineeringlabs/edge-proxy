@@ -1,4 +1,4 @@
-use edge_proxy::VALIDATOR_SVC_FACTORY;
+use edge_application_proxy::VALIDATOR_SVC_FACTORY;
 
 #[test]
 fn test_validator_svc_factory_constant_value_happy() {

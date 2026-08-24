@@ -1,6 +1,6 @@
 //! Integration tests verifying job_svc re-exports are reachable from the crate boundary.
 
-use edge_proxy::{Job, JobError, ProxySvc};
+use edge_application_proxy::{Job, JobError, ProxySvc};
 
 /// Verifies `Job` is exported at the crate level (compile-time check).
 #[test]

@@ -1,4 +1,4 @@
-use edge_proxy::ROUTER_SVC_FACTORY;
+use edge_application_proxy::ROUTER_SVC_FACTORY;
 
 #[test]
 fn test_router_svc_factory_constant_value_happy() {

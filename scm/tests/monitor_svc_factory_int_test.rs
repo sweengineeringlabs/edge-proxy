@@ -1,4 +1,4 @@
-use edge_proxy::MONITOR_SVC_FACTORY;
+use edge_application_proxy::MONITOR_SVC_FACTORY;
 
 #[test]
 fn test_monitor_svc_factory_constant_value_happy() {

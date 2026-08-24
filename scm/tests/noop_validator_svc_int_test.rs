@@ -1,6 +1,6 @@
 //! Integration tests verifying noop_validator_svc re-exports are reachable.
 
-use edge_proxy::{NoopValidator, ValidationRequest, Validator};
+use edge_application_proxy::{NoopValidator, ValidationRequest, Validator};
 
 struct NoopValidatorDouble;
 

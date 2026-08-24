@@ -1,7 +1,7 @@
 //! Integration tests verifying null_lifecycle_monitor_svc re-exports are reachable.
 
 use async_trait::async_trait;
-use edge_proxy::{
+use edge_application_proxy::{
     ComponentHealth, ComponentRequest, EmptyResponse, HealthRequest, HealthResponse, HealthStatus,
     LifecycleError, LifecycleMonitor, NullLifecycleMonitor, ShutdownRequest,
     StartBackgroundTasksRequest, StatusRequest,

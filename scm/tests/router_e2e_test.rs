@@ -2,7 +2,7 @@
 //! test-double implementation via the crate's public API.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_proxy::{
+use edge_application_proxy::{
     AsNullRouterMarkerRequest, AsNullRouterRequest, ProxySvc, RouteRequest, RouteResponse, Router,
     RoutingError,
 };

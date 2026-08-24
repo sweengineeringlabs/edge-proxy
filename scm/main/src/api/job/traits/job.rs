@@ -29,7 +29,7 @@ use crate::api::Router;
 ///
 /// ```rust,no_run
 /// use async_trait::async_trait;
-/// use edge_proxy::{Job, JobError, JobResponse, ExecutionRequest, Router, RouterRequest, RouterResponse};
+/// use edge_application_proxy::{Job, JobError, JobResponse, ExecutionRequest, Router, RouterRequest, RouterResponse};
 /// use std::sync::Arc;
 ///
 /// struct EchoJob {
