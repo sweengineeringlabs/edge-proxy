@@ -5,10 +5,20 @@
 use edge_application_observer::StdObserveFactory;
 use edge_proxy::{
     AsNullJobMarkerRequest, AsNullJobRequest, ExecutionRequest, HandlerContext, Job, JobError,
-    JobResponse, ProxySvc,
+    JobResponse, ProxySvc, RouteRequest, RouteResponse, Router, RouterRequest, RouterResponse,
+    RoutingError,
 };
 use edge_security_application::SecurityContext;
 use futures::future::BoxFuture;
+
+struct NoRouting;
+
+#[async_trait::async_trait]
+impl Router<String> for NoRouting {
+    async fn route(&self, _req: RouteRequest<'_>) -> Result<RouteResponse<String>, RoutingError> {
+        Err(RoutingError::NoMatch)
+    }
+}
 
 struct NullBus;
 impl edge_proxy::CommandBus for NullBus {
@@ -23,6 +33,13 @@ impl edge_proxy::CommandBus for NullBus {
 struct JobDouble;
 #[async_trait::async_trait]
 impl Job<String, String> for JobDouble {
+    type Intent = String;
+    type Router = NoRouting;
+
+    fn router(&self, _req: RouterRequest) -> Result<RouterResponse<'_, Self::Router>, JobError> {
+        Ok(RouterResponse { router: &NoRouting })
+    }
+
     async fn run(
         &self,
         req: ExecutionRequest<'_, String>,

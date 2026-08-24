@@ -1,11 +1,15 @@
 //! Integration tests verifying trait object safety for proxy concern traits.
 
+use std::sync::Arc;
+
 use edge_proxy::{Job, LifecycleMonitor, Router};
 
 /// @covers: Job
 #[test]
 fn test_job_trait_is_object_safe() {
-    fn _accept(_j: &dyn Job<String, String>) {} // object-safe with concrete types
+    // object-safe with concrete types, including the erased-router form every
+    // `Arc<dyn Job<..>>` factory in this crate returns (SEA#8).
+    fn _accept(_j: &dyn Job<String, String, Intent = String, Router = Arc<dyn Router<String>>>) {}
 }
 
 /// @covers: LifecycleMonitor
