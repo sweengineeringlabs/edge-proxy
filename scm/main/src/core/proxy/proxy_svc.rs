@@ -81,7 +81,7 @@ mod tests {
     };
     use edge_application_handler::HandlerContext;
     use edge_application_observer::StdObserveFactory;
-    use edge_security_runtime::SecurityContext;
+    use edge_security_application::SecurityContext;
     use futures::future::BoxFuture;
 
     struct ProxySvcNullBus;
