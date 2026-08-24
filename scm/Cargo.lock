@@ -132,7 +132,7 @@ source = "git+https://github.com/sweengineeringlabs/edge-pipeline.git?tag=v0.4.0
 
 [[package]]
 name = "edge-proxy"
-version = "0.3.4"
+version = "0.4.0"
 dependencies = [
  "async-trait",
  "edge-application-command",

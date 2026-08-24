@@ -40,7 +40,8 @@ impl ProxySvc {
     /// Construct a no-op [`Job`] that always returns `JobError::Cancelled`.
     ///
     /// Useful as a placeholder during bring-up before a real job is wired.
-    pub fn new_null_job<Req, Resp>() -> Arc<dyn Job<Req, Resp>>
+    pub fn new_null_job<Req, Resp>(
+    ) -> Arc<dyn Job<Req, Resp, Intent = String, Router = Arc<dyn Router<String>>>>
     where
         Req: Send + 'static,
         Resp: Send + 'static,
@@ -57,7 +58,8 @@ impl ProxySvc {
 
     /// Construct the canonical [`Job`] — returns `JobError::Cancelled` for every
     /// `String` request.  Useful as a default-type reference implementation.
-    pub fn new_canonical_job() -> Arc<dyn Job<String, String>> {
+    pub fn new_canonical_job(
+    ) -> Arc<dyn Job<String, String, Intent = String, Router = Arc<dyn Router<String>>>> {
         Self::to_arc(crate::spi::CanonicalFactory::job())
     }
 
