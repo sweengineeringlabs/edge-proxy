@@ -9,8 +9,9 @@ use edge_proxy::{
     AsNullRouterRequest, AsNullRouterResponse, BootstrapNameRequest, BootstrapNameResponse,
     ComponentHealth, ComponentRequest, EmptyResponse, ExecutionRequest, HealthRequest,
     HealthResponse, HealthStatus, Job, JobError, JobResponse, NullJob, NullJobMarker, NullRouter,
-    NullRouterMarker, ProxyComposerError, RouteRequest, RouteResponse, Router, RoutingError,
-    ShutdownRequest, StartBackgroundTasksRequest, StatusRequest, ValidationRequest,
+    NullRouterMarker, ProxyComposerError, RouteRequest, RouteResponse, Router, RouterRequest,
+    RouterResponse, RoutingError, ShutdownRequest, StartBackgroundTasksRequest, StatusRequest,
+    ValidationRequest,
 };
 
 // --- zero-sized marker request types ---
@@ -222,9 +223,26 @@ fn test_null_job_type_is_send_sync_edge() {
     fn accepts<T: Job<String, String> + ?Sized>(_: &T) -> bool {
         true
     }
+    struct NoRouting;
+    #[async_trait::async_trait]
+    impl Router<String> for NoRouting {
+        async fn route(
+            &self,
+            _req: RouteRequest<'_>,
+        ) -> Result<RouteResponse<String>, RoutingError> {
+            Err(RoutingError::NoMatch)
+        }
+    }
     struct AlwaysCancel;
     #[async_trait::async_trait]
     impl Job<String, String> for AlwaysCancel {
+        type Intent = String;
+        type Router = NoRouting;
+
+        fn router(&self, _req: RouterRequest) -> Result<RouterResponse<'_, Self::Router>, JobError> {
+            Ok(RouterResponse { router: &NoRouting })
+        }
+
         async fn run(
             &self,
             _req: ExecutionRequest<'_, String>,

@@ -60,6 +60,8 @@ pub use api::ProxyPattern;
 pub use api::ProxySvc;
 pub use api::RouteRequest;
 pub use api::RouteResponse;
+pub use api::RouterRequest;
+pub use api::RouterResponse;
 pub use api::RoutingError;
 pub use api::ShutdownRequest;
 pub use api::StartBackgroundTasksRequest;

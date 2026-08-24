@@ -8,6 +8,7 @@ pub(crate) mod vo;
 
 pub use dto::{
     AsNullJobMarkerRequest, AsNullJobRequest, AsNullJobResponse, ExecutionRequest, JobResponse,
+    RouterRequest, RouterResponse,
 };
 pub use errors::{HandlerError, JobError};
 pub use null_job::NullJob;
