@@ -24,7 +24,7 @@ serde                  = { version = "1", features = ["derive"] }
 parking_lot            = "0.12"
 edge-application-handler   = { git = "https://github.com/sweengineeringlabs/edge-application.git", tag = "v0.21.2" }
 edge-application-command   = { git = "https://github.com/sweengineeringlabs/edge-application.git", tag = "v0.21.2" }
-edge-security-runtime = { git = "https://github.com/sweengineeringlabs/edge-security.git", tag = "v0.3.31" }
+edge-security-application = { git = "https://github.com/sweengineeringlabs/edge-security.git", tag = "v0.3.31" }
 swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.4.2" }
 
 [dev-dependencies]
