@@ -7,7 +7,7 @@ use edge_proxy::{
     AsNullJobMarkerRequest, AsNullJobRequest, ExecutionRequest, HandlerContext, Job, JobError,
     JobResponse, ProxySvc,
 };
-use edge_security_runtime::SecurityContext;
+use edge_security_application::SecurityContext;
 use futures::future::BoxFuture;
 
 struct NullBus;

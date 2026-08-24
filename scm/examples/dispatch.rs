@@ -24,7 +24,7 @@ use edge_proxy::{
     ExecutionRequest, HealthRequest, Job, JobError, JobResponse, ProxySvc, RouteRequest,
     RouteResponse, Router, RoutingError,
 };
-use edge_security_runtime::SecurityContext;
+use edge_security_application::SecurityContext;
 use futures::future::BoxFuture;
 
 // ── request / response types ──────────────────────────────────────────────────

@@ -139,6 +139,7 @@ crate never needs to know `spi/` exists.
 |---|---|---|
 | [001](../adr/ADR-001-security-context-propagation.md) | Security Context Propagation | How `SecurityContext` flows through `Job`/`ExecutionRequest` |
 | [002](../adr/ADR-002-handler-context-construction.md) | HandlerContext Construction | Where/how `HandlerContext` is built before reaching `ExecutionRequest::ctx` |
+| [003](../adr/ADR-003-transport-runtime-extension.md) | Transport Runtime Extension | Proposed `ProxyRuntime` concern — `DefaultProxy` native impl + Pingora/Hyper/Tower/Axum SPI backends |
 
 Each mirrors a governing decision made in the `edge` platform repo — see each ADR's own header for
 the upstream link. Status reflects this repo's own doc, not necessarily the upstream one's.
