@@ -22,15 +22,15 @@ async-trait            = "0.1"
 thiserror              = "2"
 serde                  = { version = "1", features = ["derive"] }
 parking_lot            = "0.12"
-edge-application-handler   = { git = "https://github.com/sweengineeringlabs/edge-application.git", rev = "f5f475d48ca6aa32fe151fea9c2826c3129f8a24" }
-edge-application-command   = { git = "https://github.com/sweengineeringlabs/edge-application.git", rev = "f5f475d48ca6aa32fe151fea9c2826c3129f8a24" }
+edge-application-handler   = { git = "https://github.com/sweengineeringlabs/edge-application.git", tag = "v0.21.3" }
+edge-application-command   = { git = "https://github.com/sweengineeringlabs/edge-application.git", tag = "v0.21.3" }
 edge-security-application = { git = "https://github.com/sweengineeringlabs/edge-security.git", tag = "v0.3.33" }
 swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.4.2" }
 
 [dev-dependencies]
 tokio                 = { version = "1", features = ["macros", "rt"] }
 futures                = "0.3"
-edge-application-observer  = { git = "https://github.com/sweengineeringlabs/edge-application.git", rev = "f5f475d48ca6aa32fe151fea9c2826c3129f8a24" }
+edge-application-observer  = { git = "https://github.com/sweengineeringlabs/edge-application.git", tag = "v0.21.3" }
 
 [lints.rust]
 unsafe_code  = "deny"
